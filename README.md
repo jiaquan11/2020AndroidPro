@@ -1,2 +1,6 @@
 # 2020AndroidPro
 这里上传记录一些在2020年学习和编写的Android项目工程的相关工程代码，供今后查阅
+
+1.testFFmpeg项目
+这个是在Android上集成3.4版本ffmpeg的so进行开发测试的Cmake编译的工程项目，调用ffmpeg的基本接口进行打开
+读取，软解和硬解操作
