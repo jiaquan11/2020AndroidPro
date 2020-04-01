@@ -10,6 +10,8 @@ extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/jni.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 static double r2d(AVRational r){
@@ -146,6 +148,29 @@ Java_com_example_testffmpeg_MainActivity_stringFromJNI(
     AVFrame* frame = av_frame_alloc();
     long long start = GetNowMs();
     int frameCount = 0;
+
+    //初始化像素格式转换的上下文
+    SwsContext* vctx = NULL;
+    int outWidth = 1280;
+    int outHeight = 720;
+    char* rgb = new char[1920*1080*4];
+
+    //音频重采样上下文初始化
+    SwrContext *actx = swr_alloc();
+    actx = swr_alloc_set_opts(actx,
+            av_get_default_channel_layout(2),
+            AV_SAMPLE_FMT_S16, ac->sample_rate,
+            av_get_default_channel_layout(ac->channels),
+            ac->sample_fmt, ac->sample_rate,
+            0, 0);
+    ret = swr_init(actx);
+    if (ret != 0){
+        LOGE("swr_init failed!");
+    }else{
+        LOGI("swr_init success!");
+    }
+    char* pcm = new char[48000*4*2];
+
     for (;;) {
         //超过3秒
         if (GetNowMs() - start >= 3000){
@@ -192,9 +217,40 @@ Java_com_example_testffmpeg_MainActivity_stringFromJNI(
             //如果是视频帧
             if (cc == vc){
                 frameCount++;
+                vctx = sws_getCachedContext(vctx,
+                                            frame->width,
+                                            frame->height,
+                                            (AVPixelFormat)frame->format,
+                                            outWidth,
+                                            outHeight,
+                                            AV_PIX_FMT_RGBA,
+                                            SWS_FAST_BILINEAR,
+                                            0, 0, 0);
+                if (!vctx){
+                    LOGE("sws_getCachedContext failed!");
+                }else{
+                    uint8_t *data[AV_NUM_DATA_POINTERS] = {0};
+                    data[0] = (uint8_t*)rgb;
+                    int lines[AV_NUM_DATA_POINTERS] = {0};
+                    lines[0] = outWidth*4;
+                    int h = sws_scale(vctx, (const uint8_t**)frame->data, frame->linesize, 0, frame->height,
+                            data, lines);
+                    LOGI("sws_scale = %d", h);
+                }
+            }else{//音频
+                uint8_t *out[2] = {0};
+                out[0] = (uint8_t*)pcm;
+                //音频重采样
+                int len = swr_convert(actx, out,
+                                    frame->nb_samples,
+                                      (const uint8_t**)frame->data,
+                                      frame->nb_samples);
+                LOGI("swr_convert len= %d", len);
             }
         }
     }
+
+    delete []rgb;
     //关闭上下文
     avformat_close_input(&ic);
     return env->NewStringUTF(hello.c_str());
