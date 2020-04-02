@@ -1,14 +1,16 @@
 package com.example.testffmpeg;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,24 +19,20 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 
-    public static boolean isGrantExternalRW(Activity activity){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&activity.checkSelfPermission(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            },1);
-            return false;
-        }
-        return true;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //去掉标题栏
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        //全屏，隐藏状态
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //屏幕为横屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-        //isGrantExternalRW(this);//解决6.0的读取sdcard权限
+
+
+        setContentView(R.layout.activity_main);
 
         // Example of a call to a native method
         TextView tv = findViewById(R.id.sample_text);
