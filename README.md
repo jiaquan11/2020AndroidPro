@@ -4,3 +4,6 @@
 1.testFFmpeg项目
 这个是在Android上集成3.4版本ffmpeg的so进行开发测试的Cmake编译的工程项目，调用ffmpeg的基本接口进行打开
 读取，软解和硬解操作，使用GLSurface播放组件传入底层进行native windows渲染的流程
+
+2.testOpenSL项目
+增加使用opensl播放pcm数据的功能
