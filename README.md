@@ -7,3 +7,6 @@
 
 2.testOpenSL项目
 增加使用opensl播放pcm数据的功能
+
+3.TestOpenGLES项目
+增加一个使用OpenGLES读取yuv数据进行渲染的完整功能的测试项目
