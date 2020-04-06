@@ -1,0 +1,14 @@
+prefix=./android/armv7-a-neon-hard
+exec_prefix=${prefix}
+libdir=./android/armv7-a-neon-hard/lib
+includedir=./android/armv7-a-neon-hard/include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 55.78.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -lm
+Cflags: -I${includedir}
