@@ -9,6 +9,10 @@
 #include "XShader.h"
 #include "IVideoView.h"
 #include "GLVideoView.h"
+#include "IResample.h"
+#include "FFResample.h"
+#include "IAudioPlay.h"
+#include "SLAudioPlay.h"
 
 IVideoView* view = NULL;
 
@@ -36,8 +40,16 @@ Java_com_jiaquan_xplay_MainActivity_stringFromJNI(
     view = new GLVideoView();
     vdecode->AddObs(view);
 
-    demux->Start();
+    IResample *resample = new FFResample();
+    XParameter outPara = demux->GetAPara();
+    resample->Open(demux->GetAPara(), outPara);
+    adecode->AddObs(resample);
 
+    IAudioPlay *audioPlay = new SLAudioPlay();
+    audioPlay->StartPlay(outPara);
+    resample->AddObs(audioPlay);
+
+    demux->Start();
     vdecode->Start();
     adecode->Start();
 
