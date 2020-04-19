@@ -23,12 +23,12 @@ FFDemux::FFDemux(){
 
 //打开文件，或者流媒体rtmp http rtsp
 bool FFDemux::Open(const char* url){
-    XLOGI("Open file %s begin", url);
+    XLOGE("Open file %s begin", url);
     int ret = avformat_open_input(&ic, url, 0, 0);
     if (ret != 0){
         char buf[1024] = {0};
         av_strerror(ret, buf, sizeof(buf));
-        XLOGE("FFDemux avformat_open_input %s failed!", url);
+        XLOGE("FFDemux avformat_open_input %s failed!, reason: %s", url, buf);
         return false;
     }
     XLOGI("FFDemux open %s success!", url);

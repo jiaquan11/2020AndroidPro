@@ -16,20 +16,20 @@
 
 IVideoView* view = NULL;
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_jiaquan_xplay_MainActivity_stringFromJNI(
-        JNIEnv* env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
+extern "C"
+JNIEXPORT
+jint JNI_OnLoad(JavaVM* vm, void* res){
+    FFDecode::InitHard(vm);
 
-    ///////////////////////////////////////////////////////////////////
-    //char* url = "/storage/emulated/0/Pictures/biterate9.mp4";
     char* url = "/storage/emulated/0/Pictures/v1080.mp4";
+    //const char* url = (const char*)env->GetStringUTFChars(urlStr, 0);
+    //char* url = "/sdcard/testziliao/test1080.mp4";
+
     IDemux *demux = new FFDemux();
     demux->Open(url);
 
     IDecode* vdecode = new FFDecode();
-    vdecode->Open(demux->GetVPara());
+    vdecode->Open(demux->GetVPara(), true);
 
     IDecode* adecode = new FFDecode();
     adecode->Open(demux->GetAPara());
@@ -53,6 +53,20 @@ Java_com_jiaquan_xplay_MainActivity_stringFromJNI(
     vdecode->Start();
     adecode->Start();
 
+    return JNI_VERSION_1_4;
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_jiaquan_xplay_MainActivity_stringFromJNI(
+        JNIEnv* env,
+        jobject /* this */, jstring urlStr) {
+    std::string hello = "Hello from C++";
+
+    ///////////////////////////////////////////////////////////////////
+    //char* url = "/storage/emulated/0/Pictures/biterate9.mp4";
+
+
+    //env->ReleaseStringUTFChars(urlStr, url);
     //XSleep(3000);
     //demux->Stop();
     //////////////////////////////////////////////////
