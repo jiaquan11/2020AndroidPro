@@ -23,7 +23,7 @@ FFDemux::FFDemux(){
 
 //打开文件，或者流媒体rtmp http rtsp
 bool FFDemux::Open(const char* url){
-    XLOGE("Open file %s begin", url);
+    XLOGI("Open file %s begin", url);
     int ret = avformat_open_input(&ic, url, 0, 0);
     if (ret != 0){
         char buf[1024] = {0};

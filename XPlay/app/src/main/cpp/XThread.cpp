@@ -13,10 +13,11 @@ void XSleep(int mis){
 }
 
 //启动线程
-void XThread::Start(){
+bool XThread::Start(){
     isExit = false;
     thread th(&XThread::ThreadMain, this);
     th.detach();
+    return true;
 }
 
 //通过控制isExit变量安全停止线程(不一定)

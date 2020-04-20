@@ -54,6 +54,10 @@ add_library( # Sets the name of the library.
              FFResample.cpp
              IAudioPlay.cpp
              SLAudioPlay.cpp
+             IPlayer.cpp
+             IPlayerBuilder.cpp
+             FFPlayerBuilder.cpp
+             IPlayerProxy.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
