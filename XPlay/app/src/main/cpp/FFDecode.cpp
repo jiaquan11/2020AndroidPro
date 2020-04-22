@@ -13,8 +13,23 @@ void FFDecode::InitHard(void* vm){
     av_jni_set_java_vm(vm, 0);
 }
 
+void FFDecode::Close(){
+    mux.lock();
+    pts = 0;
+    if (frame){
+        av_frame_free(&frame);
+    }
+    if (codec){
+        avcodec_close(codec);
+        avcodec_free_context(&codec);
+    }
+    mux.unlock();
+}
+
 //打开解码器
 bool FFDecode::Open(XParameter para, bool isHard){
+    Close();
+
     if (!para.para) return false;
 
     AVCodecParameters* p = para.para;
@@ -29,6 +44,9 @@ bool FFDecode::Open(XParameter para, bool isHard){
         return false;
     }
     XLOGI("avcodec_find_decoder success! isHard: %d", isHard);
+
+    mux.lock();
+
     //2 创建解码上下文，并复制参数
     codec = avcodec_alloc_context3(cd);
     avcodec_parameters_to_context(codec, p);
@@ -37,6 +55,7 @@ bool FFDecode::Open(XParameter para, bool isHard){
     //3.打开解码器
     int ret = avcodec_open2(codec, 0, 0);
     if (ret != 0){
+        mux.unlock();
         char buf[1024] = {0};
         av_strerror(ret , buf, sizeof(buf)-1);
         XLOGE("%s", buf);
@@ -49,26 +68,34 @@ bool FFDecode::Open(XParameter para, bool isHard){
         this->isAudio = true;
     }
     XLOGI("avcodec_open2 success!");
+
+    mux.unlock();
     return true;
 }
 
 //future模型 发送数据到线程解码
 bool FFDecode::SendPacket(XData pkt){
     if ((pkt.size <= 0) || !pkt.data) return false;
+
+    mux.lock();
+
     if (!codec){
+        mux.unlock();
         return false;
     }
     int ret = avcodec_send_packet(codec, (AVPacket*)pkt.data);
+    mux.unlock();
     if (ret != 0){
         return false;
     }
-
     return true;
 }
 
 //从线程中获取解码结果
 XData FFDecode::RecvFrame(){
+    mux.lock();
     if (!codec){
+        mux.unlock();
         return XData();
     }
     if (!frame){
@@ -77,6 +104,7 @@ XData FFDecode::RecvFrame(){
 
     int ret = avcodec_receive_frame(codec, frame);
     if (ret != 0){
+        mux.unlock();
         return XData();
     }
 
@@ -99,5 +127,7 @@ XData FFDecode::RecvFrame(){
     memcpy(d.datas, frame->data, sizeof(d.datas));
 
     d.pts = frame->pts;
+    pts = d.pts;
+    mux.unlock();
     return d;
 }
