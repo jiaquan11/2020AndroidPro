@@ -12,9 +12,13 @@ public:
     virtual ~SLAudioPlay();
 
     virtual bool StartPlay(XParameter out);
+
+    virtual void Close();
+
     void PlayCall(void *bufq);
 
 protected:
     unsigned char* buf = 0;
+    std::mutex mux;
 };
 #endif //XPLAY_SLAUDIOPLAY_H
