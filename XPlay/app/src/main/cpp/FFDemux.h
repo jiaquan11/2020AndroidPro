@@ -5,6 +5,7 @@
 #define XPLAY_FFDEMUX_H
 
 #include "IDemux.h"
+#include <mutex>
 
 struct AVFormatContext;
 
@@ -15,6 +16,8 @@ public:
 public:
     //打开文件，或者流媒体rtmp http rtsp
     virtual bool Open(const char* url);
+
+    virtual void Close();
 
     //获取视频参数
     virtual XParameter GetVPara();
@@ -29,6 +32,7 @@ private:
     AVFormatContext* ic = 0;
     int audioStream = 1;
     int videoStream = 0;
+    std::mutex mux;
 };
 
 #endif //XPLAY_FFDEMUX_H
