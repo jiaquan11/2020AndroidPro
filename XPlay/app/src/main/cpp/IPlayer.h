@@ -5,6 +5,7 @@
 #ifndef XPLAY_IPLAYER_H
 #define XPLAY_IPLAYER_H
 
+#include <mutex>
 #include "XThread.h"
 #include "XParameter.h"
 
@@ -35,5 +36,11 @@ public:
 
 protected:
     IPlayer(){};
+
+    //用作音视频同步
+    void Main();
+
+protected:
+    std::mutex mux;
 };
 #endif //XPLAY_IPLAYER_H

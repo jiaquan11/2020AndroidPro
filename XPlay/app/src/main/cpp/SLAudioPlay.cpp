@@ -47,7 +47,7 @@ void SLAudioPlay::PlayCall(void *bufq) {
     if (!bufq)
         return;
     SLAndroidSimpleBufferQueueItf bf = (SLAndroidSimpleBufferQueueItf)bufq;
-    XLOGI("SLAudioPlay PlayCall");
+    //XLOGI("SLAudioPlay PlayCall");
 
     //阻塞
     XData d = GetData();

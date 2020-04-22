@@ -7,6 +7,11 @@ extern "C"{
 #include "libavformat/avformat.h"
 }
 
+//分数转为浮点数
+static double r2d(AVRational r){
+    return ((r.num == 0) || (r.den == 0)) ? 0. : (double)r.num/(double)r.den;
+}
+
 FFDemux::FFDemux(){
     static bool isFirst = true;
     if (isFirst){
@@ -116,5 +121,10 @@ XData FFDemux::Read(){
         return XData();
     }
 
+    //转换pts  转换为实际时间戳，去掉时间基
+    pkt->pts = pkt->pts*(1000*r2d(ic->streams[pkt->stream_index]->time_base));
+    pkt->dts = pkt->dts*(1000*r2d(ic->streams[pkt->stream_index]->time_base));
+    d.pts = (int)pkt->pts;
+    XLOGI("demux pts %d", d.pts);
     return d;
 }
