@@ -1,18 +1,17 @@
 package com.jiaquan.xplay;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.Button;
 
-import java.io.File;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -23,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * 获取SdCard路径
      */
     private String GetExternalStoragePath() {
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 isGranted = false;
             }
-            Log.i("cbs","isGranted == "+isGranted);
+            Log.i("cbs", "isGranted == " + isGranted);
             if (!isGranted) {
                 this.requestPermissions(
                         new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission
@@ -62,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    private Button bt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,23 +77,17 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        bt = findViewById(R.id.open_button);
+        bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e("XPlay", "open button click");
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, OpenUrl.class);
+                startActivity(intent);
+            }
+        });
+
         checkPermission();
-
-        //String _SDCardPath = GetExternalStoragePath();
-        //获得SD卡根目录路径
-        File sdDir = Environment.getExternalStorageDirectory();
-        String sdpath = sdDir.getAbsolutePath();
-
-        Log.i(TAG, "sdpath is " + sdpath);
-        String url = sdpath + File.separator + "test1080.mp4";
-        // Example of a call to a native method
-        TextView tv = findViewById(R.id.sample_text);
-        tv.setText(stringFromJNI(url));
     }
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI(String url);
 }
