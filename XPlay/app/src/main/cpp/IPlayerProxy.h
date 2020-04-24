@@ -18,6 +18,8 @@ public:
     void Init(void *vm = 0);
 
     virtual bool Open(const char* path);
+    virtual void Close();
+
     virtual bool Start();
     virtual void InitView(void* win);
 

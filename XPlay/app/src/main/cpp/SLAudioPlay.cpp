@@ -68,6 +68,8 @@ void SLAudioPlay::PlayCall(void *bufq) {
 }
 
 void SLAudioPlay::Close(){
+    IAudioPlay::Clear();
+
     mux.lock();
 
     //停止播放

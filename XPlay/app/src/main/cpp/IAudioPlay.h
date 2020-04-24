@@ -17,6 +17,7 @@ public:
     virtual XData GetData();
     virtual bool StartPlay(XParameter out) = 0;
 
+    virtual void Clear();
     virtual void Close() = 0;
 
 public:
