@@ -13,6 +13,15 @@ void FFDecode::InitHard(void* vm){
     av_jni_set_java_vm(vm, 0);
 }
 
+void FFDecode::Clear(){
+    IDecode::Clear();
+    mux.lock();
+    if (codec){
+        avcodec_flush_buffers(codec);
+    }
+    mux.unlock();
+}
+
 void FFDecode::Close(){
     IDecode::Clear();
 

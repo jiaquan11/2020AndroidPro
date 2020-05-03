@@ -30,6 +30,7 @@ Java_com_jiaquan_xplay_OpenUrl_Open(JNIEnv *env, jobject thiz, jstring urlStr) {
     XLOGI("XPlay Open");
     IPlayerProxy::Get()->Open(url);
     IPlayerProxy::Get()->Start();
+    //IPlayerProxy::Get()->Seek(0.5);
 
     env->ReleaseStringUTFChars(urlStr, url);
 }
@@ -39,4 +40,14 @@ JNIEXPORT jdouble JNICALL
 Java_com_jiaquan_xplay_MainActivity_PlayPos(JNIEnv *env, jobject thiz) {
     // TODO: implement PlayPos()
     return IPlayerProxy::Get()->PlayPos();
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_xplay_MainActivity_Seek(JNIEnv *env, jobject thiz, jdouble pos) {
+    // TODO: implement Seek()
+    IPlayerProxy::Get()->Seek(pos);
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_xplay_XPlay_PlayOrPause(JNIEnv *env, jobject thiz) {
+    // TODO: implement PlayOrPause()
+    IPlayerProxy::Get()->SetPause(!IPlayerProxy::Get()->IsPause());
 }

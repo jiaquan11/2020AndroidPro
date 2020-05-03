@@ -34,6 +34,32 @@ void FFDemux::Close(){
     mux.unlock();
 }
 
+//seek 位置(pos: 0.0-1.0)
+bool FFDemux::Seek(double pos){
+    if (pos < 0 || pos > 1){
+        XLOGE("Seek value must 0.0-1.0");
+        return false;
+    }
+
+    bool ret = false;
+    mux.lock();
+    if (!ic){
+        mux.unlock();
+        return false;
+    }
+    //清除读取的缓冲
+    avformat_flush(ic);
+
+    long long seekPts = 0;
+    seekPts = ic->streams[videoStream]->duration*pos;
+
+    //往后跳转到关键帧
+    ret = av_seek_frame(ic, videoStream, seekPts, AVSEEK_FLAG_FRAME|AVSEEK_FLAG_BACKWARD);
+
+    mux.unlock();
+    return ret;
+}
+
 //打开文件，或者流媒体rtmp http rtsp
 bool FFDemux::Open(const char* url){
     XLOGI("Open file %s begin", url);
@@ -134,8 +160,8 @@ XData FFDemux::Read(){
     AVPacket* pkt = av_packet_alloc();
     int ret = av_read_frame(ic, pkt);
     if (ret != 0){
-        av_packet_free(&pkt);
         mux.unlock();
+        av_packet_free(&pkt);
         return XData();
     }
     //XLOGI("packet size is %d, pts is %lld", pkt->size, pkt->pts);
@@ -146,8 +172,8 @@ XData FFDemux::Read(){
     }else if (pkt->stream_index == videoStream){
         d.isAudio = false;
     }else{
-        av_packet_free(&pkt);
         mux.unlock();
+        av_packet_free(&pkt);
         return XData();
     }
 

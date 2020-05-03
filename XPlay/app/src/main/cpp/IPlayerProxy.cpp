@@ -23,6 +23,24 @@ void IPlayerProxy::Close(){
     mux.unlock();
 }
 
+bool IPlayerProxy::IsPause() {
+    bool ret = false;
+    mux.lock();
+    if (player){
+        ret = player->IsPause();
+    }
+    mux.unlock();
+    return ret;
+}
+
+void IPlayerProxy::SetPause(bool isP){
+    mux.lock();
+    if (player){
+        player->SetPause(isP);
+    }
+    mux.unlock();
+}
+
 //获取当前的播放进度 0.0-1.0
 double IPlayerProxy::PlayPos(){
     double pos = 0.0;
@@ -32,6 +50,17 @@ double IPlayerProxy::PlayPos(){
     }
     mux.unlock();
     return pos;
+}
+
+bool IPlayerProxy::Seek(double pos){
+    bool ret = false;
+    mux.lock();
+    if (player) {
+        ret = player->Seek(pos);
+    }
+
+    mux.unlock();
+    return ret;
 }
 
 bool IPlayerProxy::Open(const char* path) {

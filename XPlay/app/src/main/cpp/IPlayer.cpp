@@ -27,6 +27,9 @@ void IPlayer::Close() {
         vdecode->Stop();
     if (adecode)
         adecode->Stop();
+    if (audioPlay)
+        audioPlay->Stop();
+
     //2 清理缓冲队列
     if (vdecode)
         vdecode->Clear();
@@ -48,10 +51,24 @@ void IPlayer::Close() {
     mux.unlock();
 }
 
+void IPlayer::SetPause(bool isP){
+    mux.lock();
+    XThread::SetPause(isP);
+    if (demux)
+        demux->SetPause(isP);
+    if (vdecode)
+        vdecode->SetPause(isP);
+    if (adecode)
+        adecode->SetPause(isP);
+    if (audioPlay)
+        audioPlay->SetPause(isP);
+    mux.unlock();
+}
+
 //获取当前的播放进度 0.0-1.0
 double IPlayer::PlayPos(){
     double pos = 0.0;
-    
+
     mux.lock();
     int totalMs = 0;
     if (demux)
@@ -63,6 +80,64 @@ double IPlayer::PlayPos(){
     }
     mux.unlock();
     return pos;
+}
+
+bool IPlayer::Seek(double pos){
+    bool ret = false;
+
+    if (!demux)
+        return false;
+
+    //暂停所有的线程
+    SetPause(true);
+    mux.lock();
+    //清理缓冲
+    if (vdecode)
+        vdecode->Clear();//清理缓冲队列，清理ffmpeg的缓冲
+    if (adecode)
+        adecode->Clear();
+    if (audioPlay)
+        audioPlay->Clear();
+
+    ret = demux->Seek(pos);//seek到关键帧
+    if (!vdecode){
+        mux.unlock();
+        SetPause(false);
+        return ret;
+    }
+    //解码到实际需要显示的帧
+    int seekPts = pos*demux->totalMs;
+    while (!isExit){
+        XData pkt = demux->Read();
+        if (pkt.size <= 0){
+            break;
+        }
+        if (pkt.isAudio){
+            if (pkt.pts < seekPts){
+                pkt.Drop();
+                continue;
+            }
+            //写入缓冲队列
+            demux->Notify(pkt);
+            continue;
+        }
+
+        //解码需要显示的帧之前的数据
+        vdecode->SendPacket(pkt);
+        pkt.Drop();
+        XData data = vdecode->RecvFrame();
+        if (data.size <= 0){
+            continue;
+        }
+        if (data.pts >= seekPts){
+            //vdecode->Notify(data);
+            break;
+        }
+    }
+
+    mux.unlock();
+    SetPause(false);
+    return ret;
 }
 
 bool IPlayer::Open(const char* path){

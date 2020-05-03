@@ -19,6 +19,9 @@ public:
 
     virtual void Close();
 
+    //seek 位置(pos: 0.0-1.0)
+    virtual bool Seek(double pos);
+
     //获取视频参数
     virtual XParameter GetVPara();
 

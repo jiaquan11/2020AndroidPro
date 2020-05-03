@@ -16,6 +16,13 @@ public:
     //通过控制isExit变量安全停止线程(不一定)
     virtual void Stop();
 
+    virtual void SetPause(bool isP);
+
+    virtual bool IsPause(){
+        isPausing = isPause;
+        return isPause;
+    }
+
 protected:
     //入口主函数
     virtual void Main(){}
@@ -23,6 +30,9 @@ protected:
     bool isExit = false;
 
     bool isRunning = false;
+
+    bool isPause = false;
+    bool isPausing = false;
 
 private:
     void ThreadMain();

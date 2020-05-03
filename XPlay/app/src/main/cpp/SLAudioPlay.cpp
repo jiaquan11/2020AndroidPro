@@ -193,7 +193,7 @@ bool SLAudioPlay::StartPlay(XParameter out){
 
     //启动队列回调
     (*pcmQue)->Enqueue(pcmQue, "", 1);
-
+    isExit = false;
     XLOGI("SLAudioPlay StartPlay success!");
 
     mux.unlock();
