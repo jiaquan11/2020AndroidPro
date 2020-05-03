@@ -23,11 +23,25 @@ void IPlayerProxy::Close(){
     mux.unlock();
 }
 
-bool IPlayerProxy::Open(const char* path){
+//获取当前的播放进度 0.0-1.0
+double IPlayerProxy::PlayPos(){
+    double pos = 0.0;
+    mux.lock();
+    if (player){
+        pos = player->PlayPos();
+    }
+    mux.unlock();
+    return pos;
+}
+
+bool IPlayerProxy::Open(const char* path) {
     bool ret = false;
     mux.lock();
-    if (player)
+    if (player) {
+        player->isHardDecode = isHardDecode;
         ret = player->Open(path);
+    }
+
     mux.unlock();
     return ret;
 }

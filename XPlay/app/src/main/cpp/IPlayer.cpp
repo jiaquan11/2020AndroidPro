@@ -48,6 +48,23 @@ void IPlayer::Close() {
     mux.unlock();
 }
 
+//获取当前的播放进度 0.0-1.0
+double IPlayer::PlayPos(){
+    double pos = 0.0;
+    
+    mux.lock();
+    int totalMs = 0;
+    if (demux)
+        totalMs = demux->totalMs;
+    if (totalMs > 0){
+        if (vdecode){
+            pos = (double)vdecode->pts/(double)totalMs;
+        }
+    }
+    mux.unlock();
+    return pos;
+}
+
 bool IPlayer::Open(const char* path){
     Close();
 

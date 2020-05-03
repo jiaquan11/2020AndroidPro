@@ -10,10 +10,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Runnable{
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Used to load the 'native-lib' library on application startup.
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Button bt;
+    private SeekBar seek;
+    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bt = findViewById(R.id.open_button);
+        seek = findViewById(R.id.aplayseek);
+        seek.setMax(1000);
+
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,5 +95,24 @@ public class MainActivity extends AppCompatActivity {
         });
 
         checkPermission();
+
+        //播放进度线程
+        thread = new Thread(this);
+        thread.start();
     }
+
+    //播放进度显示
+    @Override
+    public void run() {
+        for (;;){
+            seek.setProgress((int)(PlayPos() * 1000));
+            try {
+                Thread.sleep(40);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public native double PlayPos();
 }

@@ -33,3 +33,10 @@ Java_com_jiaquan_xplay_OpenUrl_Open(JNIEnv *env, jobject thiz, jstring urlStr) {
 
     env->ReleaseStringUTFChars(urlStr, url);
 }
+
+extern "C"
+JNIEXPORT jdouble JNICALL
+Java_com_jiaquan_xplay_MainActivity_PlayPos(JNIEnv *env, jobject thiz) {
+    // TODO: implement PlayPos()
+    return IPlayerProxy::Get()->PlayPos();
+}
