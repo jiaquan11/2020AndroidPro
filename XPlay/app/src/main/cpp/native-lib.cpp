@@ -27,6 +27,7 @@ JNIEXPORT void JNICALL
 Java_com_jiaquan_xplay_OpenUrl_Open(JNIEnv *env, jobject thiz, jstring urlStr) {
     // TODO: implement Open()
     const char* url = env->GetStringUTFChars(urlStr, 0);
+    XLOGI("XPlay Open");
     IPlayerProxy::Get()->Open(url);
     IPlayerProxy::Get()->Start();
 

@@ -3,6 +3,7 @@ package com.jiaquan.xplay;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -18,6 +19,7 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
 
     @Override
     public void surfaceCreated(SurfaceHolder holder){
+        Log.i("XPlay", "surfaceCreated");
         //初始化opengl egl 显示
         InitView(holder.getSurface());
     }
