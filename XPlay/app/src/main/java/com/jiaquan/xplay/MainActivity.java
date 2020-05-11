@@ -1,9 +1,7 @@
 package com.jiaquan.xplay;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,49 +20,9 @@ public class MainActivity extends AppCompatActivity implements Runnable, SeekBar
         System.loadLibrary("native-lib");
     }
 
-    /**
-     * 获取SdCard路径
-     */
-    private String GetExternalStoragePath() {
-        // 获取SdCard状态
-        String _State = android.os.Environment.getExternalStorageState();
-
-        // 判断SdCard是否存在并且是可用的
-        if (android.os.Environment.MEDIA_MOUNTED.equals(_State)) {
-            if (android.os.Environment.getExternalStorageDirectory().canRead()) {
-                return android.os.Environment.getExternalStorageDirectory().getPath();
-            }
-        }
-
-        return null;
-    }
-
-    public void checkPermission() {
-        boolean isGranted = true;
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            if (this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                //如果没有写sd卡权限
-                isGranted = false;
-            }
-            if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                isGranted = false;
-            }
-            Log.i("cbs", "isGranted == " + isGranted);
-            if (!isGranted) {
-                this.requestPermissions(
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission
-                                .ACCESS_FINE_LOCATION,
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        102);
-            }
-        }
-
-    }
-
-    private Button bt;
-    private SeekBar seek;
-    private Thread thread;
+    private Button bt = null;
+    private SeekBar seek = null;
+    private Thread thread = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements Runnable, SeekBar
             }
         });
 
-        checkPermission();
 
         //播放进度线程
         thread = new Thread(this);
@@ -105,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements Runnable, SeekBar
     //播放进度显示
     @Override
     public void run() {
-        for (;;){
-            seek.setProgress((int)(PlayPos() * 1000));
+        for (;;) {
+            seek.setProgress((int) (PlayPos() * 1000));
             try {
                 Thread.sleep(40);
             } catch (InterruptedException e) {
@@ -114,9 +71,6 @@ public class MainActivity extends AppCompatActivity implements Runnable, SeekBar
             }
         }
     }
-
-    public native double PlayPos();
-    public native void Seek(double pos);
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -130,6 +84,10 @@ public class MainActivity extends AppCompatActivity implements Runnable, SeekBar
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        Seek((double) seekBar.getProgress()/(double)seekBar.getMax());
+        Seek((double) seekBar.getProgress() / (double) seekBar.getMax());
     }
+
+    public native double PlayPos();
+
+    public native void Seek(double pos);
 }

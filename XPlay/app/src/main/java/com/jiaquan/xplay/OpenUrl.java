@@ -8,8 +8,8 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class OpenUrl extends AppCompatActivity {
-    private Button btfile;
-    private Button btrtmp;
+    private Button btfile = null;
+    private Button btrtmp = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

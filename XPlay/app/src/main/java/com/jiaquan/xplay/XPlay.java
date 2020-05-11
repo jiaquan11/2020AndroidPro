@@ -10,7 +10,7 @@ import android.view.View;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSurfaceView.Renderer, View.OnClickListener{
+public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSurfaceView.Renderer, View.OnClickListener {
     public XPlay(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -20,7 +20,7 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder){
+    public void surfaceCreated(SurfaceHolder holder) {
         Log.i("XPlay", "surfaceCreated");
         //初始化opengl egl 显示
         InitView(holder.getSurface());
@@ -28,12 +28,12 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height){
+                               int height) {
 
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder){
+    public void surfaceDestroyed(SurfaceHolder holder) {
 
     }
 

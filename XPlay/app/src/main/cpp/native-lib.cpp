@@ -40,12 +40,16 @@ JNIEXPORT jdouble JNICALL
 Java_com_jiaquan_xplay_MainActivity_PlayPos(JNIEnv *env, jobject thiz) {
     // TODO: implement PlayPos()
     return IPlayerProxy::Get()->PlayPos();
-}extern "C"
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_xplay_MainActivity_Seek(JNIEnv *env, jobject thiz, jdouble pos) {
     // TODO: implement Seek()
     IPlayerProxy::Get()->Seek(pos);
-}extern "C"
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_xplay_XPlay_PlayOrPause(JNIEnv *env, jobject thiz) {
     // TODO: implement PlayOrPause()
