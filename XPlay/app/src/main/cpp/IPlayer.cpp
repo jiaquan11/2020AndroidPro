@@ -9,7 +9,7 @@
 #include "IResample.h"
 #include "XLog.h"
 
-IPlayer* IPlayer::Get(unsigned char index){
+IPlayer *IPlayer::Get(unsigned char index) {//单例模式
     static IPlayer p[256];
     return &p[index];
 }
@@ -18,7 +18,8 @@ void IPlayer::Close() {
     mux.lock();
     //1 先关闭主体线程，再清理观察者
     //同步线程
-    XThread:Stop();
+    XThread:
+    Stop();
     //解封装
     if (demux)
         demux->Stop();
@@ -51,7 +52,7 @@ void IPlayer::Close() {
     mux.unlock();
 }
 
-void IPlayer::SetPause(bool isP){
+void IPlayer::SetPause(bool isP) {
     mux.lock();
     XThread::SetPause(isP);
     if (demux)
@@ -66,23 +67,22 @@ void IPlayer::SetPause(bool isP){
 }
 
 //获取当前的播放进度 0.0-1.0
-double IPlayer::PlayPos(){
+double IPlayer::PlayPos() {
     double pos = 0.0;
-
     mux.lock();
     int totalMs = 0;
     if (demux)
         totalMs = demux->totalMs;
-    if (totalMs > 0){
-        if (vdecode){
-            pos = (double)vdecode->pts/(double)totalMs;
+    if (totalMs > 0) {
+        if (vdecode) {
+            pos = (double) vdecode->pts / (double) totalMs;
         }
     }
     mux.unlock();
     return pos;
 }
 
-bool IPlayer::Seek(double pos){
+bool IPlayer::Seek(double pos) {
     bool ret = false;
 
     if (!demux)
@@ -100,20 +100,20 @@ bool IPlayer::Seek(double pos){
         audioPlay->Clear();
 
     ret = demux->Seek(pos);//seek到关键帧
-    if (!vdecode){
+    if (!vdecode) {
         mux.unlock();
         SetPause(false);
         return ret;
     }
     //解码到实际需要显示的帧
-    int seekPts = pos*demux->totalMs;
-    while (!isExit){
+    int seekPts = pos * demux->totalMs;
+    while (!isExit) {
         XData pkt = demux->Read();
-        if (pkt.size <= 0){
+        if (pkt.size <= 0) {
             break;
         }
-        if (pkt.isAudio){
-            if (pkt.pts < seekPts){
+        if (pkt.isAudio) {
+            if (pkt.pts < seekPts) {
                 pkt.Drop();
                 continue;
             }
@@ -126,10 +126,10 @@ bool IPlayer::Seek(double pos){
         vdecode->SendPacket(pkt);
         pkt.Drop();
         XData data = vdecode->RecvFrame();
-        if (data.size <= 0){
+        if (data.size <= 0) {
             continue;
         }
-        if (data.pts >= seekPts){
+        if (data.pts >= seekPts) {
             //vdecode->Notify(data);
             break;
         }
@@ -140,34 +140,34 @@ bool IPlayer::Seek(double pos){
     return ret;
 }
 
-bool IPlayer::Open(const char* path){
+bool IPlayer::Open(const char *path) {
     Close();
 
     mux.lock();
     //解封装
-    if (!demux || !demux->Open(path)){
+    if (!demux || !demux->Open(path)) {
         XLOGE("demux->Open %s failed!", path);
         mux.unlock();
         return false;
     }
 
     //解码，解码可能不需要，如果是解封之后就是原始数据
-    if (!vdecode || !vdecode->Open(demux->GetVPara(), isHardDecode)){
+    if (!vdecode || !vdecode->Open(demux->GetVPara(), isHardDecode)) {
         XLOGE("vdecode->Open failed!");
         //return false;
     }
 
-    if (!adecode || !adecode->Open(demux->GetAPara())){
+    if (!adecode || !adecode->Open(demux->GetAPara())) {
         XLOGE("adecode->Open failed!");
         //return false;
     }
 
     //重采样，有可能不需要，解码后或者解封后可能是直接能播放的数据
     //if (outPara.sample_rate <= 0){
-        outPara = demux->GetAPara();
+    outPara = demux->GetAPara();
     //}
 
-    if (!resample || !resample->Open(demux->GetAPara(), outPara)){
+    if (!resample || !resample->Open(demux->GetAPara(), outPara)) {
         XLOGE("resample->Open failed!");
         //return false;
     }
@@ -177,46 +177,47 @@ bool IPlayer::Open(const char* path){
     return true;
 }
 
-bool IPlayer::Start(){
+bool IPlayer::Start() {
     mux.lock();
 
     //需要提前开始音频播放，音视频解码线程，否则demux线程的notify的数据会被
     //丢掉，导致画面绿屏
-    if (audioPlay){
+    if (audioPlay) {
         audioPlay->StartPlay(outPara);
     }
 
-    if (adecode){
+    if (adecode) {
         adecode->Start();
     }
 
-    if (vdecode){
+    if (vdecode) {
         vdecode->Start();
     }
 
-    if (!demux || !demux->Start()){
+    if (!demux || !demux->Start()) {
         XLOGE("demux->Start() failed!");
         mux.unlock();
         return false;
     }
 
+    //这个线程用于音视频同步控制
     XThread::Start();
 
     mux.unlock();
     return true;
 }
 
-void IPlayer::InitView(void* win){
-    if (videoView){
+void IPlayer::InitView(void *win) {
+    if (videoView) {
         videoView->Close();
         videoView->SetRender(win);
     }
 }
 
-void IPlayer::Main(){
-    while (!isExit){
+void IPlayer::Main() {
+    while (!isExit) {
         mux.lock();
-        if (!audioPlay || !vdecode){
+        if (!audioPlay || !vdecode) {
             mux.unlock();
             XSleep(2);
             continue;

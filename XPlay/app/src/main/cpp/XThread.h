@@ -18,10 +18,7 @@ public:
 
     virtual void SetPause(bool isP);
 
-    virtual bool IsPause(){
-        isPausing = isPause;
-        return isPause;
-    }
+    virtual bool IsPause();
 
 protected:
     //入口主函数

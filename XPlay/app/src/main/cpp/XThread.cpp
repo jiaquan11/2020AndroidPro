@@ -23,6 +23,11 @@ void XThread::SetPause(bool isP){
     }
 }
 
+bool XThread::IsPause(){
+    isPausing = isPause;
+    return isPause;
+}
+
 //启动线程
 bool XThread::Start(){
     isExit = false;

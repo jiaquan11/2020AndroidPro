@@ -29,5 +29,7 @@ protected:
     AVCodecContext* codec = 0;
     AVFrame* frame = 0;
     std::mutex mux;
+
+    unsigned char* datas[3] = { 0 };
 };
 #endif //XPLAY_FFDECODE_H

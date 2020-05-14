@@ -23,6 +23,4 @@ protected:
     XTexture* txt = 0;
     std::mutex mux;
 };
-
-
 #endif //XPLAY_GLVIDEOVIEW_H

@@ -4,9 +4,9 @@
 #include "IPlayerProxy.h"
 #include "FFPlayerBuilder.h"
 
-void IPlayerProxy::Init(void* vm) {
+void IPlayerProxy::Init(void *vm) {
     mux.lock();
-    if (vm){
+    if (vm) {
         FFPlayerBuilder::InitHard(vm);
     }
 
@@ -15,9 +15,9 @@ void IPlayerProxy::Init(void* vm) {
     mux.unlock();
 }
 
-void IPlayerProxy::Close(){
+void IPlayerProxy::Close() {
     mux.lock();
-    if (player){
+    if (player) {
         player->Close();
     }
     mux.unlock();
@@ -26,56 +26,54 @@ void IPlayerProxy::Close(){
 bool IPlayerProxy::IsPause() {
     bool ret = false;
     mux.lock();
-    if (player){
+    if (player) {
         ret = player->IsPause();
     }
     mux.unlock();
     return ret;
 }
 
-void IPlayerProxy::SetPause(bool isP){
+void IPlayerProxy::SetPause(bool isP) {
     mux.lock();
-    if (player){
+    if (player) {
         player->SetPause(isP);
     }
     mux.unlock();
 }
 
 //获取当前的播放进度 0.0-1.0
-double IPlayerProxy::PlayPos(){
+double IPlayerProxy::PlayPos() {
     double pos = 0.0;
     mux.lock();
-    if (player){
+    if (player) {
         pos = player->PlayPos();
     }
     mux.unlock();
     return pos;
 }
 
-bool IPlayerProxy::Seek(double pos){
+bool IPlayerProxy::Seek(double pos) {
     bool ret = false;
     mux.lock();
     if (player) {
         ret = player->Seek(pos);
     }
-
     mux.unlock();
     return ret;
 }
 
-bool IPlayerProxy::Open(const char* path) {
+bool IPlayerProxy::Open(const char *path) {
     bool ret = false;
     mux.lock();
     if (player) {
         player->isHardDecode = isHardDecode;
         ret = player->Open(path);
     }
-
     mux.unlock();
     return ret;
 }
 
-bool IPlayerProxy::Start(){
+bool IPlayerProxy::Start() {
     bool ret = false;
     mux.lock();
     if (player)
@@ -84,7 +82,7 @@ bool IPlayerProxy::Start(){
     return ret;
 }
 
-void IPlayerProxy::InitView(void* win){
+void IPlayerProxy::InitView(void *win) {
     mux.lock();
     if (player)
         player->InitView(win);

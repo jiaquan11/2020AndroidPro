@@ -5,6 +5,7 @@
 #include "IDecode.h"
 #include "XLog.h"
 
+//清除队列缓冲
 void IDecode::Clear(){
     packsMutex.lock();
     while (!packs.empty()){
@@ -27,7 +28,7 @@ void IDecode::Main(){
 
         //判断音视频同步
         if (!isAudio && (synPts > 0)){
-            if (synPts < pts){
+            if (synPts < pts){//synPts为获取到的音频时间戳
                 packsMutex.unlock();
                 XSleep(1);
                 continue;

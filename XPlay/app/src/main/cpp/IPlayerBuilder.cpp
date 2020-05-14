@@ -8,22 +8,22 @@
 #include "IAudioPlay.h"
 #include "IDemux.h"
 
-IPlayer* IPlayerBuilder::BuilderPlayer(unsigned char index){
-    IPlayer* player = CreatePlayer(index);
+IPlayer *IPlayerBuilder::BuilderPlayer(unsigned char index) {
+    IPlayer *player = CreatePlayer(index);
 
     //解封装
     IDemux *demux = CreateDemux();
 
     //视频解码
-    IDecode* vdecode = CreateDecode();
+    IDecode *vdecode = CreateDecode();
     //音频解码
-    IDecode* adecode = CreateDecode();
+    IDecode *adecode = CreateDecode();
     //解码器观察解封装
     demux->AddObs(vdecode);
     demux->AddObs(adecode);
 
     //显示观察视频解码器
-    IVideoView* view = CreateVideoView();
+    IVideoView *view = CreateVideoView();
     vdecode->AddObs(view);
 
     //重采样观察音频解码器

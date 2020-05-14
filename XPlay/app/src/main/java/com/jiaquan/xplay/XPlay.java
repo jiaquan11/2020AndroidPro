@@ -37,8 +37,6 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
 
     }
 
-    public native void InitView(Object surface);
-
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
 
@@ -58,6 +56,8 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
     public void onClick(View view) {
         PlayOrPause();
     }
+
+    public native void InitView(Object surface);
 
     public native void PlayOrPause();
 }
