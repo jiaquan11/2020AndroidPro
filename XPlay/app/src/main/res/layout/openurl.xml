@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="/storage/emulated/0/Pictures/v1080.mp4" />
+                android:text="/sdcard/testziliao/biterate9.mp4" />
 
             <Button
                 android:id="@+id/playvideo"

@@ -54,7 +54,7 @@ public:
             sh.GetTexture(1, width/2, height/2, data[1]);//U
             sh.GetTexture(2, width/2, height/2, data[2]);//V
         }else{
-            sh.GetTexture(1, width/2, height/2, data[1], true);//U
+            sh.GetTexture(1, width/2, height/2, data[1], true);//UV   此处不理解，后面再细察
         }
 
         sh.Draw();
