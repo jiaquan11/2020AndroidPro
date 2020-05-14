@@ -24,9 +24,9 @@ bool FFResample::Open(XParameter in, XParameter out){
     actx = swr_alloc();
     actx = swr_alloc_set_opts(actx,
                               av_get_default_channel_layout(out.channels),
-                              AV_SAMPLE_FMT_S16, out.sample_rate,
+                              AV_SAMPLE_FMT_S16, out.sample_rate,//输出
                               av_get_default_channel_layout(in.para->channels),
-                              (AVSampleFormat)in.para->format, in.para->sample_rate,
+                              (AVSampleFormat)in.para->format, in.para->sample_rate,//输入
                               0, 0);
     int ret = swr_init(actx);
     if (ret != 0){

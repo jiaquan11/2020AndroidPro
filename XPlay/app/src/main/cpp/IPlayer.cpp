@@ -113,7 +113,7 @@ bool IPlayer::Seek(double pos) {
             break;
         }
         if (pkt.isAudio) {
-            if (pkt.pts < seekPts) {
+            if (pkt.pts < seekPts) {//对于音频，直接丢掉之前的包即可
                 pkt.Drop();
                 continue;
             }
@@ -122,6 +122,7 @@ bool IPlayer::Seek(double pos) {
             continue;
         }
 
+        //对于视频需要解码，得到解码输出的时间戳，再丢掉解码帧，不然直接丢掉视频包会导致花屏
         //解码需要显示的帧之前的数据
         vdecode->SendPacket(pkt);
         pkt.Drop();

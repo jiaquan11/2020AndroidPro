@@ -30,7 +30,7 @@ XData IAudioPlay::GetData() {
             frames.pop_front();
             framesMutex.unlock();
 
-            pts = d.pts;
+            pts = d.pts;//此当前音频pcm数据的时间戳作为视频同步的时间戳
             return d;
         }
         framesMutex.unlock();
