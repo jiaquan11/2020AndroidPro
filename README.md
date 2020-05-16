@@ -14,3 +14,5 @@
 4.XPlay项目
 增加一个完整的在Android端进行视频播放的项目，音频使用opensl进行播放，
 视频使用opengles进行渲染，同时使用多种设计模式进行重构
+
+5.LearningVideo项目
