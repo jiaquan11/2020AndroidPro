@@ -6,15 +6,8 @@ import com.cxp.learningvideo.media.extractor.AudioExtractor
 import com.cxp.learningvideo.media.extractor.VideoExtractor
 import java.nio.ByteBuffer
 
-
 /**
  * MP4重打包工具
- *
- * @author Chen Xiaoping (562818444@qq.com)
- * @since LearningVideo
- * @version LearningVideo
- * @Datetime 2019-09-19 14:09
- *
  */
 class MP4Repack(path: String) {
     private val TAG = "MP4Repack"

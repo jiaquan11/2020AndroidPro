@@ -26,6 +26,7 @@ class MMExtractor(path: String?) {
     /**开始解码时间点*/
     private var mStartPos: Long = 0
 
+    //会在构造函数中执行
     init {
         mExtractor = MediaExtractor()
         mExtractor?.setDataSource(path)
@@ -66,6 +67,17 @@ class MMExtractor(path: String?) {
     }
 
     /**
+     * 选择通道
+     */
+    private fun selectSourceTrack() {
+        if (mVideoTrack >= 0) {
+            mExtractor!!.selectTrack(mVideoTrack)
+        } else if (mAudioTrack >= 0) {
+            mExtractor!!.selectTrack(mAudioTrack)
+        }
+    }
+
+    /**
      * 读取视频数据
      */
     fun readBuffer(byteBuffer: ByteBuffer): Int {
@@ -81,17 +93,6 @@ class MMExtractor(path: String?) {
         //进入下一帧
         mExtractor!!.advance()
         return readSampleCount
-    }
-
-    /**
-     * 选择通道
-     */
-    private fun selectSourceTrack() {
-        if (mVideoTrack >= 0) {
-            mExtractor!!.selectTrack(mVideoTrack)
-        } else if (mAudioTrack >= 0) {
-            mExtractor!!.selectTrack(mAudioTrack)
-        }
     }
 
     /**

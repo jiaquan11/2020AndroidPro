@@ -53,6 +53,7 @@ class AudioDecoder(path: String): BaseDecoder(path) {
         return true
     }
 
+    //创建音频播放的AudioTrack
     override fun initRender(): Boolean {
         val channel = if (mChannels == 1) {
             //单声道

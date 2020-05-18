@@ -7,15 +7,8 @@ import android.os.Environment
 import android.util.Log
 import java.nio.ByteBuffer
 
-
 /**
  * 音视频封装器
- *
- * @author Chen Xiaoping (562818444@qq.com)
- * @since LearningVideo
- * @version LearningVideo
- * @Datetime 2019-09-19 11:02
- *
  */
 class MMuxer {
     private val TAG = "MMuxer"
