@@ -130,7 +130,7 @@ abstract class BaseDecoder(private val mFilePath: String): IDecoder {
                     }
                     //【解码步骤：4. 渲染】
                     if (mSyncRender) {// 如果只是用于编码合成新视频，无需渲染
-                        render(mOutputBuffers!![index], mBufferInfo)
+                        render(mOutputBuffers!![index], mBufferInfo)//对于音频播放，需要将解码数据buffer实际使用AudioTrack进行播放
                     }
 
                     //将解码数据传递出去
@@ -220,12 +220,12 @@ abstract class BaseDecoder(private val mFilePath: String): IDecoder {
     }
 
     private fun pushBufferToDecoder(): Boolean {
-        var inputBufferIndex = mCodec!!.dequeueInputBuffer(1000)
+        var inputBufferIndex = mCodec!!.dequeueInputBuffer(1000)//获取解码器输入缓存的索引
         var isEndOfStream = false
 
         if (inputBufferIndex >= 0) {
             val inputBuffer = mInputBuffers!![inputBufferIndex]
-            val sampleSize = mExtractor!!.readBuffer(inputBuffer)
+            val sampleSize = mExtractor!!.readBuffer(inputBuffer)//读取解复用数据包
 
             if (sampleSize < 0) {
                 //如果数据已经取完，压入数据结束标志：MediaCodec.BUFFER_FLAG_END_OF_STREAM
@@ -234,7 +234,7 @@ abstract class BaseDecoder(private val mFilePath: String): IDecoder {
                 isEndOfStream = true
             } else {
                 mCodec!!.queueInputBuffer(inputBufferIndex, 0,
-                    sampleSize, mExtractor!!.getCurrentTimestamp(), 0)
+                    sampleSize, mExtractor!!.getCurrentTimestamp(), 0)//将解复用数据包压入解码器
             }
         }
         return isEndOfStream
@@ -242,7 +242,7 @@ abstract class BaseDecoder(private val mFilePath: String): IDecoder {
 
     private fun pullBufferFromDecoder(): Int {
         // 查询是否有解码完成的数据，index >=0 时，表示数据有效，并且index为缓冲区索引
-        var index = mCodec!!.dequeueOutputBuffer(mBufferInfo, 1000)
+        var index = mCodec!!.dequeueOutputBuffer(mBufferInfo, 1000)//从解码器中获取解码输出缓存的索引
         when (index) {
             MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {}
             MediaCodec.INFO_TRY_AGAIN_LATER -> {}

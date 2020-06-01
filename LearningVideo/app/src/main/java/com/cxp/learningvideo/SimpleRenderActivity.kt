@@ -9,15 +9,8 @@ import com.cxp.learningvideo.opengl.drawer.IDrawer
 import com.cxp.learningvideo.opengl.drawer.TriangleDrawer
 import kotlinx.android.synthetic.main.activity_simpler_render.*
 
-
 /**
  * 简单渲染页面
- *
- * @author Chen Xiaoping (562818444@qq.com)
- * @since LearningVideo
- * @version LearningVideo
- * @Datetime 2019-10-09 09:23
- *
  */
 class SimpleRenderActivity : AppCompatActivity() {
     private lateinit var drawer: IDrawer

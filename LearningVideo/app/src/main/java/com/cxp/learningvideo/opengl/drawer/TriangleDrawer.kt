@@ -5,15 +5,8 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-
 /**
  * 三角形绘制
- *
- * @author Chen Xiaoping (562818444@qq.com)
- * @since LearningVideo
- * @version LearningVideo
- * @Datetime 2019-10-09 09:08
- *
  */
 class TriangleDrawer: IDrawer {
     override fun setVideoSize(videoW: Int, videoH: Int) {
