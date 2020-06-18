@@ -251,6 +251,17 @@ void XShader::GetTexture(unsigned int index, int width, int height, unsigned cha
     }
 
     mux.lock();
+    if(width % 16 == 0){//根据图片的宽来决定纹理数据对齐
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 16);
+    }else if(width % 8 == 0){
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
+    }else if(width % 4 == 0){
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }else if(width % 2 == 0){
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+    }else{
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    }
 
     if (texts[index] == 0){
         //材质初始化

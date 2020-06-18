@@ -31,12 +31,14 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent(this, SimplePlayerActivity::class.java))
     }
 
+    //绘制简单三角形
     fun clickSimpleTriangle(view: View) {
         val intent = Intent(this, SimpleRenderActivity::class.java)
         intent.putExtra("type", 0)
         startActivity(intent)
     }
 
+    //绘制简单纹理贴图
     fun clickSimpleTexture(view: View) {
         val intent = Intent(this, SimpleRenderActivity::class.java)
         intent.putExtra("type", 1)
