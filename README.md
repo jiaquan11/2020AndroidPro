@@ -15,3 +15,6 @@
 增加一个完整的在Android端进行视频播放的项目，音频使用opensl进行播放，
 视频使用opengles进行渲染，同时使用多种设计模式进行重构
 
+5.glumesNDK项目
+介绍如何在Android平台上使用CMake进行动态库的编译和使用,同时和会讲解Android NDK的各种开发技巧，
+包括Java与JNI如何进行双向调用交互、NDK 层线程创建和同步、引用管理和异常处理，以及 NDK 中 Bitmap 的使用
