@@ -1,4 +1,0 @@
-#Sat Mar 28 12:47:40 CST 2020
-base.0=F\:\\study\\2020AndroidPro\\grafika\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\out
-path.0=classes.dex
-renamed.0=classes.dex
