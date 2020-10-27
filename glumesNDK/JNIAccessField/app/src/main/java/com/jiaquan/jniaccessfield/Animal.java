@@ -35,7 +35,7 @@ public class Animal {
     public static String callStaticMethod(String[] strs, int num){
         if (strs != null){
             for (String str : strs){
-                Log.i("Animal", "str in array is" + str);
+                Log.i("Animal", "str in array is: " + str);
             }
         }
         return "";

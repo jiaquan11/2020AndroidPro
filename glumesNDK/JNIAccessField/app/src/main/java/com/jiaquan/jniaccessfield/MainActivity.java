@@ -21,12 +21,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.sample_text).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                jniAccessField.accessStaticField(animal);
-                jniAccessField.accessInstanceField(animal);
-                JNIAccessField.staticAccessInstanceField();
-                Log.i("MainActivity", "name is " + animal.getName());
-                Log.i("MainActivity", "num is " + Animal.getNum());
-                Log.i("MainActivity", "num is " + JNIAccessField.num);
+//                jniAccessField.accessStaticField(animal);
+//                jniAccessField.accessInstanceField(animal);
+//                JNIAccessField.staticAccessInstanceField();
+//                Log.i("MainActivity", "name is " + animal.getName());
+//                Log.i("MainActivity", "num is " + Animal.getNum());
+//                Log.i("MainActivity", "num is " + JNIAccessField.num);
+
+                jniAccessField.accessInstanceMethod(animal);
+                jniAccessField.accessStaticMethod(animal);
             }
         });
     }
