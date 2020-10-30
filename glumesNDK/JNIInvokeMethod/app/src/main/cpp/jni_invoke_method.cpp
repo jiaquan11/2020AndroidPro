@@ -23,7 +23,9 @@ void nativeCallback(
 void nativeThreadCallback(
         JNIEnv* env,
         jobject instance, jobject callback) {
+    LOGI("nativeThreadCallback");
     threadObject = env->NewGlobalRef(callback);
+    LOGI("callback is %p, threadObject is %p", callback, threadObject);
     threadClazz = env->GetObjectClass(callback);
     threadMethod = env->GetMethodID(threadClazz, "callback", "()V");
 
@@ -35,7 +37,7 @@ void *threadCallback(void *){
     JavaVM* gVM = getJvm();
     JNIEnv* env = nullptr;
     if (gVM->AttachCurrentThread(&env, nullptr) == 0){
-        LOGI("threadCallback AttachCurrentThread");
+        LOGI("threadCallback AttachCurrentThread threadObject:%p", threadObject);
         env->CallVoidMethod(threadObject, threadMethod);
         LOGI("threadCallback AttachCurrentThread 222");
         gVM->DetachCurrentThread();
@@ -45,7 +47,7 @@ void *threadCallback(void *){
 
 static JNINativeMethod gMethods[] = {
         {"nativeCallback", "(Lcom/jiaquan/jniinvokemethod/ICallbackMethod;)V", (void*)nativeCallback},
-        {"nativeThreadCallback", "(Lcom/jiaquan/jniinvokemethod/IThreadCallback;)V", (void*)threadCallback}
+        {"nativeThreadCallback", "(Lcom/jiaquan/jniinvokemethod/IThreadCallback;)V", (void*)nativeThreadCallback}
 };
 
 int registerNativeMethods(JNIEnv* env, const char* name,
