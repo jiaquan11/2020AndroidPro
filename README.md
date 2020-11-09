@@ -19,3 +19,6 @@
 介绍如何在Android平台上使用CMake进行动态库的编译和使用,同时和会讲解Android NDK的各种开发技巧，
 包括Java与JNI如何进行双向调用交互、NDK 层线程创建和同步、引用管理和异常处理，以及 NDK 中 Bitmap 的使用
 
+6.YangWanliOpenGL项目(Android C++ OpenGL 教程)
+掌握Android中OpenGL的原理,学会Android中NDK开发流程,能用OpenGL渲染视频画面,学会OpenGL 中矩阵操作、投影等
+用纯C++实现Android的OpenGL渲染功能，包括EGL环境创建、EGL线程创建、OpenGL生命周期管理等，会结合SurfaceView和TextureView实现OpenGL的渲染，最终我们会实现一个YUV播放器实例，为音视频开发打下坚实的基础。
