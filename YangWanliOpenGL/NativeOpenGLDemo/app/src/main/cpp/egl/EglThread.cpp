@@ -22,21 +22,27 @@ void* eglThreadImpl(void* context){
             if (eglThread->isCreate){
                 LOGI("eglThread call surface create!");
                 eglThread->isCreate = false;
+                eglThread->onCreate(eglThread->onCreateCtx);
             }
 
             if (eglThread->isChange){
                 LOGI("eglThread call surface change!");
                 eglThread->isChange = false;
                 //opengl
-                glViewport(0, 0, eglThread->surfaceWidth, eglThread->surfaceHeight);//指定显示窗口大小
+//                glViewport(0, 0, eglThread->surfaceWidth, eglThread->surfaceHeight);//指定显示窗口大小
+                eglThread->onChange(eglThread->surfaceWidth, eglThread->surfaceHeight, eglThread->onChangeCtx);
+
                 eglThread->isStart = true;
             }
 
             //绘制
             LOGI("draw");
             if (eglThread->isStart){
-                glClearColor(0.0f, 1.0f, 1.0f, 1.0f);//指定刷屏颜色
-                glClear(GL_COLOR_BUFFER_BIT);//将刷屏颜色进行刷屏，但此时仍然处于后台缓冲中，需要swapBuffers交换到前台界面显示
+//                glClearColor(0.0f, 1.0f, 1.0f, 1.0f);//指定刷屏颜色
+//                glClear(GL_COLOR_BUFFER_BIT);//将刷屏颜色进行刷屏，但此时仍然处于后台缓冲中，需要swapBuffers交换到前台界面显示
+
+                eglThread->onDraw(eglThread->onDrawCtx);
+
                 eglHelper->swapBuffers();
             }
 
@@ -48,7 +54,7 @@ void* eglThreadImpl(void* context){
         }
     }
 
-    pthread_exit(&eglThread->pEglThread);
+//    pthread_exit(&eglThread->pEglThread);
     return 0;
 }
 
@@ -66,4 +72,19 @@ void EglThread::onSurfaceChange(int width, int height) {
     isChange = true;
     surfaceWidth = width;
     surfaceHeight = height;
+}
+
+void EglThread::callBackOnCreate(EglThread::OnCreate onCreate, void *ctx) {
+    this->onCreate = onCreate;
+    this->onCreateCtx = ctx;
+}
+
+void EglThread::callBackOnChange(EglThread::OnChange onChange, void *ctx) {
+    this->onChange = onChange;
+    this->onChangeCtx = ctx;
+}
+
+void EglThread::callBackOnDraw(OnDraw onDraw, void *ctx) {
+    this->onDraw = onDraw;
+    this->onDrawCtx = ctx;
 }

@@ -18,10 +18,6 @@ public:
     ~EglThread();
 
 public:
-    void onSurfaceCreate(EGLNativeWindowType window);
-    void onSurfaceChange(int width, int height);
-
-public:
     pthread_t pEglThread = -1;
     ANativeWindow *nativeWindow = NULL;
 
@@ -32,7 +28,25 @@ public:
 
     int surfaceWidth = 0;
     int surfaceHeight = 0;
+
+    typedef void(*OnCreate)(void *);//定义函数指针
+    OnCreate onCreate;
+    void *onCreateCtx;
+
+    typedef void(*OnChange)(int width, int height, void*);
+    OnChange onChange;
+    void* onChangeCtx;
+
+    typedef void(*OnDraw)(void *);
+    OnDraw onDraw;
+    void* onDrawCtx;
+
+public:
+    void onSurfaceCreate(EGLNativeWindowType window);
+    void onSurfaceChange(int width, int height);
+
+    void callBackOnCreate(OnCreate onCreate, void* ctx);
+    void callBackOnChange(OnChange onChange, void* ctx);
+    void callBackOnDraw(OnDraw onDraw, void* ctx);
 };
-
-
 #endif //NATIVEOPENGLDEMO_EGLTHREAD_H
