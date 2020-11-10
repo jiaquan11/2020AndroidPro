@@ -33,6 +33,7 @@ Java_com_jiaquan_opengl_NativeOpengl_surfaceCreate(JNIEnv *env, jobject thiz, jo
     nativeWindow = ANativeWindow_fromSurface(env, surface);
 
     eglThread = new EglThread();
+    eglThread->setRenderType(OPENGL_RENDER_HANDLE);
     eglThread->callBackOnCreate(callback_SurfaceCreate, eglThread);
     eglThread->callBackOnChange(callback_SurfaceChange, eglThread);
     eglThread->callBackOnDraw(callback_SurfaceDraw, eglThread);
@@ -47,5 +48,8 @@ Java_com_jiaquan_opengl_NativeOpengl_surfaceChange(JNIEnv *env, jobject thiz, ji
     // TODO: implement surfaceChange()
     if (eglThread != NULL) {
         eglThread->onSurfaceChange(width, height);
+
+        usleep(1000000);
+        eglThread->notifyRender();
     }
 }

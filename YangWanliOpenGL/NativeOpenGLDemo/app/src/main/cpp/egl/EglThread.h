@@ -12,6 +12,9 @@
 #include <unistd.h>
 #include <GLES2/gl2.h>
 
+#define OPENGL_RENDER_AUTO 1
+#define OPENGL_RENDER_HANDLE 2
+
 class EglThread {
 public:
     EglThread();
@@ -41,6 +44,11 @@ public:
     OnDraw onDraw;
     void* onDrawCtx;
 
+    int renderType = OPENGL_RENDER_AUTO;
+
+    pthread_mutex_t pthread_mutex;
+    pthread_cond_t pthread_cond;
+
 public:
     void onSurfaceCreate(EGLNativeWindowType window);
     void onSurfaceChange(int width, int height);
@@ -48,5 +56,9 @@ public:
     void callBackOnCreate(OnCreate onCreate, void* ctx);
     void callBackOnChange(OnChange onChange, void* ctx);
     void callBackOnDraw(OnDraw onDraw, void* ctx);
+
+    void setRenderType(int renderType);
+
+    void notifyRender();
 };
 #endif //NATIVEOPENGLDEMO_EGLTHREAD_H

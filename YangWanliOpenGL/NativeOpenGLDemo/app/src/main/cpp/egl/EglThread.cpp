@@ -5,11 +5,13 @@
 #include "EglThread.h"
 
 EglThread::EglThread() {
-
+    pthread_mutex_init(&pthread_mutex, NULL);
+    pthread_cond_init(&pthread_cond, NULL);
 }
 
 EglThread::~EglThread() {
-
+    pthread_mutex_destroy(&pthread_mutex);
+    pthread_cond_destroy(&pthread_cond);
 }
 
 void* eglThreadImpl(void* context){
@@ -46,7 +48,13 @@ void* eglThreadImpl(void* context){
                 eglHelper->swapBuffers();
             }
 
-            usleep(1000000/60);//六十分之一秒  每秒60次渲染
+            if (eglThread->renderType == OPENGL_RENDER_AUTO){//自动渲染
+                usleep(1000000/60);//六十分之一秒  每秒60次渲染
+            }else{//手动渲染
+                pthread_mutex_lock(&eglThread->pthread_mutex);
+                pthread_cond_wait(&eglThread->pthread_cond, &eglThread->pthread_mutex);
+                pthread_mutex_unlock(&eglThread->pthread_mutex);
+            }
 
             if (eglThread->isExit){
                 break;
@@ -87,4 +95,14 @@ void EglThread::callBackOnChange(EglThread::OnChange onChange, void *ctx) {
 void EglThread::callBackOnDraw(OnDraw onDraw, void *ctx) {
     this->onDraw = onDraw;
     this->onDrawCtx = ctx;
+}
+
+void EglThread::setRenderType(int renderType) {
+    this->renderType = renderType;
+}
+
+void EglThread::notifyRender() {
+    pthread_mutex_lock(&pthread_mutex);
+    pthread_cond_signal(&pthread_cond);
+    pthread_mutex_unlock(&pthread_mutex);
 }
