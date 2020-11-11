@@ -22,7 +22,7 @@ public class WlSurfaceView extends SurfaceView implements SurfaceHolder.Callback
 
     public WlSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        getHolder().addCallback(this);
+        getHolder().addCallback(this);////
     }
 
     @Override

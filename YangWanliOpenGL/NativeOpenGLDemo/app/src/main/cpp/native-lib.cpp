@@ -4,9 +4,24 @@
 #include "android/native_window.h"
 #include "android/native_window_jni.h"
 #include "GLES2/gl2.h"
+#include "shaderutil/shaderUtil.h"
 
 ANativeWindow *nativeWindow = NULL;
 EglThread *eglThread = NULL;
+
+//#define GET_STR(x) #x
+//const char* vertex = GET_STR(
+//        attribute vec2 a_position;
+//        void main(){
+//            gl_Position = a_position;
+//        });
+//
+//const char* fragment = GET_STR(
+//        precision mediump float;
+//        void main() {
+//            gl_FragColor = vec4(1.0f, 0f, 0f, 1.0f);
+//        });
+
 
 void callback_SurfaceCreate(void *ctx) {
     LOGI("callback_SurfaceCreate");
@@ -38,7 +53,9 @@ Java_com_jiaquan_opengl_NativeOpengl_surfaceCreate(JNIEnv *env, jobject thiz, jo
     eglThread->callBackOnChange(callback_SurfaceChange, eglThread);
     eglThread->callBackOnDraw(callback_SurfaceDraw, eglThread);
 
+    LOGI("before onSurfaceCreate");
     eglThread->onSurfaceCreate(nativeWindow);
+    LOGI("after onSurfaceCreate");
 }
 
 extern "C"
@@ -47,9 +64,14 @@ Java_com_jiaquan_opengl_NativeOpengl_surfaceChange(JNIEnv *env, jobject thiz, ji
                                                    jint height) {
     // TODO: implement surfaceChange()
     if (eglThread != NULL) {
+        LOGI("before onSurfaceChange");
         eglThread->onSurfaceChange(width, height);
+        LOGI("after onSurfaceChange");
 
-        usleep(1000000);
+//        LOGI("before usleep");
+//        usleep(5000000);//10s
+//        LOGI("after usleep");
         eglThread->notifyRender();
+        LOGI("after notifyRender");
     }
 }

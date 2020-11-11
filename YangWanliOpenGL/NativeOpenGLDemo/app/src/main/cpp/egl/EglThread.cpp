@@ -3,6 +3,32 @@
 //
 
 #include "EglThread.h"
+#include "../shaderutil/shaderUtil.h"
+
+#define GET_STR(x) #x
+const char* vertex = GET_STR(
+        attribute vec4 a_position;
+        void main(){
+            gl_Position = a_position;
+        });
+
+const char* fragment = GET_STR(
+        precision mediump float;
+        void main() {
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        });
+
+//const char* vertex = "attribute vec4 a_position;\n"
+//                     "\n"
+//                     "void main(){\n"
+//                     "gl_Position = a_position;\n"
+//                     "}";
+//
+//const char* fragment = "precision mediump float;\n"
+//                       "\n"
+//                       "void main() {\n"
+//                       "gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+//                       "}";
 
 EglThread::EglThread() {
     pthread_mutex_init(&pthread_mutex, NULL);
@@ -20,6 +46,10 @@ void* eglThreadImpl(void* context){
         EglHelper* eglHelper = new EglHelper();
         eglHelper->initEgl(eglThread->nativeWindow);
         eglThread->isExit = false;
+
+        int program = createProgram(vertex, fragment);
+        LOGE("eglThreadImpl GET_STR opengl program: %d", program);
+
         while (true){
             if (eglThread->isCreate){
                 LOGI("eglThread call surface create!");
@@ -40,12 +70,13 @@ void* eglThreadImpl(void* context){
             //绘制
             LOGI("draw");
             if (eglThread->isStart){
-//                glClearColor(0.0f, 1.0f, 1.0f, 1.0f);//指定刷屏颜色
+//                glClearColor(0.0f, 0.0f, 1.0f, 1.0f);//指定刷屏颜色
 //                glClear(GL_COLOR_BUFFER_BIT);//将刷屏颜色进行刷屏，但此时仍然处于后台缓冲中，需要swapBuffers交换到前台界面显示
 
                 eglThread->onDraw(eglThread->onDrawCtx);
 
                 eglHelper->swapBuffers();
+                LOGI("swapBuffers");
             }
 
             if (eglThread->renderType == OPENGL_RENDER_AUTO){//自动渲染
@@ -54,6 +85,7 @@ void* eglThreadImpl(void* context){
                 pthread_mutex_lock(&eglThread->pthread_mutex);
                 pthread_cond_wait(&eglThread->pthread_cond, &eglThread->pthread_mutex);
                 pthread_mutex_unlock(&eglThread->pthread_mutex);
+                LOGI("after wait");
             }
 
             if (eglThread->isExit){
