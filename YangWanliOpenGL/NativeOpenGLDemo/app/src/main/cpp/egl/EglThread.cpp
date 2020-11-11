@@ -3,32 +3,6 @@
 //
 
 #include "EglThread.h"
-#include "../shaderutil/shaderUtil.h"
-
-#define GET_STR(x) #x
-const char* vertex = GET_STR(
-        attribute vec4 a_position;
-        void main(){
-            gl_Position = a_position;
-        });
-
-const char* fragment = GET_STR(
-        precision mediump float;
-        void main() {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        });
-
-//const char* vertex = "attribute vec4 a_position;\n"
-//                     "\n"
-//                     "void main(){\n"
-//                     "gl_Position = a_position;\n"
-//                     "}";
-//
-//const char* fragment = "precision mediump float;\n"
-//                       "\n"
-//                       "void main() {\n"
-//                       "gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
-//                       "}";
 
 EglThread::EglThread() {
     pthread_mutex_init(&pthread_mutex, NULL);
@@ -46,9 +20,6 @@ void* eglThreadImpl(void* context){
         EglHelper* eglHelper = new EglHelper();
         eglHelper->initEgl(eglThread->nativeWindow);
         eglThread->isExit = false;
-
-        int program = createProgram(vertex, fragment);
-        LOGE("eglThreadImpl GET_STR opengl program: %d", program);
 
         while (true){
             if (eglThread->isCreate){

@@ -18,7 +18,7 @@ static int loadShaders(int shaderType, const char* code){
         LOGE("glCompileShader failed!");
         return 0;
     }
-    LOGE("glCompileShader success!");
+    LOGI("glCompileShader success!");
     return shader;
 }
 
@@ -41,7 +41,7 @@ static int createProgram(const char* vertex, const char* fragment){
         LOGE("glLinkProgram failed!");
         return 0;
     }
-    LOGE("glLinkProgram success!");
+    LOGI("glLinkProgram success!");
     return program;
 }
 
