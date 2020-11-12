@@ -37,10 +37,25 @@ const char* fragmentStr = GET_STR(
 int program = 0;
 GLint vPosition = 0;
 
+//float vertexs[] = {
+//        -1, -1,
+//        1, -1,
+//        0, 1
+//};
+//float vertexs[] = {
+//        -1, -1,
+//        1, -1,
+//        -1, 1,
+//
+//        -1, 1,
+//        1, 1,
+//        1, -1
+//};
 float vertexs[] = {
         -1, -1,
         1, -1,
-        0, 1
+        -1, 1,
+        1, 1,
 };
 void callback_SurfaceCreate(void *ctx) {
     LOGI("callback_SurfaceCreate");
@@ -78,7 +93,9 @@ void callback_SurfaceDraw(void *ctx) {
     /*opengl绘制
      * 绘制三角形，第二个参数表示从索引0开始，绘制三个顶点
      */
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+//    glDrawArrays(GL_TRIANGLES, 0, 3);//绘制三角形
+//    glDrawArrays(GL_TRIANGLES, 0, 6);//绘制四边形
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);//绘制四边形
 }
 
 extern "C"
