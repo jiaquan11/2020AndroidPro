@@ -6,6 +6,41 @@
 #define NATIVEOPENGLDEMO_SHADERUTIL_H
 #include <GLES2/gl2.h>
 
+static void CheckGLError(){
+    GLenum error = glGetError();
+    LOGE("CheckGLError error:%d", error);
+    if(error != GL_NO_ERROR){
+        switch (error){
+            case GL_INVALID_ENUM:
+//                printf("GL Error: GL_INVALID_ENUM %s : %d \n",file,line);
+                LOGE("CheckGLError GL_INVALID_ENUM");
+                break;
+            case GL_INVALID_VALUE:
+//                printf("GL Error: GL_INVALID_VALUE %s : %d \n",file,line);
+                LOGE("CheckGLError GL_INVALID_VALUE");
+                break;
+            case GL_INVALID_OPERATION:
+//                printf("GL Error: GL_INVALID_OPERATION %s : %d \n",file,line);
+                LOGE("CheckGLError GL_INVALID_OPERATION");
+                break;
+//            case GL_STACK_OVERFLOW:
+//                printf("GL Error: GL_STACK_OVERFLOW %s : %d \n",file,line);
+//                break;
+//            case GL_STACK_UNDERFLOW:
+//                printf("GL Error: GL_STACK_UNDERFLOW %s : %d \n",file,line);
+//                break;
+            case GL_OUT_OF_MEMORY:
+//                printf("GL Error: GL_OUT_OF_MEMORY %s : %d \n",file,line);
+                LOGE("CheckGLError GL_OUT_OF_MEMORY");
+                break;
+            default:
+//                printf("GL Error: 0x%x %s : %d \n",error,file,line);
+                LOGE("CheckGLError default");
+                break;
+        }
+    }
+}
+
 static int loadShaders(int shaderType, const char* code){
     int shader = glCreateShader(shaderType);//创建一个指定类型的shader,并返回一个对应的索引
     glShaderSource(shader, 1, &code, 0);//加载shader源码
@@ -34,7 +69,14 @@ static int createProgram(const char* vertex, const char* fragment){
 
     glLinkProgram(program);
 
-    //获取编译情况
+//    CheckGLError();
+
+//     char buf[256] = {0};
+//     int len=0;
+//     glGetProgramInfoLog(program, 256, &len, buf);
+//     LOGE("buf is %s", buf);
+
+    //获取链接情况
     GLint status;
     glGetShaderiv(program, GL_LINK_STATUS, &status);
     if (status == 0) {
@@ -44,5 +86,4 @@ static int createProgram(const char* vertex, const char* fragment){
     LOGI("glLinkProgram success!");
     return program;
 }
-
 #endif //NATIVEOPENGLDEMO_SHADERUTIL_H

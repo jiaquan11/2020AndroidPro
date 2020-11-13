@@ -11,52 +11,46 @@ EglThread *eglThread = NULL;
 
 #define GET_STR(x) #x
 const char* vertexStr = GET_STR(
-        attribute vec4 a_position;
-        void main(){
-            gl_Position = a_position;
+        attribute vec4 v_Position;
+           attribute vec2 f_Position;
+           varying vec2 ft_Position;
+           void main(){
+               ft_Position = f_Position;
+               gl_Position = v_Position;
         });
 
 const char* fragmentStr = GET_STR(
         precision mediump float;
-        void main() {
-            gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-        });
-
-//const char* vertex = "attribute vec4 a_position;\n"
-//                     "\n"
-//                     "void main(){\n"
-//                     "gl_Position = a_position;\n"
-//                     "}";
-//
-//const char* fragment = "precision mediump float;\n"
-//                       "\n"
-//                       "void main() {\n"
-//                       "gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
-//                       "}";
+           varying vec2 ft_Position;
+           uniform sampler2D sTexture;
+           void main(){//texture2D表示GPU将输入得图像纹理像素进行读取，读取到GPU的管线中,最后渲染出来
+            gl_FragColor = texture2D(sTexture,ft_Position);
+           });
 
 int program = 0;
 GLint vPosition = 0;
+GLint fPosition = 0;
+GLint sampler = 0;
+GLuint textureID = 0;
 
-//float vertexs[] = {
-//        -1, -1,
-//        1, -1,
-//        0, 1
-//};
-//float vertexs[] = {
-//        -1, -1,
-//        1, -1,
-//        -1, 1,
-//
-//        -1, 1,
-//        1, 1,
-//        1, -1
-//};
+int w;
+int h;
+void *pixels = NULL;
+
 float vertexs[] = {
-        -1, -1,
         1, -1,
-        -1, 1,
         1, 1,
+        -1, -1,
+        -1, 1,
 };
+
+float fragments[] = {
+        1, 1,
+        1, 0,
+        0, 1,
+        0, 0
+};
+
 void callback_SurfaceCreate(void *ctx) {
     LOGI("callback_SurfaceCreate");
     EglThread *eglThread = static_cast<EglThread *>(ctx);
@@ -65,7 +59,24 @@ void callback_SurfaceCreate(void *ctx) {
     LOGI("callback_SurfaceCreate GET_STR opengl program: %d", program);
 
     //获取着色器程序中的这个变量a_position，返回一个变量id，用于给这个变量赋值
-    vPosition = glGetAttribLocation(program, "a_position");
+    vPosition = glGetAttribLocation(program, "v_Position");//顶点坐标变量
+    fPosition = glGetAttribLocation(program, "f_Position");//纹理坐标变量
+    sampler = glGetUniformLocation(program, "sTexture");//2D纹理变量
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);//绑定纹理
+
+    LOGI("textureID is %d", textureID);
+
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//    if (pixels != NULL){//为后台缓存显存中设置图片数据
+//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+//    }
+    glBindTexture(GL_TEXTURE_2D, 0);//解绑纹理
 }
 
 void callback_SurfaceChange(int w, int h, void *ctx) {
@@ -81,6 +92,23 @@ void callback_SurfaceDraw(void *ctx) {
     glClear(GL_COLOR_BUFFER_BIT);//将刷屏颜色进行刷屏，但此时仍然处于后台缓冲中，需要swapBuffers交换到前台界面显示
 
     glUseProgram(program);//使用着色器程序
+
+    //渲染时纹理赋值操作
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(sampler, 0);//GL_TEXTURE0表示就是第一层纹理
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (pixels != NULL){//为后台缓存显存中设置图片数据
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    }
+
+    //渲染时顶点赋值操作
     glEnableVertexAttribArray(vPosition);//使能这个着色器变量
 
     /*给着色器的顶点顶点变量赋值
@@ -90,12 +118,16 @@ void callback_SurfaceDraw(void *ctx) {
      */
     glVertexAttribPointer(vPosition, 2, GL_FLOAT, false, 8, vertexs);
 
+    glEnableVertexAttribArray(fPosition);
+    glVertexAttribPointer(fPosition, 2, GL_FLOAT, false, 8, fragments);
     /*opengl绘制
      * 绘制三角形，第二个参数表示从索引0开始，绘制三个顶点
      */
 //    glDrawArrays(GL_TRIANGLES, 0, 3);//绘制三角形
 //    glDrawArrays(GL_TRIANGLES, 0, 6);//绘制四边形
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);//绘制四边形
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 extern "C"
@@ -128,7 +160,23 @@ Java_com_jiaquan_opengl_NativeOpengl_surfaceChange(JNIEnv *env, jobject thiz, ji
 //        LOGI("before usleep");
 //        usleep(5000000);//10s
 //        LOGI("after usleep");
+
         eglThread->notifyRender();
         LOGI("after notifyRender");
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_opengl_NativeOpengl_imgData(JNIEnv *env, jobject thiz, jint width, jint height, jint length,
+                                             jbyteArray dataArray) {
+    // TODO: implement imgData()
+    jbyte* data = env->GetByteArrayElements(dataArray, NULL);
+
+    w = width;
+    h = height;
+    pixels = malloc(length);
+    memcpy(pixels, data, length);
+
+    env->ReleaseByteArrayElements(dataArray, data, 0);
 }

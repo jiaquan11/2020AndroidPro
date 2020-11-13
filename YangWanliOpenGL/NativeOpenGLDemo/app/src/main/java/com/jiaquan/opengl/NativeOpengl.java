@@ -11,4 +11,6 @@ public class NativeOpengl {
     public native void surfaceCreate(Surface surface);
 
     public native void surfaceChange(int width, int height);
+
+    public native void imgData(int w, int h, int length, byte[] data);
 }
