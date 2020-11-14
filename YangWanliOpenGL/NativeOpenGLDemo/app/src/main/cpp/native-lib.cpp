@@ -5,6 +5,7 @@
 #include "android/native_window_jni.h"
 #include "GLES2/gl2.h"
 #include "shaderutil/shaderUtil.h"
+#include "matrix/MatrixUtil.h"
 
 ANativeWindow *nativeWindow = NULL;
 EglThread *eglThread = NULL;
@@ -14,9 +15,10 @@ const char* vertexStr = GET_STR(
         attribute vec4 v_Position;
            attribute vec2 f_Position;
            varying vec2 ft_Position;
+           uniform mat4 u_Matrix;
            void main(){
                ft_Position = f_Position;
-               gl_Position = v_Position;
+               gl_Position = v_Position * u_Matrix;
         });
 
 const char* fragmentStr = GET_STR(
@@ -32,6 +34,7 @@ GLint vPosition = 0;
 GLint fPosition = 0;
 GLint sampler = 0;
 GLuint textureID = 0;
+GLint u_matrix = 0;
 
 int w;
 int h;
@@ -51,6 +54,8 @@ float fragments[] = {
         0, 0
 };
 
+float matrix[16];
+
 void callback_SurfaceCreate(void *ctx) {
     LOGI("callback_SurfaceCreate");
     EglThread *eglThread = static_cast<EglThread *>(ctx);
@@ -62,6 +67,7 @@ void callback_SurfaceCreate(void *ctx) {
     vPosition = glGetAttribLocation(program, "v_Position");//顶点坐标变量
     fPosition = glGetAttribLocation(program, "f_Position");//纹理坐标变量
     sampler = glGetUniformLocation(program, "sTexture");//2D纹理变量
+    u_matrix = glGetUniformLocation(program, "u_Matrix");//着色器矩阵变量
 
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);//绑定纹理
@@ -77,6 +83,8 @@ void callback_SurfaceCreate(void *ctx) {
 //        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 //    }
     glBindTexture(GL_TEXTURE_2D, 0);//解绑纹理
+
+    initMatrix(matrix);//初始化矩阵
 }
 
 void callback_SurfaceChange(int w, int h, void *ctx) {
@@ -98,6 +106,8 @@ void callback_SurfaceDraw(void *ctx) {
 
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(sampler, 0);//GL_TEXTURE0表示就是第一层纹理
+
+    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, matrix);//给矩阵变量赋值
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
