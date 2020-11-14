@@ -18,7 +18,7 @@ const char* vertexStr = GET_STR(
            uniform mat4 u_Matrix;
            void main(){
                ft_Position = f_Position;
-               gl_Position = v_Position * u_Matrix;
+               gl_Position = v_Position * u_Matrix;//将矩阵与顶点坐标进行相乘，用于图像旋转
         });
 
 const char* fragmentStr = GET_STR(
@@ -85,6 +85,8 @@ void callback_SurfaceCreate(void *ctx) {
     glBindTexture(GL_TEXTURE_2D, 0);//解绑纹理
 
     initMatrix(matrix);//初始化矩阵
+    //rotateMatrix(90, matrix);//旋转矩阵，这里是逆时针90度旋转，-90是顺时针旋转90度
+    scaleMatrix(0.5, matrix);//图像缩放，一般是对X轴和Y轴等值缩放，0.5缩小一倍
 }
 
 void callback_SurfaceChange(int w, int h, void *ctx) {
