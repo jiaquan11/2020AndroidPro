@@ -86,13 +86,33 @@ void callback_SurfaceCreate(void *ctx) {
 
     initMatrix(matrix);//初始化矩阵
     //rotateMatrix(90, matrix);//旋转矩阵，这里是逆时针90度旋转，-90是顺时针旋转90度
-    scaleMatrix(0.5, matrix);//图像缩放，一般是对X轴和Y轴等值缩放，0.5缩小一倍
+    //scaleMatrix(0.5, matrix);//图像缩放，一般是对X轴和Y轴等值缩放，0.5缩小一倍
+//    transMatrix(0.5, 0, matrix);//图像平移，这里移动四分之一位置，沿着X轴
+//    transMatrix(1, 1, matrix);
+
+//根据顶点坐标的范围-1，1，-1，1，表示全屏幕铺满
+      orthoM(-1, 1, -1, 1, matrix);//正交投影
 }
 
-void callback_SurfaceChange(int w, int h, void *ctx) {
+void callback_SurfaceChange(int width, int height, void *ctx) {
     LOGI("callback_SurfaceChange");
     EglThread *eglThread = static_cast<EglThread *>(ctx);
-    glViewport(0, 0, w, h);
+    glViewport(0, 0, width, height);
+
+    //屏幕720*1280 图片:517*685
+    float screen_r = 1.0 * width/height;
+    float picture_r = 1.0 * w / h;
+    if (screen_r > picture_r){//图片宽度缩放
+        LOGI("pic scale width");
+        float r = width/(1.0*height/h*w);
+        LOGI("pic scale width r: %f", r);
+        orthoM(-r, r, -1, 1, matrix);
+    }else{//图片宽的比率大于屏幕，则宽进行直接覆盖屏幕，而图片高度缩放
+        LOGI("pic scale height");
+        float r = height/(1.0*width/w*h);
+        LOGI("pic scale height r: %f", r);
+        orthoM(-1, 1, -r, r, matrix);
+    }
 }
 
 void callback_SurfaceDraw(void *ctx) {

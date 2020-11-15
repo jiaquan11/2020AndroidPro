@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         //解码一张bitmap图片，拿到像素数据
         final Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
-                R.drawable.testimage);
+                R.drawable.mingren);
         ByteBuffer fcbuffer = ByteBuffer.allocate(bitmap.getHeight()*bitmap.getWidth()*4);
         bitmap.copyPixelsToBuffer(fcbuffer);
         fcbuffer.flip();

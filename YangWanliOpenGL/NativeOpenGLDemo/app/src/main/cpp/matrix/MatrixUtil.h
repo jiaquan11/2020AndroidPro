@@ -35,4 +35,25 @@ static void scaleMatrix(double scale, float* matrix){
     matrix[0] = scale;
     matrix[5] = scale;
 }
+
+/**
+ * 2D平移
+ *只需修改X轴和Y轴即可
+ */
+ static void transMatrix(double x, double y, float* matrix){
+     matrix[3] = x;
+     matrix[7] = y;
+ }
+
+ /**
+  * 正交投影
+  */
+  static void orthoM(float left, float right, float bottom, float top, float* matrix){
+      matrix[0] = 2/(right-left);
+      matrix[3] = (right + left)/(right - left) * -1;
+      matrix[5] = 2 / (top - bottom);
+      matrix[7] = (top + bottom) / (top - bottom) * -1;
+      matrix[10] = 1;
+      matrix[11] = 1;
+  }
 #endif //NATIVEOPENGLDEMO_MATRIXUTIL_H
