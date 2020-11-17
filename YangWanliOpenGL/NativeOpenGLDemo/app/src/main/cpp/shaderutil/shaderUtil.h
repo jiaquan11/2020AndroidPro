@@ -5,6 +5,7 @@
 #ifndef NATIVEOPENGLDEMO_SHADERUTIL_H
 #define NATIVEOPENGLDEMO_SHADERUTIL_H
 #include <GLES2/gl2.h>
+#include "../log/androidLog.h"
 
 static void CheckGLError(){
     GLenum error = glGetError();

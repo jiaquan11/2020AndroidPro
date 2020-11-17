@@ -1,0 +1,103 @@
+//
+// Created by jiaqu on 2020/11/15.
+//
+
+#include "Opengl.h"
+
+//函数指针的相关实现函数
+void callback_SurfaceCreate(void *ctx) {
+    Opengl *opengl = static_cast<Opengl *>(ctx);
+    if (opengl != NULL) {
+        if (opengl->baseOpengl != NULL) {
+            opengl->baseOpengl->onCreate();
+        }
+    }
+}
+
+void callback_SurfaceChange(int width, int height, void *ctx) {
+    Opengl *opengl = static_cast<Opengl *>(ctx);
+    if (opengl != NULL) {
+        if (opengl->baseOpengl != NULL) {
+            opengl->baseOpengl->onChange(width, height);
+        }
+    }
+}
+
+void callback_SurfaceDraw(void *ctx) {
+    Opengl *opengl = static_cast<Opengl *>(ctx);
+    if (opengl != NULL) {
+        if (opengl->baseOpengl != NULL) {
+            opengl->baseOpengl->onDraw();
+        }
+    }
+}
+
+Opengl::Opengl() {
+
+}
+
+Opengl::~Opengl() {
+    if (pixels != NULL) {
+        delete pixels;
+        pixels = NULL;
+    }
+}
+
+void Opengl::onCreateSurface(JNIEnv *env, jobject surface) {
+    LOGI("Opengl::onCreateSurface in");
+    nativeWindow = ANativeWindow_fromSurface(env, surface);
+    eglThread = new EglThread();
+    eglThread->setRenderType(OPENGL_RENDER_HANDLE);//设置渲染类型
+    eglThread->callBackOnCreate(callback_SurfaceCreate, this);//设置函数指针
+    eglThread->callBackOnChange(callback_SurfaceChange, this);
+    eglThread->callBackOnDraw(callback_SurfaceDraw, this);
+
+    baseOpengl = new FilterOne();//opengl绘制的相关操作类
+
+    eglThread->onSurfaceCreate(nativeWindow);//内部创建一个独立的子线程，用于EGL环境的操作
+    LOGI("Opengl::onCreateSurface end");
+}
+
+void Opengl::onChangeSurface(int width, int height) {//屏幕宽高
+    LOGI("Opengl::onChangeSurface in");
+    if (eglThread != NULL) {
+        if (baseOpengl != NULL) {
+            baseOpengl->surface_width = width;
+            baseOpengl->surface_height = height;
+        }
+        eglThread->onSurfaceChange(width, height);
+    }
+    LOGI("Opengl::onChangeSurface end");
+}
+
+void Opengl::onDestroySurface() {
+    LOGI("Opengl::onDestroySurface in");
+    if (eglThread != NULL) {
+        eglThread->destroy();
+        delete eglThread;
+        eglThread = NULL;
+    }
+    if (baseOpengl != NULL) {
+        delete baseOpengl;
+        baseOpengl = NULL;
+    }
+    if (nativeWindow != NULL) {
+        ANativeWindow_release(nativeWindow);
+        nativeWindow = NULL;
+    }
+    LOGI("Opengl::onDestroySurface end");
+}
+
+void Opengl::setPixel(void *data, int width, int height, int length) {
+    LOGI("Opengl::setPixel in");
+    pixels = malloc(length);
+    memcpy(pixels, data, length);
+    if (baseOpengl != NULL) {
+        baseOpengl->setPixel(pixels, width, height, length);
+    }
+
+    if (eglThread != NULL) {
+        eglThread->notifyRender();
+    }
+    LOGI("Opengl::setPixel end");
+}

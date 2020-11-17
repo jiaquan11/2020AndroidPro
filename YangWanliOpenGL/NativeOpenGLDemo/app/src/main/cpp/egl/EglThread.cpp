@@ -14,33 +14,34 @@ EglThread::~EglThread() {
     pthread_cond_destroy(&pthread_cond);
 }
 
-void* eglThreadImpl(void* context){
-    EglThread* eglThread = static_cast<EglThread *>(context);
-    if (eglThread != NULL){
-        EglHelper* eglHelper = new EglHelper();
+void *eglThreadImpl(void *context) {
+    EglThread *eglThread = static_cast<EglThread *>(context);
+    if (eglThread != NULL) {
+        EglHelper *eglHelper = new EglHelper();
         eglHelper->initEgl(eglThread->nativeWindow);
         eglThread->isExit = false;
 
-        while (true){
-            if (eglThread->isCreate){
+        while (true) {
+            if (eglThread->isCreate) {
                 LOGI("eglThread call surface create!");
                 eglThread->isCreate = false;
                 eglThread->onCreate(eglThread->onCreateCtx);
             }
 
-            if (eglThread->isChange){
+            if (eglThread->isChange) {
                 LOGI("eglThread call surface change!");
                 eglThread->isChange = false;
                 //opengl
 //                glViewport(0, 0, eglThread->surfaceWidth, eglThread->surfaceHeight);//指定显示窗口大小
-                eglThread->onChange(eglThread->surfaceWidth, eglThread->surfaceHeight, eglThread->onChangeCtx);
+                eglThread->onChange(eglThread->surfaceWidth, eglThread->surfaceHeight,
+                                    eglThread->onChangeCtx);
 
                 eglThread->isStart = true;
             }
 
             //绘制
             LOGI("draw");
-            if (eglThread->isStart){
+            if (eglThread->isStart) {
 //                glClearColor(0.0f, 0.0f, 1.0f, 1.0f);//指定刷屏颜色
 //                glClear(GL_COLOR_BUFFER_BIT);//将刷屏颜色进行刷屏，但此时仍然处于后台缓冲中，需要swapBuffers交换到前台界面显示
 
@@ -50,16 +51,20 @@ void* eglThreadImpl(void* context){
                 LOGI("swapBuffers");
             }
 
-            if (eglThread->renderType == OPENGL_RENDER_AUTO){//自动渲染
-                usleep(1000000/60);//六十分之一秒  每秒60次渲染
-            }else{//手动渲染
+            if (eglThread->renderType == OPENGL_RENDER_AUTO) {//自动渲染
+                usleep(1000000 / 60);//六十分之一秒  每秒60次渲染
+            } else {//手动渲染
+                LOGI("before wait");
                 pthread_mutex_lock(&eglThread->pthread_mutex);
                 pthread_cond_wait(&eglThread->pthread_cond, &eglThread->pthread_mutex);
                 pthread_mutex_unlock(&eglThread->pthread_mutex);
                 LOGI("after wait");
             }
 
-            if (eglThread->isExit){
+            if (eglThread->isExit) {
+                eglHelper->destroyEgl();
+                delete eglHelper;
+                eglHelper = NULL;
                 break;
             }
         }
@@ -70,7 +75,7 @@ void* eglThreadImpl(void* context){
 }
 
 void EglThread::onSurfaceCreate(EGLNativeWindowType window) {
-    if (pEglThread == -1){
+    if (pEglThread == -1) {
         isCreate = true;
         nativeWindow = window;
 
@@ -83,6 +88,7 @@ void EglThread::onSurfaceChange(int width, int height) {
     isChange = true;
     surfaceWidth = width;
     surfaceHeight = height;
+    notifyRender();
 }
 
 void EglThread::callBackOnCreate(EglThread::OnCreate onCreate, void *ctx) {
@@ -108,4 +114,12 @@ void EglThread::notifyRender() {
     pthread_mutex_lock(&pthread_mutex);
     pthread_cond_signal(&pthread_cond);
     pthread_mutex_unlock(&pthread_mutex);
+}
+
+void EglThread::destroy() {
+    isExit = true;
+    notifyRender();
+    pthread_join(pEglThread, NULL);
+    nativeWindow = NULL;
+    pEglThread = -1;
 }

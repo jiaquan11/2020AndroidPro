@@ -11,11 +11,14 @@
 class EglHelper {
 public:
     EglHelper();
+
     ~EglHelper();
 
 public:
     int initEgl(EGLNativeWindowType window);
+
     int swapBuffers();
+
     void destroyEgl();
 
 public:

@@ -4,6 +4,16 @@
 
 #ifndef NATIVEOPENGLDEMO_MATRIXUTIL_H
 #define NATIVEOPENGLDEMO_MATRIXUTIL_H
+#include <math.h>
+
+//    initMatrix(matrix);//初始化矩阵
+//rotateMatrix(90, matrix);//旋转矩阵，这里是逆时针90度旋转，-90是顺时针旋转90度
+//scaleMatrix(0.5, matrix);//图像缩放，一般是对X轴和Y轴等值缩放，0.5缩小一倍
+//    transMatrix(0.5, 0, matrix);//图像平移，这里移动四分之一位置，沿着X轴
+//    transMatrix(1, 1, matrix);
+
+//根据顶点坐标的范围-1，1，-1，1，表示全屏幕铺满
+//    orthoM(-1, 1, -1, 1, matrix);//正交投影
 
 static void initMatrix(float *matrix){
     for (int i = 0; i < 16; ++i) {

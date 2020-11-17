@@ -17,10 +17,6 @@
 
 class EglThread {
 public:
-    EglThread();
-    ~EglThread();
-
-public:
     pthread_t pEglThread = -1;
     ANativeWindow *nativeWindow = NULL;
 
@@ -50,6 +46,9 @@ public:
     pthread_cond_t pthread_cond;
 
 public:
+    EglThread();
+    ~EglThread();
+
     void onSurfaceCreate(EGLNativeWindowType window);
     void onSurfaceChange(int width, int height);
 
@@ -60,5 +59,7 @@ public:
     void setRenderType(int renderType);
 
     void notifyRender();
+
+    void destroy();
 };
 #endif //NATIVEOPENGLDEMO_EGLTHREAD_H

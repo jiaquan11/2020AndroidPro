@@ -22,14 +22,18 @@ public class MainActivity extends AppCompatActivity {
         wlSurfaceView = findViewById(R.id.wlSurfaceview);
         nativeOpengl = new NativeOpengl();
         wlSurfaceView.setNativeOpengl(nativeOpengl);
-
-        //解码一张bitmap图片，拿到像素数据
-        final Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
-                R.drawable.mingren);
-        ByteBuffer fcbuffer = ByteBuffer.allocate(bitmap.getHeight()*bitmap.getWidth()*4);
-        bitmap.copyPixelsToBuffer(fcbuffer);
-        fcbuffer.flip();
-        byte[] pixels = fcbuffer.array();
-        nativeOpengl.imgData(bitmap.getWidth(), bitmap.getHeight(), pixels.length, pixels);
+        wlSurfaceView.setOnSurfaceListener(new WlSurfaceView.OnSurfaceListener() {
+            @Override
+            public void init() {
+                //解码一张bitmap图片，拿到像素数据
+                final Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.mingren);
+                ByteBuffer fcbuffer = ByteBuffer.allocate(bitmap.getHeight()*bitmap.getWidth()*4);
+                bitmap.copyPixelsToBuffer(fcbuffer);
+                fcbuffer.flip();
+                byte[] pixels = fcbuffer.array();
+                nativeOpengl.imgData(bitmap.getWidth(), bitmap.getHeight(), pixels.length, pixels);
+            }
+        });
     }
 }

@@ -24,6 +24,9 @@ add_library( # Sets the name of the library.
              native-lib.cpp
              egl/EglHelper.cpp
              egl/EglThread.cpp
+            opengl/BaseOpengl.cpp
+            opengl/Opengl.cpp
+            opengl/FilterOne.cpp
         )
 
 include_directories(${CMAKE_SOURCE_DIR}/log/)
