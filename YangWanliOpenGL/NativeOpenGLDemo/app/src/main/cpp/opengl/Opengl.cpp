@@ -133,6 +133,10 @@ void Opengl::setPixel(void *data, int width, int height, int length) {
     LOGI("Opengl::setPixel in");
     pic_width = width;
     pic_height = height;
+    if (pixels != NULL){
+        free(pixels);
+        pixels = NULL;
+    }
     pixels = malloc(length);
     memcpy(pixels, data, length);
     if (baseOpengl != NULL) {
