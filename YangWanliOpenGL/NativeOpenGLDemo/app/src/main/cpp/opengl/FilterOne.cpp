@@ -31,7 +31,7 @@ void FilterOne::onCreate() {
                 gl_FragColor = texture2D(sTexture, ft_Position);
             });
 
-    program = createProgram(vertexStr, fragmentStr);
+    program = createProgram(vertexStr, fragmentStr, &vShader, &fShader);
     LOGI("FilterOne callback_SurfaceCreate GET_STR opengl program: %d", program);
 
     //获取着色器程序中的这个变量a_position，返回一个变量id，用于给这个变量赋值
@@ -107,15 +107,12 @@ void FilterOne::onDraw() {
 }
 
 void FilterOne::destroy() {
-    if (textureID > 0) {
-        glDeleteTextures(1, &textureID);
-    }
-    if (program > 0) {
-        glDeleteProgram(program);
-    }
-    if (pixels != NULL) {
-        pixels = NULL;
-    }
+    glDeleteTextures(1, &textureID);
+    glDetachShader(program, vShader);
+    glDetachShader(program, fShader);
+    glDeleteShader(vShader);
+    glDeleteShader(fShader);
+    glDeleteProgram(program);
 }
 
 void FilterOne::setMatrix(int width, int height) {
@@ -148,5 +145,11 @@ void FilterOne::setPixel(void *data, int width, int height, int length) {
         setMatrix(surface_width, surface_height);
     }
     LOGI("FilterOne::setPixel end");
+}
+
+void FilterOne::destroySource() {
+    if (pixels != NULL) {
+        pixels = NULL;
+    }
 }
 

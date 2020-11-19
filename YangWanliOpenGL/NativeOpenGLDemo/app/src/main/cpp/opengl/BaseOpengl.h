@@ -30,6 +30,8 @@ public:
 
     virtual void setPixel(void *data, int width, int height, int length);
 
+    virtual void destroySource();
+
 public:
     int surface_width = 0;//屏幕宽
     int surface_height = 0;//屏幕高
@@ -41,6 +43,8 @@ public:
     float *fragments = NULL;//纹理坐标
 
     GLuint program = 0;//opengl程序id
+    GLuint vShader = 0;
+    GLuint fShader = 0;
 };
 
 #endif //NATIVEOPENGLDEMO_BASEOPENGL_H

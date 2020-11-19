@@ -49,3 +49,10 @@ void BaseOpengl::destroy() {
 void BaseOpengl::setPixel(void *data, int width, int height, int length) {
 
 }
+
+void BaseOpengl::destroySource() {
+
+}
+
+
+

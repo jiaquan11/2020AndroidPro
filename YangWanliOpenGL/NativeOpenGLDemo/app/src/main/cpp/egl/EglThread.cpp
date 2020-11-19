@@ -68,6 +68,8 @@ void *eglThreadImpl(void *context) {
             }
 
             if (eglThread->isExit) {
+                eglThread->onDestroy(eglThread->onDestroyCtx);
+
                 eglHelper->destroyEgl();
                 delete eglHelper;
                 eglHelper = NULL;
@@ -120,6 +122,11 @@ void EglThread::callBackOnDraw(OnDraw onDraw, void *ctx) {
 void EglThread::callBackOnChangeFilter(EglThread::OnChangeFilter onChangeFilter, void *ctx) {
     this->onChangeFilter = onChangeFilter;
     this->onChangeFilterCtx = ctx;
+}
+
+void EglThread::callBackOnDestroy(EglThread::OnDestroy onDestroy, void *ctx) {
+    this->onDestroy = onDestroy;
+    this->onDestroyCtx = ctx;
 }
 
 void EglThread::setRenderType(int renderType) {

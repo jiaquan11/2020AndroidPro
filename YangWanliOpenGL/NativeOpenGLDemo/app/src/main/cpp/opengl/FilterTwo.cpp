@@ -34,7 +34,7 @@ void FilterTwo::onCreate() {
                 gl_FragColor = vec4(gray, gray, gray, textureColor.w);
             });
 
-    program = createProgram(vertexStr, fragmentStr);
+    program = createProgram(vertexStr, fragmentStr, &vShader, &fShader);
     LOGI("FilterTwo callback_SurfaceCreate GET_STR opengl program: %d", program);
 
     //获取着色器程序中的这个变量a_position，返回一个变量id，用于给这个变量赋值
@@ -110,15 +110,12 @@ void FilterTwo::onDraw() {
 }
 
 void FilterTwo::destroy() {
-    if (textureID > 0) {
-        glDeleteTextures(1, &textureID);
-    }
-    if (program > 0) {
-        glDeleteProgram(program);
-    }
-    if (pixels != NULL) {
-        pixels = NULL;
-    }
+    glDeleteTextures(1, &textureID);
+    glDetachShader(program, vShader);
+    glDetachShader(program, fShader);
+    glDeleteShader(vShader);
+    glDeleteShader(fShader);
+    glDeleteProgram(program);
 }
 
 void FilterTwo::setMatrix(int width, int height) {
@@ -151,6 +148,12 @@ void FilterTwo::setPixel(void *data, int width, int height, int length) {
         setMatrix(surface_width, surface_height);
     }
     LOGI("FilterTwo::setPixel end");
+}
+
+void FilterTwo::destroySource() {
+    if (pixels != NULL) {
+        pixels = NULL;
+    }
 }
 
 

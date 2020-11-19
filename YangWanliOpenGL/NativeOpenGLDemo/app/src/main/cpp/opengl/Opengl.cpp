@@ -36,6 +36,7 @@ void callback_SurfaceChangeFilter(int width, int height, void *ctx) {
     Opengl *opengl = static_cast<Opengl *>(ctx);
     if (opengl != NULL) {
         if (opengl->baseOpengl != NULL) {
+            opengl->baseOpengl->destroySource();
             opengl->baseOpengl->destroy();
             delete opengl->baseOpengl;
             opengl->baseOpengl = NULL;
@@ -47,6 +48,15 @@ void callback_SurfaceChangeFilter(int width, int height, void *ctx) {
         opengl->baseOpengl->setPixel(opengl->pixels, opengl->pic_width, opengl->pic_height, 0);
 
         opengl->eglThread->notifyRender();
+    }
+}
+
+void callback_SurfaceDestroy(void *ctx) {
+    Opengl *opengl = static_cast<Opengl *>(ctx);
+    if (opengl != NULL) {
+        if (opengl->baseOpengl != NULL) {
+            opengl->baseOpengl->destroy();
+        }
     }
 }
 
@@ -70,6 +80,7 @@ void Opengl::onCreateSurface(JNIEnv *env, jobject surface) {
     eglThread->callBackOnChange(callback_SurfaceChange, this);
     eglThread->callBackOnDraw(callback_SurfaceDraw, this);
     eglThread->callBackOnChangeFilter(callback_SurfaceChangeFilter, this);
+    eglThread->callBackOnDestroy(callback_SurfaceDestroy, this);
 
     baseOpengl = new FilterOne();//opengl绘制的相关操作类
 
@@ -103,7 +114,7 @@ void Opengl::onDestroySurface() {
         eglThread = NULL;
     }
     if (baseOpengl != NULL) {
-        baseOpengl->destroy();
+        baseOpengl->destroySource();
         delete baseOpengl;
         baseOpengl = NULL;
     }

@@ -44,7 +44,7 @@ static void CheckGLError() {
 }
 
 static int loadShaders(int shaderType, const char *code) {
-    int shader = glCreateShader(shaderType);//创建一个指定类型的shader,并返回一个对应的索引
+    GLuint shader = glCreateShader(shaderType);//创建一个指定类型的shader,并返回一个对应的索引
     glShaderSource(shader, 1, &code, 0);//加载shader源码
     glCompileShader(shader);//编译shader源码
 
@@ -59,10 +59,10 @@ static int loadShaders(int shaderType, const char *code) {
     return shader;
 }
 
-static int createProgram(const char *vertex, const char *fragment) {
-    int vertexShader = loadShaders(GL_VERTEX_SHADER, vertex);
+static int createProgram(const char *vertex, const char *fragment, GLuint *v_shader, GLuint *f_shader) {
+    GLuint vertexShader = loadShaders(GL_VERTEX_SHADER, vertex);
     LOGI("vertexShader is %d", vertexShader);
-    int fragmentShader = loadShaders(GL_FRAGMENT_SHADER, fragment);
+    GLuint fragmentShader = loadShaders(GL_FRAGMENT_SHADER, fragment);
     LOGI("fragmentShader is %d", fragmentShader);
 
     int program = glCreateProgram();
@@ -70,6 +70,9 @@ static int createProgram(const char *vertex, const char *fragment) {
     glAttachShader(program, fragmentShader);
 
     glLinkProgram(program);
+
+    *v_shader = vertexShader;
+    *f_shader = fragmentShader;
 
 //    CheckGLError();
 

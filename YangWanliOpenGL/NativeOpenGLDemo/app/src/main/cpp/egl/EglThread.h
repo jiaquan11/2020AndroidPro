@@ -34,19 +34,20 @@ public:
     void *onCreateCtx;
 
     typedef void(*OnChange)(int width, int height, void *);
-
     OnChange onChange;
     void *onChangeCtx;
 
     typedef void(*OnDraw)(void *);
-
     OnDraw onDraw;
     void *onDrawCtx;
 
     typedef void(*OnChangeFilter)(int width, int height, void *);
-
     OnChangeFilter onChangeFilter;
     void *onChangeFilterCtx;
+
+    typedef void(*OnDestroy)(void *);
+    OnDestroy onDestroy;
+    void *onDestroyCtx;
 
     int renderType = OPENGL_RENDER_AUTO;
 
@@ -71,6 +72,8 @@ public:
     void callBackOnDraw(OnDraw onDraw, void *ctx);
 
     void callBackOnChangeFilter(OnChangeFilter onChangeFilter, void *ctx);
+
+    void callBackOnDestroy(OnDestroy onDestroy, void *ctx);
 
     void setRenderType(int renderType);
 

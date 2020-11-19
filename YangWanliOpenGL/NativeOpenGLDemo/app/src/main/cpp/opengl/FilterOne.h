@@ -22,6 +22,8 @@ public:
 
     void setPixel(void *data, int width, int height, int length);
 
+    void destroySource();
+
 private:
     void setMatrix(int width, int height);
 
