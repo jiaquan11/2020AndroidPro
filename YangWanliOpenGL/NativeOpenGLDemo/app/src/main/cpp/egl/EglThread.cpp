@@ -39,6 +39,12 @@ void *eglThreadImpl(void *context) {
                 eglThread->isStart = true;
             }
 
+            if (eglThread->isChangeFilter) {
+                eglThread->isChangeFilter = false;
+                eglThread->onChangeFilter(eglThread->surfaceWidth, eglThread->surfaceHeight,
+                                          eglThread->onChangeFilterCtx);
+            }
+
             //绘制
             LOGI("draw");
             if (eglThread->isStart) {
@@ -91,6 +97,11 @@ void EglThread::onSurfaceChange(int width, int height) {
     notifyRender();
 }
 
+void EglThread::onSurfaceChangeFilter() {
+    isChangeFilter = true;
+    notifyRender();
+}
+
 void EglThread::callBackOnCreate(EglThread::OnCreate onCreate, void *ctx) {
     this->onCreate = onCreate;
     this->onCreateCtx = ctx;
@@ -104,6 +115,11 @@ void EglThread::callBackOnChange(EglThread::OnChange onChange, void *ctx) {
 void EglThread::callBackOnDraw(OnDraw onDraw, void *ctx) {
     this->onDraw = onDraw;
     this->onDrawCtx = ctx;
+}
+
+void EglThread::callBackOnChangeFilter(EglThread::OnChangeFilter onChangeFilter, void *ctx) {
+    this->onChangeFilter = onChangeFilter;
+    this->onChangeFilterCtx = ctx;
 }
 
 void EglThread::setRenderType(int renderType) {

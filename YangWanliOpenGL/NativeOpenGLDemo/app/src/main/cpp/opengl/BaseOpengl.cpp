@@ -26,8 +26,8 @@ BaseOpengl::BaseOpengl() {//顶点坐标，原点在中间，范围-1-1
 }
 
 BaseOpengl::~BaseOpengl() {
-    delete []vertexs;
-    delete []fragments;
+    delete[]vertexs;
+    delete[]fragments;
 }
 
 void BaseOpengl::onCreate() {
@@ -39,6 +39,10 @@ void BaseOpengl::onChange(int w, int h) {
 }
 
 void BaseOpengl::onDraw() {
+
+}
+
+void BaseOpengl::destroy() {
 
 }
 

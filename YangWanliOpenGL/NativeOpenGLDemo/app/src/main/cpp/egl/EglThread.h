@@ -24,6 +24,7 @@ public:
     bool isChange = false;
     bool isExit = false;
     bool isStart = false;
+    bool isChangeFilter = false;
 
     int surfaceWidth = 0;
     int surfaceHeight = 0;
@@ -32,13 +33,20 @@ public:
     OnCreate onCreate;
     void *onCreateCtx;
 
-    typedef void(*OnChange)(int width, int height, void*);
+    typedef void(*OnChange)(int width, int height, void *);
+
     OnChange onChange;
-    void* onChangeCtx;
+    void *onChangeCtx;
 
     typedef void(*OnDraw)(void *);
+
     OnDraw onDraw;
-    void* onDrawCtx;
+    void *onDrawCtx;
+
+    typedef void(*OnChangeFilter)(int width, int height, void *);
+
+    OnChangeFilter onChangeFilter;
+    void *onChangeFilterCtx;
 
     int renderType = OPENGL_RENDER_AUTO;
 
@@ -47,14 +55,22 @@ public:
 
 public:
     EglThread();
+
     ~EglThread();
 
     void onSurfaceCreate(EGLNativeWindowType window);
+
     void onSurfaceChange(int width, int height);
 
-    void callBackOnCreate(OnCreate onCreate, void* ctx);
-    void callBackOnChange(OnChange onChange, void* ctx);
-    void callBackOnDraw(OnDraw onDraw, void* ctx);
+    void onSurfaceChangeFilter();
+
+    void callBackOnCreate(OnCreate onCreate, void *ctx);
+
+    void callBackOnChange(OnChange onChange, void *ctx);
+
+    void callBackOnDraw(OnDraw onDraw, void *ctx);
+
+    void callBackOnChangeFilter(OnChangeFilter onChangeFilter, void *ctx);
 
     void setRenderType(int renderType);
 
@@ -62,4 +78,5 @@ public:
 
     void destroy();
 };
+
 #endif //NATIVEOPENGLDEMO_EGLTHREAD_H

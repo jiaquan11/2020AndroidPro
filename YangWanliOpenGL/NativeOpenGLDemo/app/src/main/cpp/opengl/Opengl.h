@@ -10,6 +10,7 @@
 #include "android/native_window_jni.h"
 #include "BaseOpengl.h"
 #include "FilterOne.h"
+#include "FilterTwo.h"
 #include <string>
 
 class Opengl {
@@ -22,6 +23,8 @@ public:
 
     void onChangeSurface(int width, int height);
 
+    void onChangeSurfaceFilter();
+
     void onDestroySurface();
 
     void setPixel(void *data, int width, int height, int length);
@@ -32,6 +35,9 @@ public:
     BaseOpengl *baseOpengl = NULL;
 
     void *pixels = NULL;
+
+    int pic_width = 0;
+    int pic_height = 0;
 };
 
 

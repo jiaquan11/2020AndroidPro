@@ -4,14 +4,15 @@
 
 #ifndef NATIVEOPENGLDEMO_SHADERUTIL_H
 #define NATIVEOPENGLDEMO_SHADERUTIL_H
+
 #include <GLES2/gl2.h>
 #include "../log/androidLog.h"
 
-static void CheckGLError(){
+static void CheckGLError() {
     GLenum error = glGetError();
     LOGE("CheckGLError error:%d", error);
-    if(error != GL_NO_ERROR){
-        switch (error){
+    if (error != GL_NO_ERROR) {
+        switch (error) {
             case GL_INVALID_ENUM:
 //                printf("GL Error: GL_INVALID_ENUM %s : %d \n",file,line);
                 LOGE("CheckGLError GL_INVALID_ENUM");
@@ -42,7 +43,7 @@ static void CheckGLError(){
     }
 }
 
-static int loadShaders(int shaderType, const char* code){
+static int loadShaders(int shaderType, const char *code) {
     int shader = glCreateShader(shaderType);//创建一个指定类型的shader,并返回一个对应的索引
     glShaderSource(shader, 1, &code, 0);//加载shader源码
     glCompileShader(shader);//编译shader源码
@@ -58,7 +59,7 @@ static int loadShaders(int shaderType, const char* code){
     return shader;
 }
 
-static int createProgram(const char* vertex, const char* fragment){
+static int createProgram(const char *vertex, const char *fragment) {
     int vertexShader = loadShaders(GL_VERTEX_SHADER, vertex);
     LOGI("vertexShader is %d", vertexShader);
     int fragmentShader = loadShaders(GL_FRAGMENT_SHADER, fragment);
@@ -87,4 +88,5 @@ static int createProgram(const char* vertex, const char* fragment){
     LOGI("glLinkProgram success!");
     return program;
 }
+
 #endif //NATIVEOPENGLDEMO_SHADERUTIL_H

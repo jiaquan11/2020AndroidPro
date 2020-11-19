@@ -1,18 +1,18 @@
 //
-// Created by jiaqu on 2020/11/15.
+// Created by jiaqu on 2020/11/18.
 //
 
-#include "FilterOne.h"
+#include "FilterTwo.h"
 
-FilterOne::FilterOne() {
+FilterTwo::FilterTwo() {
     initMatrix(matrix);//初始化为单位矩阵
 }
 
-FilterOne::~FilterOne() {
+FilterTwo::~FilterTwo() {
 
 }
 
-void FilterOne::onCreate() {
+void FilterTwo::onCreate() {
     vertexStr = GET_STR(
             attribute vec4 v_Position;
             attribute vec2 f_Position;
@@ -28,11 +28,14 @@ void FilterOne::onCreate() {
             varying vec2 ft_Position;
             uniform sampler2D sTexture;
             void main() {//texture2D表示GPU将输入得图像纹理像素进行读取，读取到GPU的管线中,最后渲染出来
-                gl_FragColor = texture2D(sTexture, ft_Position);
+                lowp vec4 textureColor = texture2D(sTexture, ft_Position);
+                float gray =
+                        textureColor.r * 0.2125 + textureColor.g * 0.7154 + textureColor.b * 0.0721;//将RGB图像转为灰度图
+                gl_FragColor = vec4(gray, gray, gray, textureColor.w);
             });
 
     program = createProgram(vertexStr, fragmentStr);
-    LOGI("FilterOne callback_SurfaceCreate GET_STR opengl program: %d", program);
+    LOGI("FilterTwo callback_SurfaceCreate GET_STR opengl program: %d", program);
 
     //获取着色器程序中的这个变量a_position，返回一个变量id，用于给这个变量赋值
     vPosition = glGetAttribLocation(program, "v_Position");//顶点坐标变量
@@ -43,7 +46,7 @@ void FilterOne::onCreate() {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);//绑定纹理
 
-    LOGI("FilterOne textureID is %d", textureID);
+    LOGI("FilterTwo textureID is %d", textureID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -51,20 +54,20 @@ void FilterOne::onCreate() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glBindTexture(GL_TEXTURE_2D, 0);//解绑纹理
-    LOGI("FilterOne::onCreate end");
+    LOGI("FilterTwo::onCreate end");
 }
 
-//指定屏幕显示界面的宽高
-void FilterOne::onChange(int width, int height) {
-    LOGI("FilterOne::onChange in");
+void FilterTwo::onChange(int width, int height) {
+    LOGI("FilterTwo::onChange in");
     surface_width = width;
     surface_height = height;
     glViewport(0, 0, width, height);
-    LOGI("FilterOne::onChange end");
+    LOGI("FilterTwo::onChange end");
 }
 
-void FilterOne::onDraw() {
-    LOGI("FilterOne::onDraw in");
+void FilterTwo::onDraw() {
+    LOGI("FilterTwo::onDraw in");
+
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);//指定刷屏颜色  1:不透明  0：透明
     glClear(GL_COLOR_BUFFER_BIT);//将刷屏颜色进行刷屏，但此时仍然处于后台缓冲中，需要swapBuffers交换到前台界面显示
 
@@ -103,10 +106,10 @@ void FilterOne::onDraw() {
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    LOGI("FilterOne::onDraw end");
+    LOGI("FilterTwo::onDraw end");
 }
 
-void FilterOne::destroy() {
+void FilterTwo::destroy() {
     if (textureID > 0) {
         glDeleteTextures(1, &textureID);
     }
@@ -118,10 +121,10 @@ void FilterOne::destroy() {
     }
 }
 
-void FilterOne::setMatrix(int width, int height) {
-    LOGI("FilterOne::setMatrix in");
+void FilterTwo::setMatrix(int width, int height) {
+    LOGI("FilterTwo::setMatrix in");
 //    initMatrix(matrix);
-    //这里是矩阵投影操作
+//这里是矩阵投影操作
     //屏幕720*1280 图片:517*685
     float screen_r = 1.0 * width / height;
     float picture_r = 1.0 * w / h;
@@ -136,17 +139,18 @@ void FilterOne::setMatrix(int width, int height) {
         LOGI("pic scale height r: %f", r);
         orthoM(-1, 1, -r, r, matrix);
     }
-    LOGI("FilterOne::setMatrix end");
+    LOGI("FilterTwo::setMatrix end");
 }
 
-void FilterOne::setPixel(void *data, int width, int height, int length) {
-    LOGI("FilterOne::setPixel in");
+void FilterTwo::setPixel(void *data, int width, int height, int length) {
+    LOGI("FilterTwo::setPixel in");
     w = width;
     h = height;
     pixels = data;
     if ((surface_width > 0) && (surface_height > 0)) {
         setMatrix(surface_width, surface_height);
     }
-    LOGI("FilterOne::setPixel end");
+    LOGI("FilterTwo::setPixel end");
 }
+
 

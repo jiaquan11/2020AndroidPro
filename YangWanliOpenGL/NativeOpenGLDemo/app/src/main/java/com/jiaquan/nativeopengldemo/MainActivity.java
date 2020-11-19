@@ -3,6 +3,7 @@ package com.jiaquan.nativeopengldemo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,12 +29,18 @@ public class MainActivity extends AppCompatActivity {
                 //解码一张bitmap图片，拿到像素数据
                 final Bitmap bitmap = BitmapFactory.decodeResource(getResources(),
                         R.drawable.mingren);
-                ByteBuffer fcbuffer = ByteBuffer.allocate(bitmap.getHeight()*bitmap.getWidth()*4);
+                ByteBuffer fcbuffer = ByteBuffer.allocate(bitmap.getHeight() * bitmap.getWidth() * 4);
                 bitmap.copyPixelsToBuffer(fcbuffer);
                 fcbuffer.flip();
                 byte[] pixels = fcbuffer.array();
                 nativeOpengl.imgData(bitmap.getWidth(), bitmap.getHeight(), pixels.length, pixels);
             }
         });
+    }
+
+    public void changeFilter(View view) {
+        if (nativeOpengl != null) {
+            nativeOpengl.surfaceChangeFilter();
+        }
     }
 }

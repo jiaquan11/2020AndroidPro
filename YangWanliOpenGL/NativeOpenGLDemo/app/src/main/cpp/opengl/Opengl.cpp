@@ -32,13 +32,31 @@ void callback_SurfaceDraw(void *ctx) {
     }
 }
 
+void callback_SurfaceChangeFilter(int width, int height, void *ctx) {
+    Opengl *opengl = static_cast<Opengl *>(ctx);
+    if (opengl != NULL) {
+        if (opengl->baseOpengl != NULL) {
+            opengl->baseOpengl->destroy();
+            delete opengl->baseOpengl;
+            opengl->baseOpengl = NULL;
+        }
+
+        opengl->baseOpengl = new FilterTwo();
+        opengl->baseOpengl->onCreate();
+        opengl->baseOpengl->onChange(width, height);//屏幕显示宽高
+        opengl->baseOpengl->setPixel(opengl->pixels, opengl->pic_width, opengl->pic_height, 0);
+
+        opengl->eglThread->notifyRender();
+    }
+}
+
 Opengl::Opengl() {
 
 }
 
 Opengl::~Opengl() {
     if (pixels != NULL) {
-        delete pixels;
+        free(pixels);
         pixels = NULL;
     }
 }
@@ -51,6 +69,7 @@ void Opengl::onCreateSurface(JNIEnv *env, jobject surface) {
     eglThread->callBackOnCreate(callback_SurfaceCreate, this);//设置函数指针
     eglThread->callBackOnChange(callback_SurfaceChange, this);
     eglThread->callBackOnDraw(callback_SurfaceDraw, this);
+    eglThread->callBackOnChangeFilter(callback_SurfaceChangeFilter, this);
 
     baseOpengl = new FilterOne();//opengl绘制的相关操作类
 
@@ -70,6 +89,12 @@ void Opengl::onChangeSurface(int width, int height) {//屏幕宽高
     LOGI("Opengl::onChangeSurface end");
 }
 
+void Opengl::onChangeSurfaceFilter() {
+    if (eglThread != NULL) {
+        eglThread->onSurfaceChangeFilter();
+    }
+}
+
 void Opengl::onDestroySurface() {
     LOGI("Opengl::onDestroySurface in");
     if (eglThread != NULL) {
@@ -78,6 +103,7 @@ void Opengl::onDestroySurface() {
         eglThread = NULL;
     }
     if (baseOpengl != NULL) {
+        baseOpengl->destroy();
         delete baseOpengl;
         baseOpengl = NULL;
     }
@@ -85,11 +111,17 @@ void Opengl::onDestroySurface() {
         ANativeWindow_release(nativeWindow);
         nativeWindow = NULL;
     }
+    if (pixels != NULL) {
+        free(pixels);
+        pixels = NULL;
+    }
     LOGI("Opengl::onDestroySurface end");
 }
 
 void Opengl::setPixel(void *data, int width, int height, int length) {
     LOGI("Opengl::setPixel in");
+    pic_width = width;
+    pic_height = height;
     pixels = malloc(length);
     memcpy(pixels, data, length);
     if (baseOpengl != NULL) {

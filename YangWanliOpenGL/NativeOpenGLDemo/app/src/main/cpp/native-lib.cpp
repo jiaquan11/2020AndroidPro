@@ -24,6 +24,15 @@ Java_com_jiaquan_opengl_NativeOpengl_surfaceChange(JNIEnv *env, jobject thiz, ji
 
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_jiaquan_opengl_NativeOpengl_surfaceChangeFilter(JNIEnv *env, jobject thiz) {
+    // TODO: implement surfaceChangeFilter()
+    if (opengl != NULL) {
+        opengl->onChangeSurfaceFilter();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_jiaquan_opengl_NativeOpengl_surfaceDestroy(JNIEnv *env, jobject thiz) {
     // TODO: implement surfaceDestroy()
     if (opengl != NULL) {

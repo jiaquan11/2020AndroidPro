@@ -1,16 +1,17 @@
 //
-// Created by jiaqu on 2020/11/15.
+// Created by jiaqu on 2020/11/18.
 //
-#ifndef NATIVEOPENGLDEMO_FILTERONE_H
-#define NATIVEOPENGLDEMO_FILTERONE_H
+
+#ifndef NATIVEOPENGLDEMO_FILTERTWO_H
+#define NATIVEOPENGLDEMO_FILTERTWO_H
 
 #include "BaseOpengl.h"
 
-class FilterOne : public BaseOpengl {
+class FilterTwo : public BaseOpengl {
 public:
-    FilterOne();
+    FilterTwo();
 
-    ~FilterOne();
+    ~FilterTwo();
 
     void onCreate();
 
@@ -39,4 +40,4 @@ public:
     float matrix[16] = {0};//用于存放单位矩阵
 };
 
-#endif //NATIVEOPENGLDEMO_FILTERONE_H
+#endif //NATIVEOPENGLDEMO_FILTERTWO_H
