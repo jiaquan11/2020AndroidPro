@@ -11,6 +11,7 @@
 #include "BaseOpengl.h"
 #include "FilterOne.h"
 #include "FilterTwo.h"
+#include "FilterYUV.h"
 #include <string>
 
 class Opengl {
@@ -28,6 +29,8 @@ public:
     void onDestroySurface();
 
     void setPixel(void *data, int width, int height, int length);
+
+    void setYuvData(void* y, void* u, void* v, int w, int h);
 
 public:
     EglThread *eglThread = NULL;

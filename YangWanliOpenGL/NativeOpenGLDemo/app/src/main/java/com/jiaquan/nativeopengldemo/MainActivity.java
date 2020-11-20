@@ -41,8 +41,6 @@ public class MainActivity extends AppCompatActivity {
                 readPixels();
             }
         });
-
-
     }
 
     public void changeFilter(View view) {

@@ -28,6 +28,7 @@ add_library( # Sets the name of the library.
             opengl/Opengl.cpp
             opengl/FilterOne.cpp
             opengl/FilterTwo.cpp
+            opengl/FilterYUV.cpp
         )
 
 include_directories(${CMAKE_SOURCE_DIR}/log/)

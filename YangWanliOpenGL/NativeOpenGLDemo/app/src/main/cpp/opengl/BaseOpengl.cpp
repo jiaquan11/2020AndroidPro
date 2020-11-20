@@ -50,9 +50,15 @@ void BaseOpengl::setPixel(void *data, int width, int height, int length) {
 
 }
 
+void BaseOpengl::setYuvData(void *y, void *u, void *v, int width, int height) {
+
+}
+
 void BaseOpengl::destroySource() {
 
 }
+
+
 
 
 

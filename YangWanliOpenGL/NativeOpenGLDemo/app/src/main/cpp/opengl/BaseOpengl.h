@@ -30,6 +30,8 @@ public:
 
     virtual void setPixel(void *data, int width, int height, int length);
 
+    virtual void setYuvData(void* y, void* u, void *v, int width, int height);
+
     virtual void destroySource();
 
 public:
