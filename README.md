@@ -22,3 +22,6 @@
 6.NativeOpenGLDemo项目(Android C++ OpenGL 教程)
 掌握Android中OpenGL的原理,学会Android中NDK开发流程,能用OpenGL渲染视频画面,学会OpenGL 中矩阵操作、投影等
 用纯C++实现Android的OpenGL渲染功能，包括EGL环境创建、EGL线程创建、OpenGL生命周期管理等，会结合SurfaceView和TextureView实现OpenGL的渲染，最终我们会实现一个YUV播放器实例，为音视频开发打下坚实的基础。
+
+7.MyMusic项目
+FFmpeg打造Android万能音频播放器视频教程，移植FFmpeg到Android平台，利用FFmpeg解码音频数据并用OpenSL ES来播放，打造Android万能播放器。
