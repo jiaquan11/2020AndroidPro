@@ -21,6 +21,6 @@ public class MainActivity extends AppCompatActivity {
         TextView tv = findViewById(R.id.sample_text);
         tv.setText(demo.stringFromJNI());
 
-//        demo.testFFmpeg();
+        demo.testFFmpeg();
     }
 }
