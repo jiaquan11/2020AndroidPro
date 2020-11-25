@@ -1,7 +1,8 @@
 #include <jni.h>
 #include <string>
-
 #include "log/androidLog.h"
+#include "CallJava.h"
+#include "WLFFmpeg.h"
 
 extern "C" {
 #include "include/libavformat/avformat.h"
@@ -9,32 +10,42 @@ extern "C" {
 #include "include/libavutil/avutil.h"
 }
 
+JavaVM *javaVM = NULL;
+CallJava *callJava = NULL;
+WLFFmpeg *fFmpeg = NULL;
+
 extern "C"
-JNIEXPORT jstring JNICALL
-Java_com_jiaquan_myplayer_Demo_stringFromJNI(JNIEnv *env, jobject thiz) {
-    // TODO: implement stringFromJNI()
-    LOGI("Java_com_jiaquan_myplayer_Demo_stringFromJNI");
-    return env->NewStringUTF("I am xia jia quan ooooo111335500999");
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    jint result = -1;
+    javaVM = vm;
+    JNIEnv *env;
+    if (vm->GetEnv((void **) (&env), JNI_VERSION_1_4) != JNI_OK) {
+        return result;
+    }
+    return JNI_VERSION_1_4;
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_jiaquan_myplayer_Demo_testFFmpeg(JNIEnv *env, jobject thiz) {
-    // TODO: implement testFFmpeg()
-    av_register_all();
-    AVCodec *c_temp = av_codec_next(NULL);
-    while (c_temp != NULL) {
-        switch (c_temp->type) {
-            case AVMEDIA_TYPE_VIDEO:
-                LOGI("[video]: %s", c_temp->name);
-                break;
-            case AVMEDIA_TYPE_AUDIO:
-                LOGI("[audio]: %s", c_temp->name);
-                break;
-            default:
-                LOGI("[other]: %s", c_temp->name);
-                break;
+Java_com_jiaquan_myplayer_player_WLPlayer__1prepared(JNIEnv *env, jobject thiz, jstring sourceStr) {
+    // TODO: implement _prepared()
+    LOGI("call jni prepared!");
+    const char *source = env->GetStringUTFChars(sourceStr, 0);
+    if (fFmpeg == NULL) {
+        if (callJava == NULL) {
+            callJava = new CallJava(javaVM, env, thiz);
         }
-        c_temp = c_temp->next;
+        fFmpeg = new WLFFmpeg(callJava, source);
+        fFmpeg->prepared();
+    }
+    env->ReleaseStringUTFChars(sourceStr, source);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1start(JNIEnv *env, jobject thiz) {
+    // TODO: implement _start()
+    if (fFmpeg != NULL) {
+        fFmpeg->start();
     }
 }

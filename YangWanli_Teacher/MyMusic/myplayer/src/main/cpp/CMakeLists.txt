@@ -6,7 +6,10 @@ include_directories(include)
 
 add_library(native-lib
         SHARED
-        native-lib.cpp)
+        native-lib.cpp
+        CallJava.cpp
+        WLFFmpeg.cpp
+        WLAudio.cpp)
 
 add_library(avcodec-57 SHARED IMPORTED)
 set_target_properties(avcodec-57
