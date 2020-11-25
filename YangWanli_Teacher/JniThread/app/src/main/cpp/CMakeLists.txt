@@ -4,7 +4,8 @@ project("jnithread")
 
 add_library( native-lib
              SHARED
-             native-lib.cpp )
+             native-lib.cpp
+             JavaListener.cpp)
 
 find_library( log-lib
               log )

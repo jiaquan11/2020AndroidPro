@@ -1,10 +1,10 @@
 package com.jiaquan.jnithread;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private ThreadDemo threadDemo;
@@ -15,6 +15,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         threadDemo = new ThreadDemo();
+        threadDemo.setOnErrorListener(new ThreadDemo.OnErrorListener() {
+            @Override
+            public void onError(int code, String msg) {
+                Log.i("JNITHREAD", "code is: " + code + " msg is: " + msg);
+            }
+        });
     }
 
     public void normal(View view) {
@@ -23,5 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void mutexThread(View view) {
         threadDemo.mutexThread();
+    }
+
+    public void callJavaMethod(View view) {
+        threadDemo.callBackFromC();
     }
 }

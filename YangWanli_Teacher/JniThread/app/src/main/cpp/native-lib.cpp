@@ -20,6 +20,7 @@ Java_com_jiaquan_jnithread_ThreadDemo_normalThread(JNIEnv *env, jobject thiz) {
 
 #include "queue"
 #include "unistd.h"
+#include "JavaListener.h"
 
 pthread_t product;
 pthread_t customer;
@@ -39,7 +40,6 @@ void *productCallBack(void *data) {
 
         sleep(5);
     }
-
     pthread_exit(&product);
 }
 
@@ -57,10 +57,8 @@ void *customerCallBack(void *data) {
 
         usleep(1000 * 500);
     }
-
     pthread_exit(&customer);
 }
-
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -75,4 +73,33 @@ Java_com_jiaquan_jnithread_ThreadDemo_mutexThread(JNIEnv *env, jobject thiz) {
 
     pthread_create(&product, NULL, productCallBack, NULL);
     pthread_create(&customer, NULL, customerCallBack, NULL);
+}
+
+JavaVM *javaVm;
+JavaListener *javaListener;
+pthread_t childThread;
+
+void *childCallback(void *data) {
+    JavaListener *listener = (JavaListener *) (data);
+    listener->onError(0, 101, "C++ call java method from child thread");
+    pthread_exit(&childThread);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_jnithread_ThreadDemo_callBackFromC(JNIEnv *env, jobject thiz) {
+    // TODO: implement callBackFromC()
+    javaListener = new JavaListener(javaVm, env, env->NewGlobalRef(thiz));
+//    javaListener->onError(1, 100, "C++ call java method from main thread");
+
+    pthread_create(&childThread, NULL, childCallback, javaListener);
+}
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    JNIEnv *env;
+    javaVm = vm;
+    if (javaVm->GetEnv((void **) (&env), JNI_VERSION_1_6) != JNI_OK) {
+        return -1;
+    }
+    return JNI_VERSION_1_6;
 }
