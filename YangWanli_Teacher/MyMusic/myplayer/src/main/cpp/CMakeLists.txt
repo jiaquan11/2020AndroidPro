@@ -9,7 +9,9 @@ add_library(native-lib
         native-lib.cpp
         CallJava.cpp
         WLFFmpeg.cpp
-        WLAudio.cpp)
+        WLAudio.cpp
+        WLQueue.cpp
+        WLPlayStatus.cpp)
 
 add_library(avcodec-57 SHARED IMPORTED)
 set_target_properties(avcodec-57

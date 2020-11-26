@@ -3,9 +3,10 @@
 //
 #include "WLFFmpeg.h"
 
-WLFFmpeg::WLFFmpeg(CallJava *calljava, const char *url) {
+WLFFmpeg::WLFFmpeg(WLPlayStatus *playStatus, CallJava *calljava, const char *url) {
     this->callJava = calljava;
     strcpy(this->url, url);
+    this->playStatus = playStatus;
 }
 
 WLFFmpeg::~WLFFmpeg() {
@@ -44,7 +45,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < pFormatCtx->nb_streams; ++i) {
         if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (pWLAudio == NULL) {
-                pWLAudio = new WLAudio();
+                pWLAudio = new WLAudio(playStatus);
                 pWLAudio->streamIndex = i;
                 pWLAudio->codecPar = pFormatCtx->streams[i]->codecpar;
             }
@@ -93,6 +94,7 @@ void WLFFmpeg::start() {
         return;
     }
 
+    LOGI("WLFFmpeg is start");
     int count = 0;
     while (true) {
         AVPacket *avPacket = av_packet_alloc();
@@ -100,12 +102,10 @@ void WLFFmpeg::start() {
             if (avPacket->stream_index == pWLAudio->streamIndex) {
                 count++;
                 if (LOG_DEBUG) {
-                    LOGI("read audio the packet: %d", count);
+//                    LOGI("read audio the packet: %d", count);
                 }
-                av_packet_free(&avPacket);
-                av_free(avPacket);
-                avPacket = NULL;
-            } else {
+               pWLAudio->queue->putAVPacket(avPacket);
+            } else {//非音频packet
                 av_packet_free(&avPacket);
                 av_free(avPacket);
                 avPacket = NULL;
@@ -116,5 +116,21 @@ void WLFFmpeg::start() {
             avPacket = NULL;
             break;
         }
+    }
+
+    if (LOG_DEBUG){
+        LOGI("put packet is over");
+    }
+
+    while (pWLAudio->queue->getQueueSize() > 0){
+        AVPacket *avPacket = av_packet_alloc();
+        pWLAudio->queue->getAVPacket(avPacket);
+        av_packet_free(&avPacket);
+        av_free(avPacket);
+        avPacket = NULL;
+    }
+
+    if (LOG_DEBUG){
+        LOGI("get packet is over");
     }
 }

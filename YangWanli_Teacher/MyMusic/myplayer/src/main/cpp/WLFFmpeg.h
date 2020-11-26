@@ -15,7 +15,7 @@ extern "C"{
 
 class WLFFmpeg {
 public:
-    WLFFmpeg(CallJava* calljava, const char* url);
+    WLFFmpeg(WLPlayStatus *playStatus, CallJava* calljava, const char* url);
     ~WLFFmpeg();
 
     void prepared();
@@ -30,5 +30,7 @@ public:
     pthread_t decodeThread;
     AVFormatContext *pFormatCtx = NULL;
     WLAudio *pWLAudio = NULL;
+
+    WLPlayStatus *playStatus = NULL;
 };
 #endif //MYMUSIC_WLFFMPEG_H
