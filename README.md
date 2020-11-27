@@ -1,6 +1,7 @@
 # 2020AndroidPro
 这里上传记录一些在2020年学习和编写的Android项目工程的相关工程代码，供今后查阅
 
+TEACHER-xiacaojun
 1.testFFmpeg项目
 这个是在Android上集成3.4版本ffmpeg的so进行开发测试的Cmake编译的工程项目，调用ffmpeg的基本接口进行打开
 读取，软解和硬解操作，使用GLSurface播放组件传入底层进行native windows渲染的流程
@@ -15,13 +16,18 @@
 增加一个完整的在Android端进行视频播放的项目，音频使用opensl进行播放，
 视频使用opengles进行渲染，同时使用多种设计模式进行重构
 
-5.glumesNDK项目(Android CMake以及NDK实践基础)
+TEACHER-glumes
+1.glumesNDK项目(Android CMake以及NDK实践基础)
 介绍如何在Android平台上使用CMake进行动态库的编译和使用,同时和会讲解Android NDK的各种开发技巧，
 包括Java与JNI如何进行双向调用交互、NDK 层线程创建和同步、引用管理和异常处理，以及 NDK 中 Bitmap 的使用
 
-6.NativeOpenGLDemo项目(Android C++ OpenGL 教程)
+TEACHER-yangwanli
+1.NativeOpenGLDemo项目(Android C++ OpenGL 教程)
 掌握Android中OpenGL的原理,学会Android中NDK开发流程,能用OpenGL渲染视频画面,学会OpenGL 中矩阵操作、投影等
 用纯C++实现Android的OpenGL渲染功能，包括EGL环境创建、EGL线程创建、OpenGL生命周期管理等，会结合SurfaceView和TextureView实现OpenGL的渲染，最终我们会实现一个YUV播放器实例，为音视频开发打下坚实的基础。
 
-7.MyMusic项目
+2.MyMusic项目
 FFmpeg打造Android万能音频播放器视频教程，移植FFmpeg到Android平台，利用FFmpeg解码音频数据并用OpenSL ES来播放，打造Android万能播放器。
+
+3.AndroidOpenSLESAudio项目
+读取PCM裸数据并调用Android OpenSLES接口进行播放
