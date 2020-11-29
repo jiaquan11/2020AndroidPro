@@ -94,9 +94,11 @@ void WLFFmpeg::start() {
         return;
     }
 
+    pWLAudio->play();
+
     LOGI("WLFFmpeg is start");
     int count = 0;
-    while (true) {
+    while ((playStatus != NULL) && !playStatus->isExit) {
         AVPacket *avPacket = av_packet_alloc();
         if (av_read_frame(pFormatCtx, avPacket) == 0) {
             if (avPacket->stream_index == pWLAudio->streamIndex) {
@@ -114,20 +116,15 @@ void WLFFmpeg::start() {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
-            break;
+            while ((playStatus != NULL) && !playStatus->isExit){
+                if (pWLAudio->queue->getQueueSize() > 0){
+                    continue;
+                } else{
+                    playStatus->isExit = true;
+                    break;
+                }
+            }
         }
-    }
-
-    if (LOG_DEBUG){
-        LOGI("put packet is over");
-    }
-
-    while (pWLAudio->queue->getQueueSize() > 0){
-        AVPacket *avPacket = av_packet_alloc();
-        pWLAudio->queue->getAVPacket(avPacket);
-        av_packet_free(&avPacket);
-        av_free(avPacket);
-        avPacket = NULL;
     }
 
     if (LOG_DEBUG){
