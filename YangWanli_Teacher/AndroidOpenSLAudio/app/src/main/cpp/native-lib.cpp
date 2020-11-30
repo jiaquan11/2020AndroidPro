@@ -99,8 +99,9 @@ Java_com_jiaquan_androidopenslaudio_MainActivity_playPcm(JNIEnv *env, jobject th
             SL_BYTEORDER_LITTLEENDIAN
     };
 
-    SLDataLocator_OutputMix outputMix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
     SLDataSource slDataSource = {&android_queue, &pcm};
+
+    SLDataLocator_OutputMix outputMix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
     SLDataSink audioSink = {&outputMix, NULL};
 
     const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_EFFECTSEND,

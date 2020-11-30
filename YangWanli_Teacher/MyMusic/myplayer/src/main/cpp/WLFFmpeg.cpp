@@ -45,7 +45,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < pFormatCtx->nb_streams; ++i) {
         if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (pWLAudio == NULL) {
-                pWLAudio = new WLAudio(playStatus);
+                pWLAudio = new WLAudio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate);
                 pWLAudio->streamIndex = i;
                 pWLAudio->codecPar = pFormatCtx->streams[i]->codecpar;
             }

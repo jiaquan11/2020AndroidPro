@@ -7,6 +7,8 @@
 
 #include "WLQueue.h"
 #include "WLPlayStatus.h"
+#include <SLES/OpenSLES_Android.h>
+#include <SLES/OpenSLES.h>
 
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -15,12 +17,16 @@ extern "C"{
 
 class WLAudio {
 public:
-    WLAudio(WLPlayStatus* playStatus);
+    WLAudio(WLPlayStatus* playStatus, int sample_rate);
     ~WLAudio();
 
     void play();
 
     int resampleAudio();
+
+    void initOpenSLES();
+
+    SLuint32 getCurrentSampleRateForOpenSLES(int sample_rate);
 
 public:
     int streamIndex = -1;
@@ -37,6 +43,24 @@ public:
     uint8_t *buffer = NULL;
     int data_size = 0;
 
+    int sample_Rate = 0;
+
 //    FILE* outFile = NULL;
+
+// 引擎接口
+    SLObjectItf engineObject = NULL;
+    SLEngineItf engineEngine = NULL;
+
+//混音器
+    SLObjectItf outputMixObject = NULL;
+    SLEnvironmentalReverbItf outputMixEnvironmentalReverb = NULL;
+    SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;//走廊环境音混响
+
+    SLObjectItf pcmPlayerObject = NULL;
+    SLPlayItf pcmPlayerPlay = NULL;
+    SLVolumeItf pcmPlayerVolume = NULL;
+
+//缓冲器队列接口
+    SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
 };
 #endif //MYMUSIC_WLAUDIO_H

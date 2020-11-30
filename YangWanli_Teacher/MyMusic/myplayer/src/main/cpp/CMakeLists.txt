@@ -66,4 +66,5 @@ target_link_libraries(native-lib
         postproc-54
         swresample-2
         swscale-4
+        OpenSLES
         )
