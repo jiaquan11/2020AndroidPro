@@ -45,7 +45,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < pFormatCtx->nb_streams; ++i) {
         if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (pWLAudio == NULL) {
-                pWLAudio = new WLAudio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate);
+                pWLAudio = new WLAudio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJava);
                 pWLAudio->streamIndex = i;
                 pWLAudio->codecPar = pFormatCtx->streams[i]->codecpar;
             }
@@ -129,5 +129,17 @@ void WLFFmpeg::start() {
 
     if (LOG_DEBUG){
         LOGI("get packet is over");
+    }
+}
+
+void WLFFmpeg::pause() {
+    if (pWLAudio != NULL){
+        pWLAudio->pause();
+    }
+}
+
+void WLFFmpeg::resume() {
+    if (pWLAudio != NULL){
+        pWLAudio->resume();
     }
 }

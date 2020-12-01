@@ -9,6 +9,7 @@
 #include "WLPlayStatus.h"
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES.h>
+#include "CallJava.h"
 
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -17,7 +18,7 @@ extern "C"{
 
 class WLAudio {
 public:
-    WLAudio(WLPlayStatus* playStatus, int sample_rate);
+    WLAudio(WLPlayStatus* playStatus, int sample_rate, CallJava* callJava);
     ~WLAudio();
 
     void play();
@@ -28,6 +29,10 @@ public:
 
     SLuint32 getCurrentSampleRateForOpenSLES(int sample_rate);
 
+    void pause();
+
+    void resume();
+
 public:
     int streamIndex = -1;
     AVCodecParameters *codecPar = NULL;
@@ -35,6 +40,7 @@ public:
 
     WLQueue* queue = NULL;
     WLPlayStatus* playStatus = NULL;
+    CallJava* callJava = NULL;
 
     pthread_t thread_play;
     AVPacket *avPacket = NULL;

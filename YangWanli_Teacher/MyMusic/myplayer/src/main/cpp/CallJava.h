@@ -17,6 +17,7 @@ public:
     ~CallJava();
 
     void onCallPrepared(int type);
+    void onCallLoad(int type, bool load);
 
 public:
     JavaVM* javaVm = NULL;
@@ -24,6 +25,7 @@ public:
     jobject jobj = NULL;
 
     jmethodID jmid_prepared;
+    jmethodID jmid_load;
 };
 
 

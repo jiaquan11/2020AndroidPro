@@ -19,7 +19,7 @@ int WLQueue::putAVPacket(AVPacket *packet) {
     pthread_mutex_lock(&mutexPacket);
     queuePacket.push(packet);
     if (LOG_DEBUG) {
-        LOGI("put a packet into queue, the count: %d", queuePacket.size());
+//        LOGI("put a packet into queue, the count: %d", queuePacket.size());
     }
 
     pthread_cond_signal(&condPacket);
@@ -49,7 +49,7 @@ int WLQueue::getAVPacket(AVPacket *packet) {
             av_free(avPacket);
             avPacket = NULL;
             if (LOG_DEBUG) {
-                LOGI("get a packet from the queue, the rest: %d", queuePacket.size());
+//                LOGI("get a packet from the queue, the rest: %d", queuePacket.size());
             }
             break;
         } else {

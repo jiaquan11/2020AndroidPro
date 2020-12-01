@@ -51,3 +51,21 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1start(JNIEnv *env, jobject thiz) {
         fFmpeg->start();
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1pause(JNIEnv *env, jobject thiz) {
+    // TODO: implement _pause()
+    if (fFmpeg != NULL){
+        fFmpeg->pause();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1resume(JNIEnv *env, jobject thiz) {
+    // TODO: implement _resume()
+    if (fFmpeg != NULL){
+        fFmpeg->resume();
+    }
+}

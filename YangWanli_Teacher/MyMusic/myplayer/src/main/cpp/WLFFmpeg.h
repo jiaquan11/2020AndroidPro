@@ -20,6 +20,8 @@ public:
 
     void prepared();
     void start();
+    void pause();
+    void resume();
 
     void decodeFFmpegThread();
 

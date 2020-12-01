@@ -11,6 +11,7 @@ public:
 
 public:
     bool isExit = false;
+    bool load = true;
 };
 
 

@@ -2,6 +2,8 @@ package com.jiaquan.myplayer.player;
 
 import android.text.TextUtils;
 
+import com.jiaquan.myplayer.listener.OnLoadListener;
+import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
 import com.jiaquan.myplayer.log.MyLog;
 
@@ -20,10 +22,22 @@ public class WLPlayer {
 
     private String source = null;
 
-    private OnPreparedListener onPreparedListener;
+    private OnPreparedListener onPreparedListener = null;
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
+    }
+
+    private OnLoadListener onLoadListener = null;
+
+    public void setOnLoadListener(OnLoadListener onLoadListener) {
+        this.onLoadListener = onLoadListener;
+    }
+
+    private OnPauseResumeListener onPauseResumeListener = null;
+
+    public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
+        this.onPauseResumeListener = onPauseResumeListener;
     }
 
     public void setSource(String source) {
@@ -39,6 +53,8 @@ public class WLPlayer {
             MyLog.i("source must not be empty");
             return;
         }
+
+        onCallLoad(true);
 
         new Thread(new Runnable() {
             @Override
@@ -68,7 +84,31 @@ public class WLPlayer {
         }
     }
 
-    public native void _prepared(String source);
+    public void onCallLoad(boolean load) {
+        if (onLoadListener != null) {
+            onLoadListener.onLoad(load);
+        }
+    }
 
-    public native void _start();
+    public void pause() {
+        _pause();
+        if (onPauseResumeListener != null) {
+            onPauseResumeListener.onPause(true);
+        }
+    }
+
+    public void resume() {
+        _resume();
+        if (onPauseResumeListener != null) {
+            onPauseResumeListener.onPause(false);
+        }
+    }
+
+    private native void _prepared(String source);
+
+    private native void _start();
+
+    private native void _pause();
+
+    private native void _resume();
 }

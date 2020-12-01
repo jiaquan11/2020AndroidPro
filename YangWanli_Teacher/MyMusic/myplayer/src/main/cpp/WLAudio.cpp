@@ -4,12 +4,13 @@
 
 #include "WLAudio.h"
 
-WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate) {
+WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava* callJava) {
     this->playStatus = playStatus;
-    sample_Rate = sample_rate;
+    this->sample_Rate = sample_rate;
+    this->callJava = callJava;
     queue = new WLQueue(playStatus);
 
-    buffer = (uint8_t *) (av_malloc(44100 * 2 * 2));
+    buffer = (uint8_t *) (av_malloc(sample_rate * 2 * 2));
 
 //    outFile = fopen("/sdcard/testziliao/outAudio.pcm", "wb");
 }
@@ -30,6 +31,19 @@ void WLAudio::play() {
 
 int WLAudio::resampleAudio() {
     while ((playStatus != NULL) && !playStatus->isExit) {
+        if (queue->getQueueSize() == 0){
+            if (!playStatus->load){
+                playStatus->load = true;
+                callJava->onCallLoad(CHILD_THREAD, true);
+            }
+            continue;
+        }else{
+            if (playStatus->load){
+                playStatus->load = false;
+                callJava->onCallLoad(CHILD_THREAD, false);
+            }
+        }
+
         avPacket = av_packet_alloc();
         if (queue->getAVPacket(avPacket) != 0) {
             av_packet_free(&avPacket);
@@ -249,4 +263,16 @@ SLuint32 WLAudio::getCurrentSampleRateForOpenSLES(int sample_rate) {
             break;
     }
     return rate;
+}
+
+void WLAudio::pause() {
+    if (pcmPlayerObject != NULL){
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+void WLAudio::resume() {
+    if (pcmPlayerObject != NULL){
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
 }
