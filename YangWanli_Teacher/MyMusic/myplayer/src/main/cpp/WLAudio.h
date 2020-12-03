@@ -51,6 +51,12 @@ public:
 
     int sample_Rate = 0;
 
+    int duration = 0;
+    AVRational time_base;
+    double now_time = 0;
+    double clock = 0;
+    double last_time = 0;
+
 //    FILE* outFile = NULL;
 
 // 引擎接口

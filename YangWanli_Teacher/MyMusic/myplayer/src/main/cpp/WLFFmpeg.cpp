@@ -48,6 +48,8 @@ void WLFFmpeg::decodeFFmpegThread() {
                 pWLAudio = new WLAudio(playStatus, pFormatCtx->streams[i]->codecpar->sample_rate, callJava);
                 pWLAudio->streamIndex = i;
                 pWLAudio->codecPar = pFormatCtx->streams[i]->codecpar;
+                pWLAudio->duration = pFormatCtx->duration/AV_TIME_BASE;
+                pWLAudio->time_base = pFormatCtx->streams[i]->time_base;
             }
         }
     }

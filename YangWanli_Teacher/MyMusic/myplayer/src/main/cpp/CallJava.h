@@ -18,6 +18,7 @@ public:
 
     void onCallPrepared(int type);
     void onCallLoad(int type, bool load);
+    void onCallTimeInfo(int type, int curr, int total);
 
 public:
     JavaVM* javaVm = NULL;
@@ -26,6 +27,7 @@ public:
 
     jmethodID jmid_prepared;
     jmethodID jmid_load;
+    jmethodID jmid_timeinfo;
 };
 
 

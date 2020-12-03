@@ -3,24 +3,33 @@ package com.jiaquan.mymusic;
 import android.Manifest;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.jiaquan.myplayer.TimeInfoBean;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
+import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.player.WLPlayer;
+import com.jiaquan.myplayer.util.TimeUtil;
 
 public class MainActivity extends AppCompatActivity {
     private WLPlayer wlPlayer = null;
+    private TextView tv_time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tv_time = findViewById(R.id.tv_time);
         // 要申请的权限
         String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
                 , Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE};
@@ -59,6 +68,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        wlPlayer.setOnTimeInfoListener(new OnTimeInfoListener() {
+            @Override
+            public void onTimeInfo(TimeInfoBean timeInfoBean) {
+//                MyLog.i(timeInfoBean.toString());
+                Message message = Message.obtain();
+                message.what = 1;
+                message.obj = timeInfoBean;
+                handler.sendMessage(message);
+            }
+        });
     }
 
     public void begin(View view) {
@@ -74,4 +94,16 @@ public class MainActivity extends AppCompatActivity {
     public void resume(View view) {
         wlPlayer.resume();
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {//重写类方法
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+                TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
+                tv_time.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime())
+                        + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+            }
+        }
+    };
 }

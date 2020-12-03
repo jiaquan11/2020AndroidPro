@@ -98,6 +98,12 @@ int WLAudio::resampleAudio() {
             int out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
+            now_time = avFrame->pts * av_q2d(time_base);
+            if (now_time < clock){//保证clock递增
+                now_time = clock;
+            }
+            clock = now_time;
+
 //            fwrite(buffer, data_size, 1, outFile);
             if (LOG_DEBUG) {
 //                LOGI("data size %d", data_size);
@@ -134,6 +140,13 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     if (wlAudio != NULL) {
         int bufferSize = wlAudio->resampleAudio();
         if (bufferSize > 0) {
+            wlAudio->clock += bufferSize / ((double)(wlAudio->sample_Rate*2*2));//累加一下播放一段pcm所耗费的时间
+
+            if (wlAudio->clock - wlAudio->last_time >= 0.1){
+                wlAudio->last_time = wlAudio->clock;
+                wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
+            }
+
             (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
                                                 bufferSize);
         }

@@ -2,9 +2,11 @@ package com.jiaquan.myplayer.player;
 
 import android.text.TextUtils;
 
+import com.jiaquan.myplayer.TimeInfoBean;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
+import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.log.MyLog;
 
 public class WLPlayer {
@@ -23,22 +25,26 @@ public class WLPlayer {
     private String source = null;
 
     private OnPreparedListener onPreparedListener = null;
-
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
     }
 
     private OnLoadListener onLoadListener = null;
-
     public void setOnLoadListener(OnLoadListener onLoadListener) {
         this.onLoadListener = onLoadListener;
     }
 
     private OnPauseResumeListener onPauseResumeListener = null;
-
     public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
         this.onPauseResumeListener = onPauseResumeListener;
     }
+
+    private OnTimeInfoListener onTimeInfoListener = null;
+    public void setOnTimeInfoListener(OnTimeInfoListener onTimeInfoListener) {
+        this.onTimeInfoListener = onTimeInfoListener;
+    }
+
+    private static TimeInfoBean timeInfoBean = null;
 
     public void setSource(String source) {
         this.source = source;
@@ -87,6 +93,17 @@ public class WLPlayer {
     public void onCallLoad(boolean load) {
         if (onLoadListener != null) {
             onLoadListener.onLoad(load);
+        }
+    }
+
+    public void onCallTimeInfo(int currentTime, int totalTime){
+        if (onTimeInfoListener != null){
+            if (timeInfoBean == null){
+                timeInfoBean = new TimeInfoBean();
+            }
+            timeInfoBean.setCurrentTime(currentTime);
+            timeInfoBean.setTotalTime(totalTime);
+            onTimeInfoListener.onTimeInfo(timeInfoBean);
         }
     }
 
