@@ -27,7 +27,7 @@ public class WLPlayer {
     private static String source = null;
     private static boolean playNext = false;
     private static int duration = -1;
-
+    private static int volumePercent = 100;
     private OnPreparedListener onPreparedListener = null;
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
@@ -99,6 +99,7 @@ public class WLPlayer {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                setVolume(volumePercent);
                 _start();
             }
         }).start();
@@ -192,6 +193,17 @@ public class WLPlayer {
         return duration;
     }
 
+    public void setVolume(int percent){
+        if ((percent >= 0) && (percent <= 100)){
+            volumePercent = percent;
+            _volume(percent);
+        }
+    }
+
+    public int getVolumePercent(){
+        return volumePercent;
+    }
+
     private native void _prepared(String source);
 
     private native void _start();
@@ -205,4 +217,6 @@ public class WLPlayer {
     private native void _seek(int secds);
 
     private native int _duration();
+
+    private native void _volume(int percent);
 }

@@ -221,6 +221,8 @@ void WLAudio::initOpenSLES() {
     //获取音量接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_VOLUME, &pcmPlayerVolume);
 
+    setVolume(volumePercent);
+
     //5.设置播放状态
     (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
 
@@ -310,6 +312,7 @@ void WLAudio::release() {
         pcmPlayerObject = NULL;
         pcmPlayerPlay = NULL;
         pcmBufferQueue = NULL;
+        pcmPlayerVolume = NULL;
     }
 
     if (outputMixObject != NULL) {
@@ -341,5 +344,33 @@ void WLAudio::release() {
 
     if (callJava != NULL) {
         callJava = NULL;
+    }
+}
+
+void WLAudio::setVolume(int percent) {
+    volumePercent = percent;
+
+    if (pcmPlayerVolume != NULL){
+        //下面是为了让音量调节平滑一点
+        if (percent > 30){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-20));//percent:100 原声 percent:0 静音
+        }else if (percent > 25){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-22));//percent:100 原声 percent:0 静音
+        }else if (percent > 20){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-25));//percent:100 原声 percent:0 静音
+        }else if (percent > 15){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-28));//percent:100 原声 percent:0 静音
+        }else if (percent > 10){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-30));//percent:100 原声 percent:0 静音
+        }else if (percent > 5){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-34));//percent:100 原声 percent:0 静音
+        }else if (percent > 3){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-37));//percent:100 原声 percent:0 静音
+        }else if (percent > 0){
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-40));//percent:100 原声 percent:0 静音
+        }else{
+            (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100-percent)*(-100));//percent:100 原声 percent:0 静音
+        }
+
     }
 }

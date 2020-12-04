@@ -37,6 +37,8 @@ public:
 
     void release();
 
+    void setVolume(int percent);
+
 public:
     int streamIndex = -1;
     AVCodecParameters *codecPar = NULL;
@@ -60,6 +62,8 @@ public:
     double now_time = 0;
     double clock = 0;
     double last_time = 0;
+
+    int volumePercent = 100;
 
 //    FILE* outFile = NULL;
 

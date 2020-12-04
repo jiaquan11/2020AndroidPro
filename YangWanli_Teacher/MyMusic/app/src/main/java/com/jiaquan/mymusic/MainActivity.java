@@ -26,9 +26,12 @@ import com.jiaquan.myplayer.util.TimeUtil;
 public class MainActivity extends AppCompatActivity {
     private WLPlayer wlPlayer = null;
     private TextView tv_time = null;
+    private TextView tv_volume = null;
     private SeekBar seekBarSeek = null;
     private int position = 0;
     private boolean isSeekBar = false;
+
+    private SeekBar seekBarVolume = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         tv_time = findViewById(R.id.tv_time);
         seekBarSeek = findViewById(R.id.seekbar_seek);
+        seekBarVolume = findViewById(R.id.seekbar_volume);
+        tv_volume = findViewById(R.id.tv_volume);
 
         // 要申请的权限
         String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -47,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         wlPlayer = new WLPlayer();
+        wlPlayer.setVolume(50);//设置初始音量
+        tv_volume.setText("音量: "+ wlPlayer.getVolumePercent() + "%");
+        seekBarVolume.setProgress(wlPlayer.getVolumePercent());
+
         wlPlayer.setOnPreparedListener(new OnPreparedListener() {
             @Override
             public void onPrepared() {
@@ -121,13 +130,31 @@ public class MainActivity extends AppCompatActivity {
                 isSeekBar = false;
             }
         });
+
+        seekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                wlPlayer.setVolume(progress);
+                tv_volume.setText("音量: "+ wlPlayer.getVolumePercent() + "%");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     public void begin(View view) {
 //        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
-//        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
+        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
 //        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
-        wlPlayer.setSource("/sdcard/testziliao/yongqi-liangjingru.m4a");
+//        wlPlayer.setSource("/sdcard/testziliao/yongqi-liangjingru.m4a");
 
         wlPlayer.prepared();
     }

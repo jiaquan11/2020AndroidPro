@@ -272,3 +272,9 @@ void WLFFmpeg::release() {
     pthread_mutex_unlock(&init_mutex);
     LOGI("WLFFmpeg release end");
 }
+
+void WLFFmpeg::setVolume(int percent) {
+    if (pWLAudio != NULL){
+        pWLAudio->setVolume(percent);
+    }
+}

@@ -26,6 +26,8 @@ public:
     void seek(int64_t secds);
     void release();
 
+    void setVolume(int percent);
+
     void decodeFFmpegThread();
 
 public:
