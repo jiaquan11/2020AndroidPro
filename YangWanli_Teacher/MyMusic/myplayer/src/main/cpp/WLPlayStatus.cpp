@@ -7,3 +7,7 @@
 WLPlayStatus::WLPlayStatus() {
     isExit = false;
 }
+
+WLPlayStatus::~WLPlayStatus() {
+
+}

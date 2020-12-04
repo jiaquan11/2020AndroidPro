@@ -21,6 +21,7 @@ public:
     int putAVPacket(AVPacket* packet);
     int getAVPacket(AVPacket* packet);
     int getQueueSize();
+    void clearAvPacket();
 
 public:
     std::queue<AVPacket*> queuePacket;

@@ -33,6 +33,10 @@ public:
 
     void resume();
 
+    void stop();
+
+    void release();
+
 public:
     int streamIndex = -1;
     AVCodecParameters *codecPar = NULL;

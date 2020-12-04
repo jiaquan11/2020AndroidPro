@@ -25,21 +25,25 @@ public class WLPlayer {
     private String source = null;
 
     private OnPreparedListener onPreparedListener = null;
+
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
     }
 
     private OnLoadListener onLoadListener = null;
+
     public void setOnLoadListener(OnLoadListener onLoadListener) {
         this.onLoadListener = onLoadListener;
     }
 
     private OnPauseResumeListener onPauseResumeListener = null;
+
     public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
         this.onPauseResumeListener = onPauseResumeListener;
     }
 
     private OnTimeInfoListener onTimeInfoListener = null;
+
     public void setOnTimeInfoListener(OnTimeInfoListener onTimeInfoListener) {
         this.onTimeInfoListener = onTimeInfoListener;
     }
@@ -96,9 +100,9 @@ public class WLPlayer {
         }
     }
 
-    public void onCallTimeInfo(int currentTime, int totalTime){
-        if (onTimeInfoListener != null){
-            if (timeInfoBean == null){
+    public void onCallTimeInfo(int currentTime, int totalTime) {
+        if (onTimeInfoListener != null) {
+            if (timeInfoBean == null) {
                 timeInfoBean = new TimeInfoBean();
             }
             timeInfoBean.setCurrentTime(currentTime);
@@ -121,6 +125,15 @@ public class WLPlayer {
         }
     }
 
+    public void stop() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                _stop();
+            }
+        }).start();
+    }
+
     private native void _prepared(String source);
 
     private native void _start();
@@ -128,4 +141,6 @@ public class WLPlayer {
     private native void _pause();
 
     private native void _resume();
+
+    private native void _stop();
 }

@@ -11,6 +11,7 @@
 
 extern "C"{
 #include <libavformat/avformat.h>
+#include <libavutil/time.h>
 };
 
 class WLFFmpeg {
@@ -23,6 +24,8 @@ public:
     void pause();
     void resume();
 
+    void release();
+
     void decodeFFmpegThread();
 
 public:
@@ -34,5 +37,8 @@ public:
     WLAudio *pWLAudio = NULL;
 
     WLPlayStatus *playStatus = NULL;
+
+    pthread_mutex_t init_mutex;
+    bool isExit = false;
 };
 #endif //MYMUSIC_WLFFMPEG_H

@@ -4,7 +4,7 @@
 
 #include "WLAudio.h"
 
-WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava* callJava) {
+WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava *callJava) {
     this->playStatus = playStatus;
     this->sample_Rate = sample_rate;
     this->callJava = callJava;
@@ -31,14 +31,14 @@ void WLAudio::play() {
 
 int WLAudio::resampleAudio() {
     while ((playStatus != NULL) && !playStatus->isExit) {
-        if (queue->getQueueSize() == 0){
-            if (!playStatus->load){
+        if (queue->getQueueSize() == 0) {
+            if (!playStatus->load) {
                 playStatus->load = true;
                 callJava->onCallLoad(CHILD_THREAD, true);
             }
             continue;
-        }else{
-            if (playStatus->load){
+        } else {
+            if (playStatus->load) {
                 playStatus->load = false;
                 callJava->onCallLoad(CHILD_THREAD, false);
             }
@@ -99,7 +99,7 @@ int WLAudio::resampleAudio() {
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
             now_time = avFrame->pts * av_q2d(time_base);
-            if (now_time < clock){//保证clock递增
+            if (now_time < clock) {//保证clock递增
                 now_time = clock;
             }
             clock = now_time;
@@ -140,9 +140,10 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     if (wlAudio != NULL) {
         int bufferSize = wlAudio->resampleAudio();
         if (bufferSize > 0) {
-            wlAudio->clock += bufferSize / ((double)(wlAudio->sample_Rate*2*2));//累加一下播放一段pcm所耗费的时间
+            wlAudio->clock +=
+                    bufferSize / ((double) (wlAudio->sample_Rate * 2 * 2));//累加一下播放一段pcm所耗费的时间
 
-            if (wlAudio->clock - wlAudio->last_time >= 0.1){
+            if (wlAudio->clock - wlAudio->last_time >= 0.1) {
                 wlAudio->last_time = wlAudio->clock;
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
@@ -279,13 +280,66 @@ SLuint32 WLAudio::getCurrentSampleRateForOpenSLES(int sample_rate) {
 }
 
 void WLAudio::pause() {
-    if (pcmPlayerObject != NULL){
+    if (pcmPlayerObject != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
 }
 
 void WLAudio::resume() {
-    if (pcmPlayerObject != NULL){
+    if (pcmPlayerObject != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
+}
+
+void WLAudio::stop() {
+    if (pcmPlayerObject != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_STOPPED);
+    }
+}
+
+void WLAudio::release() {
+    stop();
+
+    if (queue != NULL) {
+        delete queue;
+        queue = NULL;
+    }
+
+    if (pcmPlayerObject != NULL) {
+        (*pcmPlayerObject)->Destroy(pcmPlayerObject);
+        pcmPlayerObject = NULL;
+        pcmPlayerPlay = NULL;
+        pcmBufferQueue = NULL;
+    }
+
+    if (outputMixObject != NULL) {
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+        outputMixEnvironmentalReverb = NULL;
+    }
+
+    if (engineObject != NULL) {
+        (*engineObject)->Destroy(engineObject);
+        engineObject = NULL;
+        engineEngine = NULL;
+    }
+
+    if (buffer != NULL) {
+        free(buffer);
+        buffer = NULL;
+    }
+
+    if (avCodecContext != NULL) {
+        avcodec_close(avCodecContext);
+        avcodec_free_context(&avCodecContext);
+        avCodecContext = NULL;
+    }
+
+    if (playStatus != NULL) {
+        playStatus = NULL;
+    }
+
+    if (callJava != NULL) {
+        callJava = NULL;
     }
 }

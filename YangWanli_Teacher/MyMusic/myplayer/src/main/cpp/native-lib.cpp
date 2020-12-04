@@ -69,3 +69,24 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1resume(JNIEnv *env, jobject thiz) {
         fFmpeg->resume();
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
+    // TODO: implement _stop()
+    if (fFmpeg != NULL){
+        fFmpeg->release();
+        delete fFmpeg;
+        fFmpeg = NULL;
+
+        if (callJava != NULL){
+            delete callJava;
+            callJava = NULL;
+        }
+
+        if (playStatus != NULL){
+            delete playStatus;
+            playStatus = NULL;
+        }
+    }
+}
