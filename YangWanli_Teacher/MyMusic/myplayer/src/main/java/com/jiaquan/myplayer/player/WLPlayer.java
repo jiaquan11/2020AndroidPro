@@ -3,6 +3,7 @@ package com.jiaquan.myplayer.player;
 import android.text.TextUtils;
 
 import com.jiaquan.myplayer.TimeInfoBean;
+import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
@@ -48,6 +49,11 @@ public class WLPlayer {
         this.onTimeInfoListener = onTimeInfoListener;
     }
 
+    private OnErrorListener onErrorListener = null;
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
+    }
+
     private static TimeInfoBean timeInfoBean = null;
 
     public void setSource(String source) {
@@ -64,7 +70,7 @@ public class WLPlayer {
             return;
         }
 
-        onCallLoad(true);
+//        onCallLoad(true);
 
         new Thread(new Runnable() {
             @Override
@@ -108,6 +114,14 @@ public class WLPlayer {
             timeInfoBean.setCurrentTime(currentTime);
             timeInfoBean.setTotalTime(totalTime);
             onTimeInfoListener.onTimeInfo(timeInfoBean);
+        }
+    }
+
+    public void onCallError(int code, String msg){
+        stop();
+
+        if (onErrorListener != null){
+            onErrorListener.onError(code, msg);
         }
     }
 

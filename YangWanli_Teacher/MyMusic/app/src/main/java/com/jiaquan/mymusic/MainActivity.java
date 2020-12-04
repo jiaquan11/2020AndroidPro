@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jiaquan.myplayer.TimeInfoBean;
+import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
@@ -77,6 +78,13 @@ public class MainActivity extends AppCompatActivity {
                 message.what = 1;
                 message.obj = timeInfoBean;
                 handler.sendMessage(message);
+            }
+        });
+
+        wlPlayer.setOnErrorListener(new OnErrorListener() {
+            @Override
+            public void onError(int code, String msg) {
+                MyLog.i("code is: " + code + " msg: " + msg);
             }
         });
     }

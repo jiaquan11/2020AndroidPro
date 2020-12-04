@@ -50,6 +50,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     if (avformat_open_input(&pFormatCtx, url, NULL, NULL) != 0) {
         if (LOG_DEBUG) {
             LOGE("can not open url: %s", url);
+            callJava->onCallError(CHILD_THREAD, 1001, "can not open url");
         }
 
         isExit = true;
@@ -59,6 +60,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     if (avformat_find_stream_info(pFormatCtx, NULL) < 0) {
         if (LOG_DEBUG) {
             LOGE("can not find streams from url: %s", url);
+            callJava->onCallError(CHILD_THREAD, 1002, "can not find streams from url");
         }
 
         isExit = true;
@@ -83,6 +85,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     if (!avCodec) {
         if (LOG_DEBUG) {
             LOGE("can not find deocder");
+            callJava->onCallError(CHILD_THREAD, 1003, "can not find deocder");
         }
         isExit = true;
         pthread_mutex_unlock(&init_mutex);
@@ -93,6 +96,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     if (!pWLAudio->avCodecContext) {
         if (LOG_DEBUG) {
             LOGE("can not alloc new decoderCtx");
+            callJava->onCallError(CHILD_THREAD, 1004, "can not alloc new decoderCtx");
         }
         isExit = true;
         pthread_mutex_unlock(&init_mutex);
@@ -102,6 +106,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     if (avcodec_parameters_to_context(pWLAudio->avCodecContext, pWLAudio->codecPar) < 0) {
         if (LOG_DEBUG) {
             LOGE("can not fill decoderCtx");
+            callJava->onCallError(CHILD_THREAD, 1005, "can not fill decoderCtx");
         }
         isExit = true;
         pthread_mutex_unlock(&init_mutex);
@@ -111,6 +116,7 @@ void WLFFmpeg::decodeFFmpegThread() {
     if (avcodec_open2(pWLAudio->avCodecContext, avCodec, 0) != 0) {
         if (LOG_DEBUG) {
             LOGE("can not open audio decoder");
+            callJava->onCallError(CHILD_THREAD, 1006, "can not open audio decoder");
         }
         isExit = true;
         pthread_mutex_unlock(&init_mutex);
@@ -126,6 +132,7 @@ void WLFFmpeg::start() {
     if (pWLAudio == NULL) {
         if (LOG_DEBUG) {
             LOGE("audio is NULL");
+            callJava->onCallError(CHILD_THREAD, 1007, "audio is NULL");
         }
         return;
     }
