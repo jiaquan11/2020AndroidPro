@@ -24,7 +24,8 @@ public class WLPlayer {
         System.loadLibrary("swscale-4");
     }
 
-    private String source = null;
+    private static String source = null;
+    private static boolean playNext = false;
 
     private OnPreparedListener onPreparedListener = null;
 
@@ -51,11 +52,13 @@ public class WLPlayer {
     }
 
     private OnErrorListener onErrorListener = null;
+
     public void setOnErrorListener(OnErrorListener onErrorListener) {
         this.onErrorListener = onErrorListener;
     }
 
     private OnCompleteListener onCompleteListener = null;
+
     public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
         this.onCompleteListener = onCompleteListener;
     }
@@ -123,19 +126,26 @@ public class WLPlayer {
         }
     }
 
-    public void onCallError(int code, String msg){
+    public void onCallError(int code, String msg) {
         stop();
 
-        if (onErrorListener != null){
+        if (onErrorListener != null) {
             onErrorListener.onError(code, msg);
         }
     }
 
-    public void onCallComplete(){
+    public void onCallComplete() {
         stop();
 
-        if (onCompleteListener != null){
+        if (onCompleteListener != null) {
             onCompleteListener.onComplete();
+        }
+    }
+
+    public void onCallNext() {
+        if (playNext) {
+            playNext = false;
+            prepared();
         }
     }
 
@@ -153,17 +163,25 @@ public class WLPlayer {
         }
     }
 
-    public void seek(int secds){
+    public void seek(int secds) {
         _seek(secds);
     }
 
     public void stop() {
+        timeInfoBean = null;
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 _stop();
             }
         }).start();
+    }
+
+    public void playNext(String url) {
+        source = url;
+        playNext = true;
+        stop();
     }
 
     private native void _prepared(String source);

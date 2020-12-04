@@ -37,6 +37,12 @@
         android:text="SEEK"
         android:onClick="seek"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="切换"
+        android:onClick="next"/>
+
     <TextView
         android:id="@+id/tv_time"
         android:layout_width="wrap_content"

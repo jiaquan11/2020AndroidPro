@@ -89,10 +89,13 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
     // TODO: implement _stop()
-
     if (!isExit){
         return;
     }
+
+    jclass jcz = env->GetObjectClass(thiz);
+    jmethodID jmid_next = env->GetMethodID(jcz, "onCallNext", "()V");
+
     isExit = false;
 
     if (fFmpeg != NULL){
@@ -112,6 +115,8 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
     }
 
     isExit = true;
+
+    env->CallVoidMethod(thiz, jmid_next);
 }
 
 extern "C"
