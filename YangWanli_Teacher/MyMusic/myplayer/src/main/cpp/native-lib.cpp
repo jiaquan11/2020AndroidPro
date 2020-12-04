@@ -127,3 +127,13 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1seek(JNIEnv *env, jobject thiz, jint
         fFmpeg->seek(secds);
     }
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1duration(JNIEnv *env, jobject thiz) {
+    // TODO: implement _duration()
+    if (fFmpeg != NULL){
+        return fFmpeg->duration;
+    }
+    return 0;
+}

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,7 +25,10 @@ import com.jiaquan.myplayer.util.TimeUtil;
 
 public class MainActivity extends AppCompatActivity {
     private WLPlayer wlPlayer = null;
-    private TextView tv_time;
+    private TextView tv_time = null;
+    private SeekBar seekBarSeek = null;
+    private int position = 0;
+    private boolean isSeekBar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         tv_time = findViewById(R.id.tv_time);
+        seekBarSeek = findViewById(R.id.seekbar_seek);
+
         // 要申请的权限
         String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
                 , Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE};
@@ -95,12 +101,34 @@ public class MainActivity extends AppCompatActivity {
                 MyLog.i("播放完成了");
             }
         });
+
+        seekBarSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (wlPlayer.getDuration() > 0 && isSeekBar){
+                    position = wlPlayer.getDuration() * progress / 100;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isSeekBar = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                wlPlayer.seek(position);
+                isSeekBar = false;
+            }
+        });
     }
 
     public void begin(View view) {
 //        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
-        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
+//        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
 //        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+        wlPlayer.setSource("/sdcard/testziliao/yongqi-liangjingru.m4a");
+
         wlPlayer.prepared();
     }
 
@@ -116,10 +144,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {//重写类方法
             super.handleMessage(msg);
+
             if (msg.what == 1) {
-                TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
-                tv_time.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime())
-                        + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+                if (!isSeekBar){
+                    TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
+                    tv_time.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime())
+                            + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+
+                 seekBarSeek.setProgress(timeInfoBean.getCurrentTime()*100/timeInfoBean.getTotalTime());
+                }
             }
         }
     };

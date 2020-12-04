@@ -26,6 +26,7 @@ public class WLPlayer {
 
     private static String source = null;
     private static boolean playNext = false;
+    private static int duration = -1;
 
     private OnPreparedListener onPreparedListener = null;
 
@@ -169,7 +170,7 @@ public class WLPlayer {
 
     public void stop() {
         timeInfoBean = null;
-
+        duration = -1;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -184,6 +185,13 @@ public class WLPlayer {
         stop();
     }
 
+    public int getDuration(){
+        if (duration < 0){
+            duration = _duration();
+        }
+        return duration;
+    }
+
     private native void _prepared(String source);
 
     private native void _start();
@@ -195,4 +203,6 @@ public class WLPlayer {
     private native void _stop();
 
     private native void _seek(int secds);
+
+    private native int _duration();
 }
