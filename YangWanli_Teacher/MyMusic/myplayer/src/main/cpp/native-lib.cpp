@@ -17,6 +17,8 @@ WLPlayStatus *playStatus = NULL;
 
 bool isExit = true;
 
+pthread_t thread_start;
+
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     jint result = -1;
@@ -48,12 +50,20 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1prepared(JNIEnv *env, jobject thiz, 
     env->ReleaseStringUTFChars(sourceStr, source);
 }
 
+void *startCallBack(void* data){
+    WLFFmpeg* wlfFmpeg = (WLFFmpeg *)(data);
+    wlfFmpeg->start();
+
+    pthread_exit(&thread_start);
+}
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1start(JNIEnv *env, jobject thiz) {
     // TODO: implement _start()
     if (fFmpeg != NULL) {
-        fFmpeg->start();
+//        fFmpeg->start();
+        pthread_create(&thread_start, NULL, startCallBack, fFmpeg);
     }
 }
 
@@ -102,4 +112,13 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
     }
 
     isExit = true;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1seek(JNIEnv *env, jobject thiz, jint secds) {
+    // TODO: implement _seek()
+    if (fFmpeg != NULL){
+        fFmpeg->seek(secds);
+    }
 }

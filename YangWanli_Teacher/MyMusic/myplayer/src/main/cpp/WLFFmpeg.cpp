@@ -9,10 +9,12 @@ WLFFmpeg::WLFFmpeg(WLPlayStatus *playStatus, CallJava *calljava, const char *url
     this->playStatus = playStatus;
 
     pthread_mutex_init(&init_mutex, NULL);
+    pthread_mutex_init(&seek_mutex, NULL);
 }
 
 WLFFmpeg::~WLFFmpeg() {
-
+    pthread_mutex_destroy(&init_mutex);
+    pthread_mutex_destroy(&seek_mutex);
 }
 
 void *decodeFFmpeg(void *data) {
@@ -77,6 +79,7 @@ void WLFFmpeg::decodeFFmpegThread() {
                 pWLAudio->codecPar = pFormatCtx->streams[i]->codecpar;
                 pWLAudio->duration = pFormatCtx->duration / AV_TIME_BASE;
                 pWLAudio->time_base = pFormatCtx->streams[i]->time_base;
+                duration = pWLAudio->duration;
             }
         }
     }
@@ -142,8 +145,19 @@ void WLFFmpeg::start() {
     LOGI("WLFFmpeg is start");
     int count = 0;
     while ((playStatus != NULL) && !playStatus->isExit) {
+        if (playStatus->seek){
+            continue;
+        }
+        if (pWLAudio->queue->getQueueSize() > 40){
+            continue;
+        }
+
         AVPacket *avPacket = av_packet_alloc();
-        if (av_read_frame(pFormatCtx, avPacket) == 0) {
+
+        pthread_mutex_lock(&seek_mutex);
+        int ret = av_read_frame(pFormatCtx, avPacket);
+        pthread_mutex_unlock(&seek_mutex);
+        if (ret == 0) {
             if (avPacket->stream_index == pWLAudio->streamIndex) {
                 count++;
                 if (LOG_DEBUG) {
@@ -170,6 +184,10 @@ void WLFFmpeg::start() {
         }
     }
 
+    if (callJava != NULL){
+        callJava->onCallComplete(CHILD_THREAD);
+    }
+
     isExit = true;
 
     if (LOG_DEBUG) {
@@ -189,10 +207,32 @@ void WLFFmpeg::resume() {
     }
 }
 
-void WLFFmpeg::release() {
-    if (playStatus->isExit) {
+void WLFFmpeg::seek(int64_t secds) {
+    if (duration <= 0){
         return;
     }
+    if ((secds >= 0) && (secds <= duration)){
+        if (pWLAudio != NULL){
+            playStatus->seek = true;
+            pWLAudio->queue->clearAvPacket();
+            pWLAudio->clock = 0;
+            pWLAudio->last_time = 0;
+
+            pthread_mutex_lock(&seek_mutex);
+            int64_t rel = secds * AV_TIME_BASE;
+            avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
+            pthread_mutex_unlock(&seek_mutex);
+
+            playStatus->seek = false;
+        }
+    }
+}
+
+void WLFFmpeg::release() {
+//    if (playStatus->isExit) {
+//        return;
+//    }
+    LOGI("WLFFmpeg release in");
     playStatus->isExit = true;
 
     pthread_mutex_lock(&init_mutex);
@@ -208,12 +248,14 @@ void WLFFmpeg::release() {
         av_usleep(1000 * 10);//10ms
     }
 
+    LOGI("WLFFmpeg release pWLAudio");
     if (pWLAudio != NULL) {
         pWLAudio->release();
         delete pWLAudio;
         pWLAudio = NULL;
     }
 
+    LOGI("WLFFmpeg release pFormatCtx");
     if (pFormatCtx != NULL) {
         avformat_close_input(&pFormatCtx);
         avformat_free_context(pFormatCtx);
@@ -228,4 +270,5 @@ void WLFFmpeg::release() {
     }
 
     pthread_mutex_unlock(&init_mutex);
+    LOGI("WLFFmpeg release end");
 }

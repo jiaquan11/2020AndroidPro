@@ -13,6 +13,7 @@ public:
 public:
     bool isExit = false;
     bool load = true;
+    bool seek = false;
 };
 
 

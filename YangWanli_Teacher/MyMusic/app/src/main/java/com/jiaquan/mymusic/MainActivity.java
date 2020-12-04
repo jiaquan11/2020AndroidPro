@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jiaquan.myplayer.TimeInfoBean;
+import com.jiaquan.myplayer.listener.OnCompleteListener;
 import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
@@ -87,12 +88,19 @@ public class MainActivity extends AppCompatActivity {
                 MyLog.i("code is: " + code + " msg: " + msg);
             }
         });
+
+        wlPlayer.setOnCompleteListener(new OnCompleteListener() {
+            @Override
+            public void onComplete() {
+                MyLog.i("播放完成了");
+            }
+        });
     }
 
     public void begin(View view) {
 //        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
-//        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
-        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
+//        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
         wlPlayer.prepared();
     }
 
@@ -118,5 +126,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void stop(View view) {
         wlPlayer.stop();
+    }
+
+    public void seek(View view) {
+        wlPlayer.seek(215);
     }
 }

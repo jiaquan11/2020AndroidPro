@@ -23,7 +23,7 @@ public:
     void start();
     void pause();
     void resume();
-
+    void seek(int64_t secds);
     void release();
 
     void decodeFFmpegThread();
@@ -40,5 +40,8 @@ public:
 
     pthread_mutex_t init_mutex;
     bool isExit = false;
+
+    int duration = 0;
+    pthread_mutex_t seek_mutex;
 };
 #endif //MYMUSIC_WLFFMPEG_H

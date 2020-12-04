@@ -3,6 +3,7 @@ package com.jiaquan.myplayer.player;
 import android.text.TextUtils;
 
 import com.jiaquan.myplayer.TimeInfoBean;
+import com.jiaquan.myplayer.listener.OnCompleteListener;
 import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
@@ -52,6 +53,11 @@ public class WLPlayer {
     private OnErrorListener onErrorListener = null;
     public void setOnErrorListener(OnErrorListener onErrorListener) {
         this.onErrorListener = onErrorListener;
+    }
+
+    private OnCompleteListener onCompleteListener = null;
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
+        this.onCompleteListener = onCompleteListener;
     }
 
     private static TimeInfoBean timeInfoBean = null;
@@ -125,6 +131,14 @@ public class WLPlayer {
         }
     }
 
+    public void onCallComplete(){
+        stop();
+
+        if (onCompleteListener != null){
+            onCompleteListener.onComplete();
+        }
+    }
+
     public void pause() {
         _pause();
         if (onPauseResumeListener != null) {
@@ -137,6 +151,10 @@ public class WLPlayer {
         if (onPauseResumeListener != null) {
             onPauseResumeListener.onPause(false);
         }
+    }
+
+    public void seek(int secds){
+        _seek(secds);
     }
 
     public void stop() {
@@ -157,4 +175,6 @@ public class WLPlayer {
     private native void _resume();
 
     private native void _stop();
+
+    private native void _seek(int secds);
 }
