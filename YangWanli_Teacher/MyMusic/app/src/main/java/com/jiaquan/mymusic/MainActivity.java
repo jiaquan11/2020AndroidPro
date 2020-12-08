@@ -20,6 +20,7 @@ import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.log.MyLog;
+import com.jiaquan.myplayer.muteenum.MuteEnum;
 import com.jiaquan.myplayer.player.WLPlayer;
 import com.jiaquan.myplayer.util.TimeUtil;
 
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         wlPlayer = new WLPlayer();
         wlPlayer.setVolume(50);//设置初始音量
+        wlPlayer.setMute(MuteEnum.MUTE_LEFT);
         tv_volume.setText("音量: "+ wlPlayer.getVolumePercent() + "%");
         seekBarVolume.setProgress(wlPlayer.getVolumePercent());
 
@@ -194,5 +196,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void next(View view) {
         wlPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+    }
+
+    public void left(View view) {
+        wlPlayer.setMute(MuteEnum.MUTE_LEFT);
+    }
+
+    public void right(View view) {
+        wlPlayer.setMute(MuteEnum.MUTE_RIGHT);
+    }
+
+    public void center(View view) {
+        wlPlayer.setMute(MuteEnum.MUTE_CENTER);
     }
 }

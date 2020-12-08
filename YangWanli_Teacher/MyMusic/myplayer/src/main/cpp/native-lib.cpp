@@ -144,3 +144,12 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1volume(JNIEnv *env, jobject thiz, ji
         fFmpeg->setVolume(percent);
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1mute(JNIEnv *env, jobject thiz, jint mute) {
+    // TODO: implement _mute()
+    if (fFmpeg != NULL){
+        fFmpeg->setMute(mute);
+    }
+}

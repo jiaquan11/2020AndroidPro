@@ -278,3 +278,9 @@ void WLFFmpeg::setVolume(int percent) {
         pWLAudio->setVolume(percent);
     }
 }
+
+void WLFFmpeg::setMute(int mute) {
+    if (pWLAudio != NULL){
+        pWLAudio->setMute(mute);
+    }
+}

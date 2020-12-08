@@ -27,6 +27,7 @@ public:
     void release();
 
     void setVolume(int percent);
+    void setMute(int mute);
 
     void decodeFFmpegThread();
 

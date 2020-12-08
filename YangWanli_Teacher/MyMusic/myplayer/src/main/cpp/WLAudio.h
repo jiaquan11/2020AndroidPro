@@ -39,6 +39,8 @@ public:
 
     void setVolume(int percent);
 
+    void setMute(int mute);
+
 public:
     int streamIndex = -1;
     AVCodecParameters *codecPar = NULL;
@@ -64,7 +66,7 @@ public:
     double last_time = 0;
 
     int volumePercent = 100;
-
+    int mute = 2;
 //    FILE* outFile = NULL;
 
 // 引擎接口
@@ -79,6 +81,7 @@ public:
     SLObjectItf pcmPlayerObject = NULL;
     SLPlayItf pcmPlayerPlay = NULL;
     SLVolumeItf pcmPlayerVolume = NULL;
+    SLMuteSoloItf pcmPlayerMute = NULL;//声道操作
 
 //缓冲器队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;

@@ -10,6 +10,7 @@ import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.log.MyLog;
+import com.jiaquan.myplayer.muteenum.MuteEnum;
 
 public class WLPlayer {
     static {
@@ -28,6 +29,8 @@ public class WLPlayer {
     private static boolean playNext = false;
     private static int duration = -1;
     private static int volumePercent = 100;
+    private static MuteEnum muteEnum = MuteEnum.MUTE_CENTER;
+
     private OnPreparedListener onPreparedListener = null;
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
@@ -100,6 +103,7 @@ public class WLPlayer {
             @Override
             public void run() {
                 setVolume(volumePercent);
+                setMute(muteEnum);
                 _start();
             }
         }).start();
@@ -186,22 +190,27 @@ public class WLPlayer {
         stop();
     }
 
-    public int getDuration(){
-        if (duration < 0){
+    public int getDuration() {
+        if (duration < 0) {
             duration = _duration();
         }
         return duration;
     }
 
-    public void setVolume(int percent){
-        if ((percent >= 0) && (percent <= 100)){
+    public void setVolume(int percent) {
+        if ((percent >= 0) && (percent <= 100)) {
             volumePercent = percent;
             _volume(percent);
         }
     }
 
-    public int getVolumePercent(){
+    public int getVolumePercent() {
         return volumePercent;
+    }
+
+    public void setMute(MuteEnum mute) {
+        muteEnum = mute;
+        _mute(mute.getValue());
     }
 
     private native void _prepared(String source);
@@ -219,4 +228,6 @@ public class WLPlayer {
     private native int _duration();
 
     private native void _volume(int percent);
+
+    private native void _mute(int mute);
 }
