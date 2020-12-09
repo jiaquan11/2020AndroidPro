@@ -9,6 +9,7 @@ import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
+import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
 
@@ -67,6 +68,11 @@ public class WLPlayer {
 
     public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
         this.onCompleteListener = onCompleteListener;
+    }
+
+    private OnVolumeDBListener onVolumeDBListener = null;
+    public void setOnVolumeDBListener(OnVolumeDBListener onVolumeDBListener) {
+        this.onVolumeDBListener = onVolumeDBListener;
     }
 
     private static TimeInfoBean timeInfoBean = null;
@@ -156,6 +162,12 @@ public class WLPlayer {
         if (playNext) {
             playNext = false;
             prepared();
+        }
+    }
+
+    public void onCallVolumeDB(int db){
+        if (onVolumeDBListener != null){
+            onVolumeDBListener.onDBValue(db);
         }
     }
 

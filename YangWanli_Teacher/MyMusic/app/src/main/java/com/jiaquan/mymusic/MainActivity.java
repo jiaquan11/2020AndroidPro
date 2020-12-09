@@ -19,6 +19,7 @@ import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
+import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
 import com.jiaquan.myplayer.player.WLPlayer;
@@ -112,6 +113,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete() {
                 MyLog.i("播放完成了");
+            }
+        });
+
+        wlPlayer.setOnVolumeDBListener(new OnVolumeDBListener() {
+            @Override
+            public void onDBValue(int db) {
+                MyLog.i("db is " + db);
             }
         });
 

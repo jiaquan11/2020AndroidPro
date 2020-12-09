@@ -21,6 +21,7 @@ public:
     void onCallTimeInfo(int type, int curr, int total);
     void onCallError(int type, int code, char* msg);
     void onCallComplete(int type);
+    void onCallVolumeDB(int type, int db);
 
 public:
     JavaVM* javaVm = NULL;
@@ -32,6 +33,7 @@ public:
     jmethodID jmid_timeinfo;
     jmethodID jmid_error;
     jmethodID jmid_complete;
+    jmethodID jmid_volumeDB;
 };
 
 

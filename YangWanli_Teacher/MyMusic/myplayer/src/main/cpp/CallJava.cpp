@@ -22,6 +22,7 @@ CallJava::CallJava(JavaVM *vm, JNIEnv *env, jobject obj) {
     jmid_timeinfo = env->GetMethodID(clz, "onCallTimeInfo", "(II)V");
     jmid_error = env->GetMethodID(clz, "onCallError", "(ILjava/lang/String;)V");
     jmid_complete = env->GetMethodID(clz, "onCallComplete", "()V");
+    jmid_volumeDB = env->GetMethodID(clz, "onCallVolumeDB", "(I)V");
 }
 
 CallJava::~CallJava() {
@@ -109,6 +110,24 @@ void CallJava::onCallComplete(int type) {
         }
 
         env->CallVoidMethod(jobj, jmid_complete);
+
+        javaVm->DetachCurrentThread();
+    }
+}
+
+void CallJava::onCallVolumeDB(int type, int db) {
+    if (type == MAIN_THREAD){
+        jniEnv->CallVoidMethod(jobj, jmid_volumeDB, db);
+    }else if (type == CHILD_THREAD){
+        JNIEnv* env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
+            if (LOG_DEBUG){
+                LOGE("get child thread jnienv wrong");
+                return;
+            }
+        }
+
+        env->CallVoidMethod(jobj, jmid_volumeDB, db);
 
         javaVm->DetachCurrentThread();
     }

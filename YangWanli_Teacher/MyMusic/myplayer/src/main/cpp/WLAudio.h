@@ -11,6 +11,9 @@
 #include <SLES/OpenSLES.h>
 #include "CallJava.h"
 #include "soundtouch/include/SoundTouch.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace soundtouch;
 
@@ -49,6 +52,8 @@ public:
     void setPitch(float pitch);
 
     void setSpeed(float speed);
+
+    int getPCMDB(char* pcmdata, size_t pcmsize);
 
 public:
     int streamIndex = -1;
