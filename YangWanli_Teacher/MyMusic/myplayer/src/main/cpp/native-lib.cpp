@@ -153,3 +153,21 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1mute(JNIEnv *env, jobject thiz, jint
         fFmpeg->setMute(mute);
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1pitch(JNIEnv *env, jobject thiz, jfloat pitch) {
+    // TODO: implement _pitch()
+    if (fFmpeg != NULL){
+        fFmpeg->setPitch(pitch);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1speed(JNIEnv *env, jobject thiz, jfloat speed) {
+    // TODO: implement _speed()
+    if (fFmpeg != NULL){
+        fFmpeg->setSpeed(speed);
+    }
+}

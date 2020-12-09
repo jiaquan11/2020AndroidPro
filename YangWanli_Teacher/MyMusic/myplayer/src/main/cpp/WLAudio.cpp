@@ -12,7 +12,17 @@ WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava *callJava) 
 
     buffer = (uint8_t *) (av_malloc(sample_rate * 2 * 2));
 
+    //音频变速变调功能
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(sample_rate * 2 * 2));
+    soundTouch = new SoundTouch();
+
+    soundTouch->setSampleRate(sample_rate);
+    soundTouch->setChannels(2);
+
+    soundTouch->setPitch(pitch);
+    soundTouch->setTempo(speed);
 //    outFile = fopen("/sdcard/testziliao/outAudio.pcm", "wb");
+    LOGI("WLAudio construct pitch: %f speed: %f soundTouch:%p", pitch, speed, soundTouch);
 }
 
 WLAudio::~WLAudio() {
@@ -29,7 +39,7 @@ void WLAudio::play() {
     pthread_create(&thread_play, NULL, decodePlay, this);
 }
 
-int WLAudio::resampleAudio() {
+int WLAudio::resampleAudio(void **pcmbuf) {
     while ((playStatus != NULL) && !playStatus->isExit) {
         if (queue->getQueueSize() == 0) {
             if (!playStatus->load) {
@@ -89,7 +99,7 @@ int WLAudio::resampleAudio() {
                 continue;
             }
 
-            int nb = swr_convert(
+            nb = swr_convert(
                     swr_ctx,
                     &buffer,
                     avFrame->nb_samples,
@@ -103,6 +113,8 @@ int WLAudio::resampleAudio() {
                 now_time = clock;
             }
             clock = now_time;
+
+            *pcmbuf = buffer;
 
 //            fwrite(buffer, data_size, 1, outFile);
             if (LOG_DEBUG) {
@@ -134,11 +146,53 @@ int WLAudio::resampleAudio() {
     return data_size;
 }
 
+int WLAudio::getSoundTouchData() {
+    while (playStatus != NULL && !playStatus->isExit) {
+        out_buffer = NULL;
+
+        if (finished) {
+            finished = false;
+
+            data_size = resampleAudio(reinterpret_cast<void **>(&out_buffer));//返回当前解码pcm的字节数
+            if (data_size > 0) {
+                for (int i = 0; i < data_size / 2 + 1; ++i) {
+                    sampleBuffer[i] = (out_buffer[i * 2] | ((out_buffer[i * 2 + 1]) << 8));
+                }
+
+//                sampleBuffer = (SAMPLETYPE *) out_buffer;
+
+//                LOGI("nb is %d", nb);
+                soundTouch->putSamples(sampleBuffer, nb);
+                num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
+            } else {//没有输入的pcm数据，刷新变速变调实例的缓冲
+                soundTouch->flush();
+            }
+        }
+
+        if (num == 0) {//没有接收到变速变调返回的数据，继续进行获取操作
+            finished = true;
+            continue;
+        } else {
+            if (out_buffer == NULL) {
+                num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
+                if (num == 0) {
+                    finished = true;
+                    continue;
+                }
+            }
+
+            return num;
+        }
+    }
+
+    return 0;
+}
+
 //给到OpenSLES注册的回调函数，会由OpenSLES主动调用，直接将pcm数据放入OpenSLES中的缓冲队列中进行播放
 void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     WLAudio *wlAudio = (WLAudio *) (context);
     if (wlAudio != NULL) {
-        int bufferSize = wlAudio->resampleAudio();
+        int bufferSize = wlAudio->getSoundTouchData();//返回的是当前音频包解码后的PCM的采样点数
         if (bufferSize > 0) {
             wlAudio->clock +=
                     bufferSize / ((double) (wlAudio->sample_Rate * 2 * 2));//累加一下播放一段pcm所耗费的时间
@@ -148,8 +202,8 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
 
-            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->buffer,
-                                                bufferSize);
+            (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->sampleBuffer,
+                                                bufferSize * 2 * 2);
         }
     }
 }
@@ -221,6 +275,8 @@ void WLAudio::initOpenSLES() {
     //获取音量接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_VOLUME, &pcmPlayerVolume);
     setVolume(volumePercent);
+
+    setMute(mute);
 
     //获取声道接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_MUTESOLO, &pcmPlayerMute);
@@ -382,7 +438,6 @@ void WLAudio::setVolume(int percent) {
             (*pcmPlayerVolume)->SetVolumeLevel(pcmPlayerVolume, (100 - percent) *
                                                                 (-100));//percent:100 原声 percent:0 静音
         }
-
     }
 }
 
@@ -400,5 +455,21 @@ void WLAudio::setMute(int mute) {
             (*pcmPlayerMute)->SetChannelMute(pcmPlayerMute, 1, false);
             (*pcmPlayerMute)->SetChannelMute(pcmPlayerMute, 0, false);
         }
+    }
+}
+
+void WLAudio::setPitch(float pitch) {
+    this->pitch = pitch;
+    LOGI("WLAudio setPitch: %f soundTouch: %p", this->pitch, soundTouch);
+    if (soundTouch != NULL) {
+        soundTouch->setPitch(pitch);
+    }
+}
+
+void WLAudio::setSpeed(float speed) {
+    this->speed = speed;
+    LOGI("WLAudio setSpeed: %f soundTouch: %p", this->speed, soundTouch);
+    if (soundTouch != NULL) {
+        soundTouch->setTempo(speed);
     }
 }

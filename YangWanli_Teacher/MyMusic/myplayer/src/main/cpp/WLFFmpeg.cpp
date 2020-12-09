@@ -284,3 +284,15 @@ void WLFFmpeg::setMute(int mute) {
         pWLAudio->setMute(mute);
     }
 }
+
+void WLFFmpeg::setPitch(float pitch) {
+    if (pWLAudio != NULL){
+        pWLAudio->setPitch(pitch);
+    }
+}
+
+void WLFFmpeg::setSpeed(float speed) {
+    if (pWLAudio != NULL){
+        pWLAudio->setSpeed(speed);
+    }
+}

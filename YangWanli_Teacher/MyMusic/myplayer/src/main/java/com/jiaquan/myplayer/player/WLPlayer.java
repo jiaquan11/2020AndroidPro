@@ -30,6 +30,8 @@ public class WLPlayer {
     private static int duration = -1;
     private static int volumePercent = 100;
     private static MuteEnum muteEnum = MuteEnum.MUTE_CENTER;
+    private static float speed = 1.0f;
+    private static float pitch = 1.0f;
 
     private OnPreparedListener onPreparedListener = null;
 
@@ -104,6 +106,8 @@ public class WLPlayer {
             public void run() {
                 setVolume(volumePercent);
                 setMute(muteEnum);
+                setPitch(pitch);
+                setSpeed(speed);
                 _start();
             }
         }).start();
@@ -213,6 +217,16 @@ public class WLPlayer {
         _mute(mute.getValue());
     }
 
+    public void setPitch(float p){
+        pitch = p;
+        _pitch(pitch);
+    }
+
+    public void setSpeed(float s){
+        speed = s;
+        _speed(speed);
+    }
+
     private native void _prepared(String source);
 
     private native void _start();
@@ -230,4 +244,8 @@ public class WLPlayer {
     private native void _volume(int percent);
 
     private native void _mute(int mute);
+
+    private native void _pitch(float pitch);
+
+    private native void _speed(float speed);
 }

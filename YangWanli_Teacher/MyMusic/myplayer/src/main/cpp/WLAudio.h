@@ -10,6 +10,9 @@
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES.h>
 #include "CallJava.h"
+#include "soundtouch/include/SoundTouch.h"
+
+using namespace soundtouch;
 
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -23,7 +26,7 @@ public:
 
     void play();
 
-    int resampleAudio();
+    int resampleAudio(void** pcmbuf);
 
     void initOpenSLES();
 
@@ -40,6 +43,12 @@ public:
     void setVolume(int percent);
 
     void setMute(int mute);
+
+    int getSoundTouchData();
+
+    void setPitch(float pitch);
+
+    void setSpeed(float speed);
 
 public:
     int streamIndex = -1;
@@ -69,6 +78,9 @@ public:
     int mute = 2;
 //    FILE* outFile = NULL;
 
+    float pitch = 1.0f;
+    float speed = 1.0f;
+
 // 引擎接口
     SLObjectItf engineObject = NULL;
     SLEngineItf engineEngine = NULL;
@@ -85,5 +97,13 @@ public:
 
 //缓冲器队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
+
+    //SoundTouch
+    SoundTouch* soundTouch = NULL;
+    SAMPLETYPE *sampleBuffer = NULL;
+    bool finished = true;
+    uint8_t *out_buffer = NULL;
+    int nb = 0;
+    int num = 0;
 };
 #endif //MYMUSIC_WLAUDIO_H

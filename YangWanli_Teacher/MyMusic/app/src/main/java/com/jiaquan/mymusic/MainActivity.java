@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         wlPlayer.setVolume(50);//设置初始音量
         wlPlayer.setMute(MuteEnum.MUTE_LEFT);
         tv_volume.setText("音量: "+ wlPlayer.getVolumePercent() + "%");
+        wlPlayer.setPitch(1.5f);
+        wlPlayer.setSpeed(1.5f);
         seekBarVolume.setProgress(wlPlayer.getVolumePercent());
 
         wlPlayer.setOnPreparedListener(new OnPreparedListener() {
@@ -208,5 +210,27 @@ public class MainActivity extends AppCompatActivity {
 
     public void center(View view) {
         wlPlayer.setMute(MuteEnum.MUTE_CENTER);
+    }
+
+    //变速不变调
+    public void speed(View view) {
+        wlPlayer.setPitch(1.0f);
+        wlPlayer.setSpeed(1.5f);
+    }
+
+    //变调不变速
+    public void pitch(View view) {
+        wlPlayer.setPitch(1.5f);
+        wlPlayer.setSpeed(1.0f);
+    }
+
+    public void speedpitch(View view) {
+        wlPlayer.setPitch(1.5f);
+        wlPlayer.setSpeed(1.5f);
+    }
+
+    public void normalspeedpitch(View view) {
+        wlPlayer.setPitch(1.0f);
+        wlPlayer.setSpeed(1.0f);
     }
 }

@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.10.2)
 project("mymusic")
 
 include_directories(include)
+include_directories(soundtouch/include)
+include_directories(soundtouch/SoundTouch)
 
 add_library(native-lib
         SHARED
@@ -11,7 +13,19 @@ add_library(native-lib
         WLFFmpeg.cpp
         WLAudio.cpp
         WLQueue.cpp
-        WLPlayStatus.cpp)
+        WLPlayStatus.cpp
+        soundtouch/SoundTouch/AAFilter.cpp
+        soundtouch/SoundTouch/FIFOSampleBuffer.cpp
+        soundtouch/SoundTouch/FIRFilter.cpp
+        soundtouch/SoundTouch/cpu_detect_x86.cpp
+        soundtouch/SoundTouch/sse_optimized.cpp
+        soundtouch/SoundTouch/RateTransposer.cpp
+        soundtouch/SoundTouch/SoundTouch.cpp
+        soundtouch/SoundTouch/InterpolateCubic.cpp
+        soundtouch/SoundTouch/InterpolateLinear.cpp
+        soundtouch/SoundTouch/InterpolateShannon.cpp
+        soundtouch/SoundTouch/TDStretch.cpp
+        soundtouch/SoundTouch/PeakFinder.cpp)
 
 add_library(avcodec-57 SHARED IMPORTED)
 set_target_properties(avcodec-57
