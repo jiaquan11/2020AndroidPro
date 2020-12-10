@@ -303,3 +303,9 @@ int WLFFmpeg::getSampleRate() {
     }
     return 0;
 }
+
+void WLFFmpeg::startStopRecord(bool start) {
+    if (pWLAudio != NULL) {
+        pWLAudio->startStopRecord(start);
+    }
+}

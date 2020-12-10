@@ -180,4 +180,12 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1samplerate(JNIEnv *env, jobject thiz
         return fFmpeg->getSampleRate();
     }
     return 0;
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1startstopRecord(JNIEnv *env, jobject thiz,
+                                                            jboolean start) {
+    // TODO: implement _startstopRecord()
+    if (fFmpeg != NULL) {
+        fFmpeg->startStopRecord(start);
+    }
 }

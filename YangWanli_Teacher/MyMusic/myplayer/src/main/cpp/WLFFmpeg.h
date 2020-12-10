@@ -42,6 +42,8 @@ public:
 
     int getSampleRate();
 
+    void startStopRecord(bool start);
+
     void decodeFFmpegThread();
 
 public:

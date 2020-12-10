@@ -202,8 +202,11 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
 
-            wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, wlAudio->sampleBuffer,
-                                              bufferSize * 2 * 2);
+            if (wlAudio->isRecordPcm){
+                wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, wlAudio->sampleBuffer,
+                                                  bufferSize * 2 * 2);
+            }
+
             wlAudio->callJava->onCallVolumeDB(CHILD_THREAD,
                                               wlAudio->getPCMDB(
                                                       reinterpret_cast<char *>(wlAudio->sampleBuffer),
@@ -497,4 +500,8 @@ int WLAudio::getPCMDB(char *pcmdata, size_t pcmsize) {
     }
 
     return db;
+}
+
+void WLAudio::startStopRecord(bool start) {
+    this->isRecordPcm = start;
 }

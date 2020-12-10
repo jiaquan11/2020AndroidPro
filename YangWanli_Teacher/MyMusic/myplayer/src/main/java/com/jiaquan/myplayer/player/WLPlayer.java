@@ -41,6 +41,7 @@ public class WLPlayer {
     private static MuteEnum muteEnum = MuteEnum.MUTE_CENTER;
     private static float speed = 1.0f;
     private static float pitch = 1.0f;
+    private static boolean isInitMediaCodec = false;
 
     private OnPreparedListener onPreparedListener = null;
 
@@ -201,6 +202,9 @@ public class WLPlayer {
     public void stop() {
         timeInfoBean = null;
         duration = -1;
+
+        stopRecord();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -249,9 +253,32 @@ public class WLPlayer {
     }
 
     public void startRecord(File outfile) {
-        if (_samplerate() > 0) {
-            initMediaCodec(_samplerate(), outfile);
+        if (!isInitMediaCodec){
+            if (_samplerate() > 0) {
+                isInitMediaCodec = true;
+                initMediaCodec(_samplerate(), outfile);
+                _startstopRecord(true);
+                MyLog.i("开始录制....");
+            }
         }
+    }
+
+    public void stopRecord(){
+        if (isInitMediaCodec){
+            _startstopRecord(false);
+            releaseMediacodec();
+            MyLog.i("完成录制....");
+        }
+    }
+
+    public void pauseRecord(){
+        _startstopRecord(false);
+        MyLog.i("暂停录制....");
+    }
+
+    public void resumeRecord(){
+        _startstopRecord(true);
+        MyLog.i("恢复录制....");
     }
 
     private native void _prepared(String source);
@@ -278,8 +305,10 @@ public class WLPlayer {
 
     private native int _samplerate();
 
+    private native void _startstopRecord(boolean start);
+
     //mediacodec
-    private MediaFormat encodeFormat = null;
+    private MediaFormat encoderFormat = null;
     private MediaCodec encoder = null;
     private FileOutputStream fileOutputStream = null;
     private MediaCodec.BufferInfo bufferInfo = null;
@@ -291,10 +320,10 @@ public class WLPlayer {
         try {
             aacSampleRateType = getADTSSampleRate(samplerate);
 
-            encodeFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, samplerate, 2);
-            encodeFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);//码率
-            encodeFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);//AAC profile
-            encodeFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);//输入编码的最大pcm数据大小
+            encoderFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, samplerate, 2);
+            encoderFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);//码率
+            encoderFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);//AAC profile
+            encoderFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);//输入编码的最大pcm数据大小
             encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);//创建音频编码器
             bufferInfo = new MediaCodec.BufferInfo();
 
@@ -303,7 +332,7 @@ public class WLPlayer {
                 return;
             }
 
-            encoder.configure(encodeFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);//配置编码器
+            encoder.configure(encoderFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);//配置编码器
             fileOutputStream = new FileOutputStream(outfile);
             encoder.start();//启动音频编码器
         } catch (IOException e) {
@@ -342,6 +371,8 @@ public class WLPlayer {
 
                     index = encoder.dequeueOutputBuffer(bufferInfo, 0);
                     outByteBuffer = null;
+
+                    MyLog.i("编码....");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -408,5 +439,38 @@ public class WLPlayer {
                 break;
         }
         return rate;
+    }
+
+    private void releaseMediacodec(){
+        if (encoder == null){
+            return;
+        }
+
+        try {
+            fileOutputStream.close();
+            fileOutputStream = null;
+
+            encoder.stop();
+            encoder.release();
+            encoder = null;
+            encoderFormat = null;
+            bufferInfo = null;
+
+            isInitMediaCodec = false;
+
+            MyLog.i("录制完成....");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if (fileOutputStream != null){
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                fileOutputStream = null;
+            }
+        }
     }
 }

@@ -150,6 +150,25 @@
             android:text="开始录制"
             android:layout_weight="1"
             android:onClick="start_record"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停录制"
+            android:layout_weight="1"
+            android:onClick="pause_record"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="恢复录制"
+            android:layout_weight="1"
+            android:onClick="resume_record"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止录制"
+            android:layout_weight="1"
+            android:onClick="stop_record"/>
     </LinearLayout>
 
 </LinearLayout>

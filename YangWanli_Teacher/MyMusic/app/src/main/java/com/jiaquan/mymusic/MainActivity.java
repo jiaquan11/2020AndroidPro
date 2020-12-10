@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         wlPlayer.setOnVolumeDBListener(new OnVolumeDBListener() {
             @Override
             public void onDBValue(int db) {
-                MyLog.i("db is " + db);
+//                MyLog.i("db is " + db);
             }
         });
 
@@ -245,6 +245,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void start_record(View view) {
-        wlPlayer.startRecord(new File("/sdcard/testziliao/testplayer.aac"));
+        wlPlayer.startRecord(new File("/sdcard/testziliao/testplayer1.aac"));
+    }
+
+    public void pause_record(View view) {
+        wlPlayer.pauseRecord();
+    }
+
+    public void resume_record(View view) {
+        wlPlayer.resumeRecord();
+    }
+
+    public void stop_record(View view) {
+        wlPlayer.stopRecord();
     }
 }

@@ -56,6 +56,8 @@ public:
 
     int getPCMDB(char *pcmdata, size_t pcmsize);
 
+    void startStopRecord(bool start);
+
 public:
     int streamIndex = -1;
     AVCodecParameters *codecPar = NULL;
@@ -111,6 +113,8 @@ public:
     uint8_t *out_buffer = NULL;
     int nb = 0;
     int num = 0;
+
+    bool isRecordPcm = false;
 };
 
 #endif //MYMUSIC_WLAUDIO_H
