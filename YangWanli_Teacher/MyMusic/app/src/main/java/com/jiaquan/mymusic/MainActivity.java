@@ -25,6 +25,8 @@ import com.jiaquan.myplayer.muteenum.MuteEnum;
 import com.jiaquan.myplayer.player.WLPlayer;
 import com.jiaquan.myplayer.util.TimeUtil;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
     private WLPlayer wlPlayer = null;
     private TextView tv_time = null;
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         wlPlayer = new WLPlayer();
         wlPlayer.setVolume(50);//设置初始音量
         wlPlayer.setMute(MuteEnum.MUTE_LEFT);
-        tv_volume.setText("音量: "+ wlPlayer.getVolumePercent() + "%");
+        tv_volume.setText("音量: " + wlPlayer.getVolumePercent() + "%");
         wlPlayer.setPitch(1.5f);
         wlPlayer.setSpeed(1.5f);
         seekBarVolume.setProgress(wlPlayer.getVolumePercent());
@@ -126,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         seekBarSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (wlPlayer.getDuration() > 0 && isSeekBar){
+                if (wlPlayer.getDuration() > 0 && isSeekBar) {
                     position = wlPlayer.getDuration() * progress / 100;
                 }
             }
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 wlPlayer.setVolume(progress);
-                tv_volume.setText("音量: "+ wlPlayer.getVolumePercent() + "%");
+                tv_volume.setText("音量: " + wlPlayer.getVolumePercent() + "%");
             }
 
             @Override
@@ -185,12 +187,12 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
 
             if (msg.what == 1) {
-                if (!isSeekBar){
+                if (!isSeekBar) {
                     TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
                     tv_time.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime())
                             + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
 
-                 seekBarSeek.setProgress(timeInfoBean.getCurrentTime()*100/timeInfoBean.getTotalTime());
+                    seekBarSeek.setProgress(timeInfoBean.getCurrentTime() * 100 / timeInfoBean.getTotalTime());
                 }
             }
         }
@@ -240,5 +242,9 @@ public class MainActivity extends AppCompatActivity {
     public void normalspeedpitch(View view) {
         wlPlayer.setPitch(1.0f);
         wlPlayer.setSpeed(1.0f);
+    }
+
+    public void start_record(View view) {
+        wlPlayer.startRecord(new File("/sdcard/testziliao/testplayer.aac"));
     }
 }

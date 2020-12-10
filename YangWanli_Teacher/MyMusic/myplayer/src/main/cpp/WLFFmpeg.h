@@ -9,33 +9,43 @@
 #include "pthread.h"
 #include "WLAudio.h"
 
-extern "C"{
+extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/time.h>
 };
 
 class WLFFmpeg {
 public:
-    WLFFmpeg(WLPlayStatus *playStatus, CallJava* calljava, const char* url);
+    WLFFmpeg(WLPlayStatus *playStatus, CallJava *calljava, const char *url);
+
     ~WLFFmpeg();
 
     void prepared();
+
     void start();
+
     void pause();
+
     void resume();
+
     void seek(int64_t secds);
+
     void release();
 
     void setVolume(int percent);
+
     void setMute(int mute);
 
     void setPitch(float pitch);
+
     void setSpeed(float speed);
+
+    int getSampleRate();
 
     void decodeFFmpegThread();
 
 public:
-    CallJava* callJava = NULL;
+    CallJava *callJava = NULL;
     char url[256] = {0};
 
     pthread_t decodeThread;
@@ -50,4 +60,5 @@ public:
     int duration = 0;
     pthread_mutex_t seek_mutex;
 };
+
 #endif //MYMUSIC_WLFFMPEG_H

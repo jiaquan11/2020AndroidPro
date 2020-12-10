@@ -145,10 +145,10 @@ void WLFFmpeg::start() {
     LOGI("WLFFmpeg is start");
     int count = 0;
     while ((playStatus != NULL) && !playStatus->isExit) {
-        if (playStatus->seek){
+        if (playStatus->seek) {
             continue;
         }
-        if (pWLAudio->queue->getQueueSize() > 40){
+        if (pWLAudio->queue->getQueueSize() > 40) {
             continue;
         }
 
@@ -184,7 +184,7 @@ void WLFFmpeg::start() {
         }
     }
 
-    if (callJava != NULL){
+    if (callJava != NULL) {
         callJava->onCallComplete(CHILD_THREAD);
     }
 
@@ -208,11 +208,11 @@ void WLFFmpeg::resume() {
 }
 
 void WLFFmpeg::seek(int64_t secds) {
-    if (duration <= 0){
+    if (duration <= 0) {
         return;
     }
-    if ((secds >= 0) && (secds <= duration)){
-        if (pWLAudio != NULL){
+    if ((secds >= 0) && (secds <= duration)) {
+        if (pWLAudio != NULL) {
             playStatus->seek = true;
             pWLAudio->queue->clearAvPacket();
             pWLAudio->clock = 0;
@@ -274,25 +274,32 @@ void WLFFmpeg::release() {
 }
 
 void WLFFmpeg::setVolume(int percent) {
-    if (pWLAudio != NULL){
+    if (pWLAudio != NULL) {
         pWLAudio->setVolume(percent);
     }
 }
 
 void WLFFmpeg::setMute(int mute) {
-    if (pWLAudio != NULL){
+    if (pWLAudio != NULL) {
         pWLAudio->setMute(mute);
     }
 }
 
 void WLFFmpeg::setPitch(float pitch) {
-    if (pWLAudio != NULL){
+    if (pWLAudio != NULL) {
         pWLAudio->setPitch(pitch);
     }
 }
 
 void WLFFmpeg::setSpeed(float speed) {
-    if (pWLAudio != NULL){
+    if (pWLAudio != NULL) {
         pWLAudio->setSpeed(speed);
     }
+}
+
+int WLFFmpeg::getSampleRate() {
+    if (pWLAudio != NULL) {
+        return pWLAudio->avCodecContext->sample_rate;
+    }
+    return 0;
 }

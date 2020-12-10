@@ -17,19 +17,20 @@
 
 using namespace soundtouch;
 
-extern "C"{
+extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
 };
 
 class WLAudio {
 public:
-    WLAudio(WLPlayStatus* playStatus, int sample_rate, CallJava* callJava);
+    WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava *callJava);
+
     ~WLAudio();
 
     void play();
 
-    int resampleAudio(void** pcmbuf);
+    int resampleAudio(void **pcmbuf);
 
     void initOpenSLES();
 
@@ -53,16 +54,16 @@ public:
 
     void setSpeed(float speed);
 
-    int getPCMDB(char* pcmdata, size_t pcmsize);
+    int getPCMDB(char *pcmdata, size_t pcmsize);
 
 public:
     int streamIndex = -1;
     AVCodecParameters *codecPar = NULL;
     AVCodecContext *avCodecContext = NULL;
 
-    WLQueue* queue = NULL;
-    WLPlayStatus* playStatus = NULL;
-    CallJava* callJava = NULL;
+    WLQueue *queue = NULL;
+    WLPlayStatus *playStatus = NULL;
+    CallJava *callJava = NULL;
 
     pthread_t thread_play;
     AVPacket *avPacket = NULL;
@@ -104,11 +105,12 @@ public:
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
 
     //SoundTouch
-    SoundTouch* soundTouch = NULL;
+    SoundTouch *soundTouch = NULL;
     SAMPLETYPE *sampleBuffer = NULL;
     bool finished = true;
     uint8_t *out_buffer = NULL;
     int nb = 0;
     int num = 0;
 };
+
 #endif //MYMUSIC_WLAUDIO_H

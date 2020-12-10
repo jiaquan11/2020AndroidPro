@@ -8,6 +8,7 @@
 class WLPlayStatus {
 public:
     WLPlayStatus();
+
     ~WLPlayStatus();
 
 public:

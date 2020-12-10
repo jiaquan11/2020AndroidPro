@@ -202,8 +202,12 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
 
+            wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, wlAudio->sampleBuffer,
+                                              bufferSize * 2 * 2);
             wlAudio->callJava->onCallVolumeDB(CHILD_THREAD,
-                    wlAudio->getPCMDB(reinterpret_cast<char *>(wlAudio->sampleBuffer), bufferSize * 4));
+                                              wlAudio->getPCMDB(
+                                                      reinterpret_cast<char *>(wlAudio->sampleBuffer),
+                                                      bufferSize * 4));
 
             (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->sampleBuffer,
                                                 bufferSize * 2 * 2);
@@ -487,9 +491,9 @@ int WLAudio::getPCMDB(char *pcmdata, size_t pcmsize) {
         sum += abs(pervalue);
     }
 
-    sum = sum / (pcmsize/2);//求平均
-    if (sum > 0){
-        db = (int)20.0*log10(sum);
+    sum = sum / (pcmsize / 2);//求平均
+    if (sum > 0) {
+        db = (int) 20.0 * log10(sum);
     }
 
     return db;

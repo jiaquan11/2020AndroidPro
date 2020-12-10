@@ -9,25 +9,31 @@
 #include "queue"
 #include "pthread.h"
 #include "WLPlayStatus.h"
-extern "C"{
+
+extern "C" {
 #include "libavcodec/avcodec.h"
 };
 
 class WLQueue {
 public:
-    WLQueue(WLPlayStatus* playStatus);
+    WLQueue(WLPlayStatus *playStatus);
+
     ~WLQueue();
 
-    int putAVPacket(AVPacket* packet);
-    int getAVPacket(AVPacket* packet);
+    int putAVPacket(AVPacket *packet);
+
+    int getAVPacket(AVPacket *packet);
+
     int getQueueSize();
+
     void clearAvPacket();
 
 public:
-    std::queue<AVPacket*> queuePacket;
+    std::queue<AVPacket *> queuePacket;
     pthread_mutex_t mutexPacket;
     pthread_cond_t condPacket;
 
-    WLPlayStatus* playStatus = NULL;
+    WLPlayStatus *playStatus = NULL;
 };
+
 #endif //MYMUSIC_WLQUEUE_H

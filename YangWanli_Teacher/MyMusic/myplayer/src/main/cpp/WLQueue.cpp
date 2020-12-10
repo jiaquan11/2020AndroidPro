@@ -74,7 +74,7 @@ void WLQueue::clearAvPacket() {
     pthread_cond_signal(&condPacket);
 
     pthread_mutex_lock(&mutexPacket);
-    while (!queuePacket.empty()){
+    while (!queuePacket.empty()) {
         AVPacket *packet = queuePacket.front();
         queuePacket.pop();
         av_packet_free(&packet);

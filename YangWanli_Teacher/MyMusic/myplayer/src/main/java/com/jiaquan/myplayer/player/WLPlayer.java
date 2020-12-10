@@ -1,5 +1,8 @@
 package com.jiaquan.myplayer.player;
 
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.text.TextUtils;
 
 import com.jiaquan.myplayer.TimeInfoBean;
@@ -12,6 +15,11 @@ import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class WLPlayer {
     static {
@@ -71,6 +79,7 @@ public class WLPlayer {
     }
 
     private OnVolumeDBListener onVolumeDBListener = null;
+
     public void setOnVolumeDBListener(OnVolumeDBListener onVolumeDBListener) {
         this.onVolumeDBListener = onVolumeDBListener;
     }
@@ -165,8 +174,8 @@ public class WLPlayer {
         }
     }
 
-    public void onCallVolumeDB(int db){
-        if (onVolumeDBListener != null){
+    public void onCallVolumeDB(int db) {
+        if (onVolumeDBListener != null) {
             onVolumeDBListener.onDBValue(db);
         }
     }
@@ -229,14 +238,20 @@ public class WLPlayer {
         _mute(mute.getValue());
     }
 
-    public void setPitch(float p){
+    public void setPitch(float p) {
         pitch = p;
         _pitch(pitch);
     }
 
-    public void setSpeed(float s){
+    public void setSpeed(float s) {
         speed = s;
         _speed(speed);
+    }
+
+    public void startRecord(File outfile) {
+        if (_samplerate() > 0) {
+            initMediaCodec(_samplerate(), outfile);
+        }
     }
 
     private native void _prepared(String source);
@@ -260,4 +275,138 @@ public class WLPlayer {
     private native void _pitch(float pitch);
 
     private native void _speed(float speed);
+
+    private native int _samplerate();
+
+    //mediacodec
+    private MediaFormat encodeFormat = null;
+    private MediaCodec encoder = null;
+    private FileOutputStream fileOutputStream = null;
+    private MediaCodec.BufferInfo bufferInfo = null;
+    private int perpcmSize = 0;
+    private byte[] outByteBuffer = null;
+    private int aacSampleRateType = 4;
+
+    private void initMediaCodec(int samplerate, File outfile) {
+        try {
+            aacSampleRateType = getADTSSampleRate(samplerate);
+
+            encodeFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, samplerate, 2);
+            encodeFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);//码率
+            encodeFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);//AAC profile
+            encodeFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);//输入编码的最大pcm数据大小
+            encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);//创建音频编码器
+            bufferInfo = new MediaCodec.BufferInfo();
+
+            if (encoder == null) {
+                MyLog.e("create encoder wrong");
+                return;
+            }
+
+            encoder.configure(encodeFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);//配置编码器
+            fileOutputStream = new FileOutputStream(outfile);
+            encoder.start();//启动音频编码器
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void encodePcmToAAC(byte[] buffer, int size) {
+        if ((buffer != null) && (encoder != null)) {
+            int inputBufferIndex = encoder.dequeueInputBuffer(0);//获取到编码输入buffer的可用索引
+            if (inputBufferIndex >= 0) {
+                ByteBuffer byteBuffer = encoder.getInputBuffers()[inputBufferIndex];//根据索引获取编码输入可用的空闲buffer
+                byteBuffer.clear();
+                byteBuffer.put(buffer);//将pcm数据放入空用buffer中
+                encoder.queueInputBuffer(inputBufferIndex, 0, size, 0, 0);//编码器入队进行编码
+            }
+
+            int index = encoder.dequeueOutputBuffer(bufferInfo, 0);//获取编码器码流输出buffer的索引
+            while (index >= 0) {
+                try {
+                    perpcmSize = bufferInfo.size + 7;
+                    outByteBuffer = new byte[perpcmSize];
+
+                    ByteBuffer byteBuffer = encoder.getOutputBuffers()[index];//获取到编码器输出的码流buffer
+                    byteBuffer.position(bufferInfo.offset);
+                    byteBuffer.limit(bufferInfo.offset + bufferInfo.size);
+
+                    addADTSHeader(outByteBuffer, perpcmSize, aacSampleRateType);//增加AAC码流头
+
+                    byteBuffer.get(outByteBuffer, 7, bufferInfo.size);//将编码码流数据放入AAC码流头后面存放
+                    byteBuffer.position(bufferInfo.offset);
+
+                    fileOutputStream.write(outByteBuffer, 0, perpcmSize);//将完整的一帧音频码流数据写入文件
+
+                    encoder.releaseOutputBuffer(index, false);//取出码流数据后，释放这个buffer,返回给队列中循环使用
+
+                    index = encoder.dequeueOutputBuffer(bufferInfo, 0);
+                    outByteBuffer = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void addADTSHeader(byte[] packet, int packetLen, int samplerate) {
+        int profile = 2; // AAC LC
+        int freqIdx = samplerate; // samplerate
+        int chanCfg = 2; // CPE
+
+        // fill in ADTS data
+        packet[0] = (byte) 0xFF;
+        packet[1] = (byte) 0xF9;
+        packet[2] = (byte) (((profile - 1) << 6) + (freqIdx << 2) + (chanCfg >> 2));
+        packet[3] = (byte) (((chanCfg & 3) << 6) + (packetLen >> 11));
+        packet[4] = (byte) ((packetLen & 0x7FF) >> 3);
+        packet[5] = (byte) (((packetLen & 7) << 5) + 0x1F);
+        packet[6] = (byte) 0xFC;
+    }
+
+    private int getADTSSampleRate(int samplerate) {
+        int rate = 4;
+        switch (samplerate) {
+            case 96000:
+                rate = 0;
+                break;
+            case 88200:
+                rate = 1;
+                break;
+            case 64000:
+                rate = 2;
+                break;
+            case 48000:
+                rate = 3;
+                break;
+            case 44100:
+                rate = 4;
+                break;
+            case 32000:
+                rate = 5;
+                break;
+            case 24000:
+                rate = 6;
+                break;
+            case 22050:
+                rate = 7;
+                break;
+            case 16000:
+                rate = 8;
+                break;
+            case 12000:
+                rate = 9;
+                break;
+            case 11025:
+                rate = 10;
+                break;
+            case 8000:
+                rate = 11;
+                break;
+            case 7350:
+                rate = 12;
+                break;
+        }
+        return rate;
+    }
 }

@@ -13,19 +13,27 @@
 
 class CallJava {
 public:
-    CallJava(JavaVM* vm, JNIEnv* env, jobject obj);
+    CallJava(JavaVM *vm, JNIEnv *env, jobject obj);
+
     ~CallJava();
 
     void onCallPrepared(int type);
+
     void onCallLoad(int type, bool load);
+
     void onCallTimeInfo(int type, int curr, int total);
-    void onCallError(int type, int code, char* msg);
+
+    void onCallError(int type, int code, char *msg);
+
     void onCallComplete(int type);
+
     void onCallVolumeDB(int type, int db);
 
+    void onCallPcmToAAC(int type, void *buffer, int size);
+
 public:
-    JavaVM* javaVm = NULL;
-    JNIEnv* jniEnv = NULL;
+    JavaVM *javaVm = NULL;
+    JNIEnv *jniEnv = NULL;
     jobject jobj = NULL;
 
     jmethodID jmid_prepared;
@@ -34,6 +42,7 @@ public:
     jmethodID jmid_error;
     jmethodID jmid_complete;
     jmethodID jmid_volumeDB;
+    jmethodID jmid_pcmtoaac;
 };
 
 

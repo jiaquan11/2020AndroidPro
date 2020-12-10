@@ -50,8 +50,8 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1prepared(JNIEnv *env, jobject thiz, 
     env->ReleaseStringUTFChars(sourceStr, source);
 }
 
-void *startCallBack(void* data){
-    WLFFmpeg* wlfFmpeg = (WLFFmpeg *)(data);
+void *startCallBack(void *data) {
+    WLFFmpeg *wlfFmpeg = (WLFFmpeg *) (data);
     wlfFmpeg->start();
 
     pthread_exit(&thread_start);
@@ -71,7 +71,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1pause(JNIEnv *env, jobject thiz) {
     // TODO: implement _pause()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->pause();
     }
 }
@@ -80,7 +80,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1resume(JNIEnv *env, jobject thiz) {
     // TODO: implement _resume()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->resume();
     }
 }
@@ -89,7 +89,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
     // TODO: implement _stop()
-    if (!isExit){
+    if (!isExit) {
         return;
     }
 
@@ -98,17 +98,17 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
 
     isExit = false;
 
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->release();
         delete fFmpeg;
         fFmpeg = NULL;
 
-        if (callJava != NULL){
+        if (callJava != NULL) {
             delete callJava;
             callJava = NULL;
         }
 
-        if (playStatus != NULL){
+        if (playStatus != NULL) {
             delete playStatus;
             playStatus = NULL;
         }
@@ -123,7 +123,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1seek(JNIEnv *env, jobject thiz, jint secds) {
     // TODO: implement _seek()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->seek(secds);
     }
 }
@@ -132,7 +132,7 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1duration(JNIEnv *env, jobject thiz) {
     // TODO: implement _duration()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         return fFmpeg->duration;
     }
     return 0;
@@ -140,7 +140,7 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1duration(JNIEnv *env, jobject thiz) 
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1volume(JNIEnv *env, jobject thiz, jint percent) {
     // TODO: implement _volume()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->setVolume(percent);
     }
 }
@@ -149,7 +149,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1mute(JNIEnv *env, jobject thiz, jint mute) {
     // TODO: implement _mute()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->setMute(mute);
     }
 }
@@ -158,7 +158,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1pitch(JNIEnv *env, jobject thiz, jfloat pitch) {
     // TODO: implement _pitch()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->setPitch(pitch);
     }
 }
@@ -167,7 +167,17 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_jiaquan_myplayer_player_WLPlayer__1speed(JNIEnv *env, jobject thiz, jfloat speed) {
     // TODO: implement _speed()
-    if (fFmpeg != NULL){
+    if (fFmpeg != NULL) {
         fFmpeg->setSpeed(speed);
     }
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1samplerate(JNIEnv *env, jobject thiz) {
+    // TODO: implement _samplerate()
+    if (fFmpeg != NULL) {
+        return fFmpeg->getSampleRate();
+    }
+    return 0;
 }

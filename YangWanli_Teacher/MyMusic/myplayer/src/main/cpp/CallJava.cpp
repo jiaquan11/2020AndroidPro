@@ -10,8 +10,8 @@ CallJava::CallJava(JavaVM *vm, JNIEnv *env, jobject obj) {
     jobj = env->NewGlobalRef(obj);
 
     jclass clz = jniEnv->GetObjectClass(jobj);
-    if (!clz){
-        if (LOG_DEBUG){
+    if (!clz) {
+        if (LOG_DEBUG) {
             LOGE("get jclass wrong");
         }
         return;
@@ -23,6 +23,7 @@ CallJava::CallJava(JavaVM *vm, JNIEnv *env, jobject obj) {
     jmid_error = env->GetMethodID(clz, "onCallError", "(ILjava/lang/String;)V");
     jmid_complete = env->GetMethodID(clz, "onCallComplete", "()V");
     jmid_volumeDB = env->GetMethodID(clz, "onCallVolumeDB", "(I)V");
+    jmid_pcmtoaac = env->GetMethodID(clz, "encodePcmToAAC", "([BI)V");
 }
 
 CallJava::~CallJava() {
@@ -30,12 +31,12 @@ CallJava::~CallJava() {
 }
 
 void CallJava::onCallPrepared(int type) {
-    if (type == MAIN_THREAD){
+    if (type == MAIN_THREAD) {
         jniEnv->CallVoidMethod(jobj, jmid_prepared);
-    }else if (type == CHILD_THREAD){
-        JNIEnv* env;
-        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
-            if (LOG_DEBUG){
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
                 return;
             }
@@ -46,12 +47,12 @@ void CallJava::onCallPrepared(int type) {
 }
 
 void CallJava::onCallLoad(int type, bool load) {
-    if (type == MAIN_THREAD){
+    if (type == MAIN_THREAD) {
         jniEnv->CallVoidMethod(jobj, jmid_load, load);
-    }else if (type == CHILD_THREAD){
-        JNIEnv* env;
-        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
-            if (LOG_DEBUG){
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
                 return;
             }
@@ -62,12 +63,12 @@ void CallJava::onCallLoad(int type, bool load) {
 }
 
 void CallJava::onCallTimeInfo(int type, int curr, int total) {
-    if (type == MAIN_THREAD){
+    if (type == MAIN_THREAD) {
         jniEnv->CallVoidMethod(jobj, jmid_timeinfo, curr, total);
-    }else if (type == CHILD_THREAD){
-        JNIEnv* env;
-        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
-            if (LOG_DEBUG){
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
                 return;
             }
@@ -78,14 +79,14 @@ void CallJava::onCallTimeInfo(int type, int curr, int total) {
 }
 
 void CallJava::onCallError(int type, int code, char *msg) {
-    if (type == MAIN_THREAD){
+    if (type == MAIN_THREAD) {
         jstring jmsg = jniEnv->NewStringUTF(msg);
         jniEnv->CallVoidMethod(jobj, jmid_error, code, jmsg);
         jniEnv->DeleteLocalRef(jmsg);
-    }else if (type == CHILD_THREAD){
-        JNIEnv* env;
-        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
-            if (LOG_DEBUG){
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
                 return;
             }
@@ -98,12 +99,12 @@ void CallJava::onCallError(int type, int code, char *msg) {
 }
 
 void CallJava::onCallComplete(int type) {
-    if (type == MAIN_THREAD){
+    if (type == MAIN_THREAD) {
         jniEnv->CallVoidMethod(jobj, jmid_complete);
-    }else if (type == CHILD_THREAD){
-        JNIEnv* env;
-        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
-            if (LOG_DEBUG){
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
                 return;
             }
@@ -116,18 +117,44 @@ void CallJava::onCallComplete(int type) {
 }
 
 void CallJava::onCallVolumeDB(int type, int db) {
-    if (type == MAIN_THREAD){
+    if (type == MAIN_THREAD) {
         jniEnv->CallVoidMethod(jobj, jmid_volumeDB, db);
-    }else if (type == CHILD_THREAD){
-        JNIEnv* env;
-        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK){
-            if (LOG_DEBUG){
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
                 LOGE("get child thread jnienv wrong");
                 return;
             }
         }
 
         env->CallVoidMethod(jobj, jmid_volumeDB, db);
+
+        javaVm->DetachCurrentThread();
+    }
+}
+
+void CallJava::onCallPcmToAAC(int type, void *buffer, int size) {
+    if (type == MAIN_THREAD) {
+        jbyteArray jbuffer = jniEnv->NewByteArray(size);
+        jniEnv->SetByteArrayRegion(jbuffer, 0, size, static_cast<const jbyte *>(buffer));
+
+        jniEnv->CallVoidMethod(jobj, jmid_pcmtoaac, jbuffer, size);
+        jniEnv->DeleteLocalRef(jbuffer);
+    } else if (type == CHILD_THREAD) {
+        JNIEnv *env;
+        if (javaVm->AttachCurrentThread(&env, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
+                LOGE("get child thread jnienv wrong");
+                return;
+            }
+        }
+
+        jbyteArray jbuffer = env->NewByteArray(size);
+        env->SetByteArrayRegion(jbuffer, 0, size, static_cast<const jbyte *>(buffer));
+
+        env->CallVoidMethod(jobj, jmid_pcmtoaac, jbuffer, size);
+        env->DeleteLocalRef(jbuffer);
 
         javaVm->DetachCurrentThread();
     }
