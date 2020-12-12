@@ -11,6 +11,7 @@ import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
+import com.jiaquan.myplayer.listener.OnRecordTimeListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
@@ -83,6 +84,12 @@ public class WLPlayer {
 
     public void setOnVolumeDBListener(OnVolumeDBListener onVolumeDBListener) {
         this.onVolumeDBListener = onVolumeDBListener;
+    }
+
+    private OnRecordTimeListener onRecordTimeListener = null;
+
+    public void setOnRecordTimeListener(OnRecordTimeListener onRecordTimeListener) {
+        this.onRecordTimeListener = onRecordTimeListener;
     }
 
     private static TimeInfoBean timeInfoBean = null;
@@ -253,30 +260,32 @@ public class WLPlayer {
     }
 
     public void startRecord(File outfile) {
-        if (!isInitMediaCodec){
-            if (_samplerate() > 0) {
+        if (!isInitMediaCodec) {
+            audioSamplerate = _samplerate();
+
+            if (audioSamplerate > 0) {
                 isInitMediaCodec = true;
-                initMediaCodec(_samplerate(), outfile);
+                initMediaCodec(audioSamplerate, outfile);
                 _startstopRecord(true);
                 MyLog.i("开始录制....");
             }
         }
     }
 
-    public void stopRecord(){
-        if (isInitMediaCodec){
+    public void stopRecord() {
+        if (isInitMediaCodec) {
             _startstopRecord(false);
             releaseMediacodec();
             MyLog.i("完成录制....");
         }
     }
 
-    public void pauseRecord(){
+    public void pauseRecord() {
         _startstopRecord(false);
         MyLog.i("暂停录制....");
     }
 
-    public void resumeRecord(){
+    public void resumeRecord() {
         _startstopRecord(true);
         MyLog.i("恢复录制....");
     }
@@ -315,6 +324,8 @@ public class WLPlayer {
     private int perpcmSize = 0;
     private byte[] outByteBuffer = null;
     private int aacSampleRateType = 4;
+    private double recordTime = 0;
+    private int audioSamplerate = 0;
 
     private void initMediaCodec(int samplerate, File outfile) {
         try {
@@ -332,6 +343,8 @@ public class WLPlayer {
                 return;
             }
 
+            recordTime = 0;
+
             encoder.configure(encoderFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);//配置编码器
             fileOutputStream = new FileOutputStream(outfile);
             encoder.start();//启动音频编码器
@@ -342,6 +355,12 @@ public class WLPlayer {
 
     private void encodePcmToAAC(byte[] buffer, int size) {
         if ((buffer != null) && (encoder != null)) {
+            recordTime += size * 1.0 / (audioSamplerate * 2 * 2);
+//            MyLog.i("recordTime: " + recordTime);
+            if (onRecordTimeListener != null){
+                onRecordTimeListener.onRecordTime((int) recordTime);
+            }
+
             int inputBufferIndex = encoder.dequeueInputBuffer(0);//获取到编码输入buffer的可用索引
             if (inputBufferIndex >= 0) {
                 ByteBuffer byteBuffer = encoder.getInputBuffers()[inputBufferIndex];//根据索引获取编码输入可用的空闲buffer
@@ -372,7 +391,7 @@ public class WLPlayer {
                     index = encoder.dequeueOutputBuffer(bufferInfo, 0);
                     outByteBuffer = null;
 
-                    MyLog.i("编码....");
+//                    MyLog.i("编码....");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -441,12 +460,14 @@ public class WLPlayer {
         return rate;
     }
 
-    private void releaseMediacodec(){
-        if (encoder == null){
+    private void releaseMediacodec() {
+        if (encoder == null) {
             return;
         }
 
         try {
+            recordTime = 0;
+
             fileOutputStream.close();
             fileOutputStream = null;
 
@@ -461,9 +482,8 @@ public class WLPlayer {
             MyLog.i("录制完成....");
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        finally {
-            if (fileOutputStream != null){
+        } finally {
+            if (fileOutputStream != null) {
                 try {
                     fileOutputStream.close();
                 } catch (IOException e) {

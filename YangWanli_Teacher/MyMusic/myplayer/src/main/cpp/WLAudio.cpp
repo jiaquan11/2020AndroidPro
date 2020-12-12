@@ -262,13 +262,13 @@ void WLAudio::initOpenSLES() {
     SLDataSource slDataSource = {&android_queue, &pcm};
     SLDataSink audioSink = {&outputMix, NULL};
 
-    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_MUTESOLO,
-                                  SL_IID_VOLUME};//指定使能缓存队列和音量操作的接口
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[4] = {SL_IID_BUFFERQUEUE, SL_IID_MUTESOLO,
+                                  SL_IID_VOLUME, SL_IID_PLAYBACKRATE};//指定使能缓存队列和音量操作的接口
+    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     //根据引擎创建音频播放器实例
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource,
-                                                &audioSink, 3,
+                                                &audioSink, 4,
                                                 ids, req);
 
     // 初始化播放器

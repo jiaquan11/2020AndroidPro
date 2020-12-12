@@ -18,6 +18,7 @@ import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
+import com.jiaquan.myplayer.listener.OnRecordTimeListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
@@ -122,6 +123,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDBValue(int db) {
 //                MyLog.i("db is " + db);
+            }
+        });
+
+        wlPlayer.setOnRecordTimeListener(new OnRecordTimeListener() {
+            @Override
+            public void onRecordTime(int recordTime) {
+                MyLog.i("record time is: " + recordTime);
             }
         });
 
