@@ -149,7 +149,10 @@ void WLFFmpeg::start() {
             av_usleep(100*1000);//100毫秒
             continue;
         }
-        if (pWLAudio->queue->getQueueSize() > 100) {
+        /*对于ape音频文件，一个音频packet可以解码多个frame，因此需要减少缓冲区packet的个数，
+         * 避免seek时卡顿
+         */
+        if (pWLAudio->queue->getQueueSize() > 4) {
             av_usleep(100*1000);//100毫秒
             continue;
         }
@@ -222,6 +225,9 @@ void WLFFmpeg::seek(int64_t secds) {
             pWLAudio->last_time = 0;
 
             pthread_mutex_lock(&seek_mutex);
+
+            avcodec_flush_buffers(pWLAudio->avCodecContext);//清空解码器内部缓冲
+
             int64_t rel = secds * AV_TIME_BASE;
             avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
             pthread_mutex_unlock(&seek_mutex);

@@ -90,6 +90,8 @@ public:
     float pitch = 1.0f;
     float speed = 1.0f;
 
+    bool readFrameFinish = true;
+
 // 引擎接口
     SLObjectItf engineObject = NULL;
     SLEngineItf engineEngine = NULL;
