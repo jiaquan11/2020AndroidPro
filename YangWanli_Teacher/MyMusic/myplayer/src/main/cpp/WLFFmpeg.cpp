@@ -146,9 +146,11 @@ void WLFFmpeg::start() {
     int count = 0;
     while ((playStatus != NULL) && !playStatus->isExit) {
         if (playStatus->seek) {
+            av_usleep(100*1000);//100毫秒
             continue;
         }
-        if (pWLAudio->queue->getQueueSize() > 40) {
+        if (pWLAudio->queue->getQueueSize() > 100) {
+            av_usleep(100*1000);//100毫秒
             continue;
         }
 
@@ -175,6 +177,7 @@ void WLFFmpeg::start() {
             avPacket = NULL;
             while ((playStatus != NULL) && !playStatus->isExit) {
                 if (pWLAudio->queue->getQueueSize() > 0) {
+                    av_usleep(100*1000);//100毫秒
                     continue;
                 } else {
                     playStatus->isExit = true;

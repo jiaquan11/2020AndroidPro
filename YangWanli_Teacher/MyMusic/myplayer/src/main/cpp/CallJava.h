@@ -44,6 +44,4 @@ public:
     jmethodID jmid_volumeDB;
     jmethodID jmid_pcmtoaac;
 };
-
-
 #endif //MYMUSIC_CALLJAVA_H

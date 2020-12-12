@@ -40,12 +40,20 @@ void WLAudio::play() {
 }
 
 int WLAudio::resampleAudio(void **pcmbuf) {
+    data_size = 0;
+
     while ((playStatus != NULL) && !playStatus->isExit) {
-        if (queue->getQueueSize() == 0) {
+        if (playStatus->seek){
+            av_usleep(100*1000);//100毫秒
+            continue;
+        }
+
+        if (queue->getQueueSize() == 0) {//加载中
             if (!playStatus->load) {
                 playStatus->load = true;
                 callJava->onCallLoad(CHILD_THREAD, true);
             }
+            av_usleep(100*1000);//100毫秒
             continue;
         } else {
             if (playStatus->load) {
@@ -350,19 +358,19 @@ SLuint32 WLAudio::getCurrentSampleRateForOpenSLES(int sample_rate) {
 }
 
 void WLAudio::pause() {
-    if (pcmPlayerObject != NULL) {
+    if (pcmPlayerPlay != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
 }
 
 void WLAudio::resume() {
-    if (pcmPlayerObject != NULL) {
+    if (pcmPlayerPlay != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
     }
 }
 
 void WLAudio::stop() {
-    if (pcmPlayerObject != NULL) {
+    if (pcmPlayerPlay != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_STOPPED);
     }
 }
@@ -381,6 +389,7 @@ void WLAudio::release() {
         pcmPlayerPlay = NULL;
         pcmBufferQueue = NULL;
         pcmPlayerVolume = NULL;
+        pcmPlayerMute = NULL;
     }
 
     if (outputMixObject != NULL) {
@@ -400,6 +409,19 @@ void WLAudio::release() {
         buffer = NULL;
     }
 
+    if (out_buffer != NULL){
+        out_buffer = NULL;
+    }
+
+    if (soundTouch != NULL) {
+        delete soundTouch;
+        soundTouch = NULL;
+    }
+
+    if (sampleBuffer != NULL){
+        free(sampleBuffer);
+        sampleBuffer = NULL;
+    }
     if (avCodecContext != NULL) {
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
