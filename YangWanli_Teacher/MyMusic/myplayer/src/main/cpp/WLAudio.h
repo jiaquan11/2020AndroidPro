@@ -14,6 +14,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "WLBufferQueue.h"
+#include "WLPcmBean.h"
 
 using namespace soundtouch;
 
@@ -95,6 +97,10 @@ public:
     bool isCut = false;
     int end_time = 0;
     bool showPcm = false;
+
+    pthread_t pcmCallBackThread;
+    WLBufferQueue *bufferQueue;
+    int defaultPcmSize = 4096;
 
 // 引擎接口
     SLObjectItf engineObject = NULL;

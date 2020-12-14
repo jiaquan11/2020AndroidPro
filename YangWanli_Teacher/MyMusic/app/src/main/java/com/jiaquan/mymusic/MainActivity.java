@@ -57,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         wlPlayer = new WLPlayer();
-        wlPlayer.setVolume(50);//设置初始音量
+        wlPlayer.setVolume(80);//设置初始音量
         wlPlayer.setMute(MuteEnum.MUTE_LEFT);
         tv_volume.setText("音量: " + wlPlayer.getVolumePercent() + "%");
-        wlPlayer.setPitch(1.5f);
-        wlPlayer.setSpeed(1.5f);
+        wlPlayer.setPitch(1.0f);
+        wlPlayer.setSpeed(1.0f);
         seekBarVolume.setProgress(wlPlayer.getVolumePercent());
 
         wlPlayer.setOnPreparedListener(new OnPreparedListener() {
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         wlPlayer.setOnRecordTimeListener(new OnRecordTimeListener() {
             @Override
             public void onRecordTime(int recordTime) {
-                MyLog.i("record time is: " + recordTime);
+//                MyLog.i("record time is: " + recordTime);
             }
         });
 
@@ -174,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void begin(View view) {
 //        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
-//        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
-        wlPlayer.setSource("/sdcard/testziliao/first-love-wangxinling.ape");
+        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
+//        wlPlayer.setSource("/sdcard/testziliao/first-love-wangxinling.ape");
 //        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 //        wlPlayer.setSource("/sdcard/testziliao/yongqi-liangjingru.m4a");
 
@@ -216,7 +216,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void next(View view) {
-        wlPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+//        wlPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+        wlPlayer.playNext("/sdcard/testziliao/first-love-wangxinling.ape");
     }
 
     public void left(View view) {

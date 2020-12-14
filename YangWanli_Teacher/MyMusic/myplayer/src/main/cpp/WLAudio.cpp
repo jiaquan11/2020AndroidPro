@@ -39,16 +39,77 @@ void *decodePlay(void *data) {
     pthread_exit(&wlAudio->thread_play);
 }
 
+void *pcmCallBack(void *data) {
+    WLAudio *wlAudio = (WLAudio *) data;
+    wlAudio->bufferQueue = new WLBufferQueue(wlAudio->playStatus);
+
+    while ((wlAudio->playStatus != NULL) && !wlAudio->playStatus->isExit) {
+        WLPcmBean *pcmBean = NULL;
+        wlAudio->bufferQueue->getBuffer(&pcmBean);
+        if (pcmBean == NULL) {
+            continue;
+        }
+        if (pcmBean->buffsize <= wlAudio->defaultPcmSize) {//不用分包
+            if (wlAudio->isRecordPcm) {
+                wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, pcmBean->buffer,
+                                                  pcmBean->buffsize);
+            }
+            if (wlAudio->showPcm) {
+                wlAudio->callJava->onCallPcmInfo(CHILD_THREAD, pcmBean->buffer,
+                                                 pcmBean->buffsize);
+            }
+        }else{//分包
+            int pack_num = pcmBean->buffsize / wlAudio->defaultPcmSize;
+            int pack_sub = pcmBean->buffsize % wlAudio->defaultPcmSize;
+            for (int i = 0; i < pack_num; ++i) {
+                char* bf = (char*)malloc(wlAudio->defaultPcmSize);
+                memcpy(bf, pcmBean->buffer + i * wlAudio->defaultPcmSize, wlAudio->defaultPcmSize);
+                if (wlAudio->isRecordPcm) {
+                    wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, bf,
+                                                      wlAudio->defaultPcmSize);
+                }
+                if (wlAudio->showPcm) {
+                    wlAudio->callJava->onCallPcmInfo(CHILD_THREAD, bf,
+                                                     wlAudio->defaultPcmSize);
+                }
+                free(bf);
+                bf = NULL;
+            }
+
+            if (pack_sub > 0){
+                char* bf = (char*)malloc(pack_sub);
+                memcpy(bf, pcmBean->buffer + pack_num * wlAudio->defaultPcmSize, pack_sub);
+                if (wlAudio->isRecordPcm) {
+                    wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, bf,
+                                                      pack_sub);
+                }
+                if (wlAudio->showPcm) {
+                    wlAudio->callJava->onCallPcmInfo(CHILD_THREAD, bf,
+                                                     pack_sub);
+                }
+                free(bf);
+                bf = NULL;
+            }
+        }
+
+        delete pcmBean;
+        pcmBean = NULL;
+    }
+
+    pthread_exit(&wlAudio->pcmCallBackThread);
+}
+
 void WLAudio::play() {
     pthread_create(&thread_play, NULL, decodePlay, this);
+    pthread_create(&pcmCallBackThread, NULL, pcmCallBack, this);
 }
 
 int WLAudio::resampleAudio(void **pcmbuf) {
     data_size = 0;
 
     while ((playStatus != NULL) && !playStatus->isExit) {
-        if (playStatus->seek){
-            av_usleep(100*1000);//100毫秒
+        if (playStatus->seek) {
+            av_usleep(100 * 1000);//100毫秒
             continue;
         }
 
@@ -57,7 +118,7 @@ int WLAudio::resampleAudio(void **pcmbuf) {
                 playStatus->load = true;
                 callJava->onCallLoad(CHILD_THREAD, true);
             }
-            av_usleep(100*1000);//100毫秒
+            av_usleep(100 * 1000);//100毫秒
             continue;
         } else {
             if (playStatus->load) {
@@ -66,7 +127,7 @@ int WLAudio::resampleAudio(void **pcmbuf) {
             }
         }
 
-        if (readFrameFinish){
+        if (readFrameFinish) {
             avPacket = av_packet_alloc();
             if (queue->getAVPacket(avPacket) != 0) {
                 av_packet_free(&avPacket);
@@ -222,10 +283,12 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 wlAudio->callJava->onCallTimeInfo(CHILD_THREAD, wlAudio->clock, wlAudio->duration);
             }
 
-            if (wlAudio->isRecordPcm){
-                wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, wlAudio->sampleBuffer,
-                                                  bufferSize * 2 * 2);
-            }
+//            if (wlAudio->isRecordPcm){
+//                wlAudio->callJava->onCallPcmToAAC(CHILD_THREAD, wlAudio->sampleBuffer,
+//                                                  bufferSize * 2 * 2);
+//            }
+
+            wlAudio->bufferQueue->putBuffer(wlAudio->sampleBuffer, bufferSize * 4);
 
             wlAudio->callJava->onCallVolumeDB(CHILD_THREAD,
                                               wlAudio->getPCMDB(
@@ -235,12 +298,12 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
             (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->sampleBuffer,
                                                 bufferSize * 2 * 2);
 
-            if (wlAudio->isCut){
-                if (wlAudio->showPcm){
-                    //
-                    wlAudio->callJava->onCallPcmInfo(CHILD_THREAD, wlAudio->sampleBuffer, bufferSize * 2 * 2);
-                }
-                if (wlAudio->clock > wlAudio->end_time){
+            if (wlAudio->isCut) {
+//                if (wlAudio->showPcm){
+//                    //
+//                    wlAudio->callJava->onCallPcmInfo(CHILD_THREAD, wlAudio->sampleBuffer, bufferSize * 2 * 2);
+//                }
+                if (wlAudio->clock > wlAudio->end_time) {
                     LOGI("裁剪退出...");
                     wlAudio->playStatus->isExit = true;
                 }
@@ -401,6 +464,13 @@ void WLAudio::stop() {
 void WLAudio::release() {
     stop();
 
+    if (bufferQueue != NULL){
+        bufferQueue->noticeThread();
+        pthread_join(pcmCallBackThread, NULL);
+        bufferQueue->release();
+        delete bufferQueue;
+        bufferQueue = NULL;
+    }
     if (queue != NULL) {
         delete queue;
         queue = NULL;
@@ -432,7 +502,7 @@ void WLAudio::release() {
         buffer = NULL;
     }
 
-    if (out_buffer != NULL){
+    if (out_buffer != NULL) {
         out_buffer = NULL;
     }
 
@@ -441,7 +511,7 @@ void WLAudio::release() {
         soundTouch = NULL;
     }
 
-    if (sampleBuffer != NULL){
+    if (sampleBuffer != NULL) {
         free(sampleBuffer);
         sampleBuffer = NULL;
     }

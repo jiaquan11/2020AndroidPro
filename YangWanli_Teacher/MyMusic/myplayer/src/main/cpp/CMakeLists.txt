@@ -14,6 +14,8 @@ add_library(native-lib
         WLAudio.cpp
         WLQueue.cpp
         WLPlayStatus.cpp
+        WLPcmBean.cpp
+        WLBufferQueue.cpp
         soundtouch/SoundTouch/AAFilter.cpp
         soundtouch/SoundTouch/FIFOSampleBuffer.cpp
         soundtouch/SoundTouch/FIRFilter.cpp

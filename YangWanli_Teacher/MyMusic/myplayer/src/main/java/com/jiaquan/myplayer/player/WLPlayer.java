@@ -384,6 +384,7 @@ public class WLPlayer {
     }
 
     private void encodePcmToAAC(byte[] buffer, int size) {
+        MyLog.i("encodePcmToAAC buffer size: " + size);
         if ((buffer != null) && (encoder != null)) {
             recordTime += size * 1.0 / (audioSamplerate * 2 * 2);
 //            MyLog.i("recordTime: " + recordTime);
