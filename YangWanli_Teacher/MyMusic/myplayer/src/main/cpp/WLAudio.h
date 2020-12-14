@@ -92,6 +92,10 @@ public:
 
     bool readFrameFinish = true;
 
+    bool isCut = false;
+    int end_time = 0;
+    bool showPcm = false;
+
 // 引擎接口
     SLObjectItf engineObject = NULL;
     SLEngineItf engineEngine = NULL;

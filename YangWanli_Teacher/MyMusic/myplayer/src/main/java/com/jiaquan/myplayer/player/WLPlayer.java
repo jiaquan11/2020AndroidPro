@@ -10,6 +10,7 @@ import com.jiaquan.myplayer.listener.OnCompleteListener;
 import com.jiaquan.myplayer.listener.OnErrorListener;
 import com.jiaquan.myplayer.listener.OnLoadListener;
 import com.jiaquan.myplayer.listener.OnPauseResumeListener;
+import com.jiaquan.myplayer.listener.OnPcmInfoListener;
 import com.jiaquan.myplayer.listener.OnPreparedListener;
 import com.jiaquan.myplayer.listener.OnRecordTimeListener;
 import com.jiaquan.myplayer.listener.OnTimeInfoListener;
@@ -90,6 +91,12 @@ public class WLPlayer {
 
     public void setOnRecordTimeListener(OnRecordTimeListener onRecordTimeListener) {
         this.onRecordTimeListener = onRecordTimeListener;
+    }
+
+    private OnPcmInfoListener onPcmInfoListener = null;
+
+    public void setOnPcmInfoListener(OnPcmInfoListener onPcmInfoListener) {
+        this.onPcmInfoListener = onPcmInfoListener;
     }
 
     private static TimeInfoBean timeInfoBean = null;
@@ -185,6 +192,18 @@ public class WLPlayer {
     public void onCallVolumeDB(int db) {
         if (onVolumeDBListener != null) {
             onVolumeDBListener.onDBValue(db);
+        }
+    }
+
+    public void onCallPcmInfo(byte[] buffer, int bufferSize){
+        if (onPcmInfoListener != null){
+            onPcmInfoListener.onPcmInfo(buffer, bufferSize);
+        }
+    }
+
+    public void onCallPcmRate(int samplerate, int bit, int channels){
+        if (onPcmInfoListener != null){
+            onPcmInfoListener.onPcmRate(samplerate, bit, channels);
         }
     }
 
@@ -290,6 +309,15 @@ public class WLPlayer {
         MyLog.i("恢复录制....");
     }
 
+    public void cutAudioPlay(int start_time, int end_time, boolean showPcm) {
+        if (_cutAudioPlay(start_time, end_time, showPcm)) {
+            start();
+        } else {
+            stop();
+            onCallError(2001, "cutAudioPlay params is wrong!");
+        }
+    }
+
     private native void _prepared(String source);
 
     private native void _start();
@@ -315,6 +343,8 @@ public class WLPlayer {
     private native int _samplerate();
 
     private native void _startstopRecord(boolean start);
+
+    private native boolean _cutAudioPlay(int start_time, int end_time, boolean showPcm);
 
     //mediacodec
     private MediaFormat encoderFormat = null;
@@ -357,7 +387,7 @@ public class WLPlayer {
         if ((buffer != null) && (encoder != null)) {
             recordTime += size * 1.0 / (audioSamplerate * 2 * 2);
 //            MyLog.i("recordTime: " + recordTime);
-            if (onRecordTimeListener != null){
+            if (onRecordTimeListener != null) {
                 onRecordTimeListener.onRecordTime((int) recordTime);
             }
 

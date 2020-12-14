@@ -80,6 +80,8 @@ void WLFFmpeg::decodeFFmpegThread() {
                 pWLAudio->duration = pFormatCtx->duration / AV_TIME_BASE;
                 pWLAudio->time_base = pFormatCtx->streams[i]->time_base;
                 duration = pWLAudio->duration;
+
+                callJava->onCallPcmRate(CHILD_THREAD, pWLAudio->sample_Rate, 16, 2);
             }
         }
     }
@@ -150,9 +152,9 @@ void WLFFmpeg::start() {
             continue;
         }
         /*对于ape音频文件，一个音频packet可以解码多个frame，因此需要减少缓冲区packet的个数，
-         * 避免seek时卡顿
+         * 避免seek时卡顿,但是对于一个packet对应一个frame的音频文件，这里要改为40
          */
-        if (pWLAudio->queue->getQueueSize() > 4) {
+        if (pWLAudio->queue->getQueueSize() > 40) {
             av_usleep(100*1000);//100毫秒
             continue;
         }
@@ -317,4 +319,17 @@ void WLFFmpeg::startStopRecord(bool start) {
     if (pWLAudio != NULL) {
         pWLAudio->startStopRecord(start);
     }
+}
+
+bool WLFFmpeg::cutAudioPlay(int start_time, int end_time, bool showPcm) {
+    if ((start_time >= 0) && (end_time <= duration) && (start_time < end_time)){
+        pWLAudio->isCut = true;
+        pWLAudio->end_time = end_time;
+        pWLAudio->showPcm = showPcm;
+
+        seek(start_time);
+
+        return true;
+    }
+    return false;
 }

@@ -191,3 +191,15 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1startstopRecord(JNIEnv *env, jobject
         fFmpeg->startStopRecord(start);
     }
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_jiaquan_myplayer_player_WLPlayer__1cutAudioPlay(JNIEnv *env, jobject thiz, jint start_time,
+                                                         jint end_time, jboolean show_pcm) {
+    // TODO: implement _cutAudioPlay()
+    if (fFmpeg != NULL){
+        return fFmpeg->cutAudioPlay(start_time, end_time, show_pcm);
+    }
+
+    return false;
+}

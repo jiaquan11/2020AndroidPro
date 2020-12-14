@@ -31,6 +31,10 @@ public:
 
     void onCallPcmToAAC(int type, void *buffer, int size);
 
+    void onCallPcmInfo(int type, void *buffer, int size);
+
+    void onCallPcmRate(int type, int samplerate, int bit, int channels);
+
 public:
     JavaVM *javaVm = NULL;
     JNIEnv *jniEnv = NULL;
@@ -43,5 +47,7 @@ public:
     jmethodID jmid_complete;
     jmethodID jmid_volumeDB;
     jmethodID jmid_pcmtoaac;
+    jmethodID jmid_pcminfo;
+    jmethodID jmid_pcmrate;
 };
 #endif //MYMUSIC_CALLJAVA_H

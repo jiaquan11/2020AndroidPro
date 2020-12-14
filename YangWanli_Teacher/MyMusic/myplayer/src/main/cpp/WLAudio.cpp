@@ -8,6 +8,10 @@ WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava *callJava) 
     this->playStatus = playStatus;
     this->sample_Rate = sample_rate;
     this->callJava = callJava;
+    this->isCut = false;
+    this->end_time = 0;
+    this->showPcm = false;
+
     queue = new WLQueue(playStatus);
 
     buffer = (uint8_t *) (av_malloc(sample_rate * 2 * 2));
@@ -230,6 +234,17 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
 
             (*wlAudio->pcmBufferQueue)->Enqueue(wlAudio->pcmBufferQueue, wlAudio->sampleBuffer,
                                                 bufferSize * 2 * 2);
+
+            if (wlAudio->isCut){
+                if (wlAudio->showPcm){
+                    //
+                    wlAudio->callJava->onCallPcmInfo(CHILD_THREAD, wlAudio->sampleBuffer, bufferSize * 2 * 2);
+                }
+                if (wlAudio->clock > wlAudio->end_time){
+                    LOGI("裁剪退出...");
+                    wlAudio->playStatus->isExit = true;
+                }
+            }
         }
     }
 }
