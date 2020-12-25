@@ -33,14 +33,14 @@ android {
     }
 
     packagingOptions {
-        pickFirst "**/libavcodec-57.so"
-        pickFirst "**/libavdevice-57.so"
-        pickFirst "**/libavfilter-6.so"
-        pickFirst "**/libavformat-57.so"
-        pickFirst "**/libavutil-55.so"
-        pickFirst "**/libpostproc-54.so"
-        pickFirst "**/libswresample-2.so"
-        pickFirst "**/libswscale-4.so"
+        pickFirst "**/libavcodec.so"
+        pickFirst "**/libavdevice.so"
+        pickFirst "**/libavfilter.so"
+        pickFirst "**/libavformat.so"
+        pickFirst "**/libavutil.so"
+        pickFirst "**/libpostproc.so"
+        pickFirst "**/libswresample.so"
+        pickFirst "**/libswscale.so"
     }
 }
 

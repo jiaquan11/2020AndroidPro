@@ -31,3 +31,5 @@ FFmpeg打造Android万能音频播放器视频教程，移植FFmpeg到Android平
 
 3.AndroidOpenSLESAudio项目
 读取PCM裸数据并调用Android OpenSLES接口进行播放
+
+4.

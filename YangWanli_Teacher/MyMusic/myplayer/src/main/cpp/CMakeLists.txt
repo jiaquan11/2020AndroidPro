@@ -29,58 +29,58 @@ add_library(native-lib
         soundtouch/SoundTouch/TDStretch.cpp
         soundtouch/SoundTouch/PeakFinder.cpp)
 
-add_library(avcodec-57 SHARED IMPORTED)
-set_target_properties(avcodec-57
+add_library(avcodec SHARED IMPORTED)
+set_target_properties(avcodec
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavcodec-57.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavcodec.so)
 
-add_library(avdevice-57 SHARED IMPORTED)
-set_target_properties(avdevice-57
+add_library(avdevice SHARED IMPORTED)
+set_target_properties(avdevice
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavdevice-57.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavdevice.so)
 
-add_library(avfilter-6 SHARED IMPORTED)
-set_target_properties(avfilter-6
+add_library(avfilter SHARED IMPORTED)
+set_target_properties(avfilter
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavfilter-6.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavfilter.so)
 
-add_library(avformat-57 SHARED IMPORTED)
-set_target_properties(avformat-57
+add_library(avformat SHARED IMPORTED)
+set_target_properties(avformat
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavformat-57.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavformat.so)
 
-add_library(avutil-55 SHARED IMPORTED)
-set_target_properties(avutil-55
+add_library(avutil SHARED IMPORTED)
+set_target_properties(avutil
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavutil-55.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libavutil.so)
 
-add_library(postproc-54 SHARED IMPORTED)
-set_target_properties(postproc-54
+add_library(postproc SHARED IMPORTED)
+set_target_properties(postproc
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libpostproc-54.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libpostproc.so)
 
-add_library(swresample-2 SHARED IMPORTED)
-set_target_properties(swresample-2
+add_library(swresample SHARED IMPORTED)
+set_target_properties(swresample
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libswresample-2.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libswresample.so)
 
-add_library(swscale-4 SHARED IMPORTED)
-set_target_properties(swscale-4
+add_library(swscale SHARED IMPORTED)
+set_target_properties(swscale
         PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libswscale-4.so)
+        ${CMAKE_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libswscale.so)
 
 find_library(log-lib
         log)
 
 target_link_libraries(native-lib
         ${log-lib}
-        avcodec-57
-        avdevice-57
-        avfilter-6
-        avformat-57
-        avutil-55
-        postproc-54
-        swresample-2
-        swscale-4
+        avcodec
+        avdevice
+        avfilter
+        avformat
+        avutil
+        postproc
+        swresample
+        swscale
         OpenSLES
         )
