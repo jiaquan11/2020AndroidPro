@@ -32,4 +32,5 @@ FFmpeg打造Android万能音频播放器视频教程，移植FFmpeg到Android平
 3.AndroidOpenSLESAudio项目
 读取PCM裸数据并调用Android OpenSLES接口进行播放
 
-4.
+4.MyMusic项目(在此项目中增加了视频播放的功能)
+FFmpeg+OpenGL ES+OpenSL ES打造Android视频播放器教程，该课程基于C++语言，用FFmpeg、OpenGL ES、OpenSL ES和MediaCodec打造Android视频播放器

@@ -8,6 +8,7 @@
 #include "CallJava.h"
 #include "pthread.h"
 #include "WLAudio.h"
+#include "WLVideo.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -32,6 +33,8 @@ public:
 
     void release();
 
+    int getCodecContext(AVCodecParameters *codecPar, AVCodecContext** avCodecContext);
+
     void setVolume(int percent);
 
     void setMute(int mute);
@@ -55,6 +58,7 @@ public:
     pthread_t decodeThread;
     AVFormatContext *pFormatCtx = NULL;
     WLAudio *pWLAudio = NULL;
+    WLVideo* pWLVideo = NULL;
 
     WLPlayStatus *playStatus = NULL;
 

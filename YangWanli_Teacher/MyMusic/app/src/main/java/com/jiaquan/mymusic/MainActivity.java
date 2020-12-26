@@ -174,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void begin(View view) {
 //        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
-        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
+//        wlPlayer.setSource("/sdcard/testziliao/mydream.m4a");
+        wlPlayer.setSource("/sdcard/testziliao/fcrs.1080p.mp4");
 //        wlPlayer.setSource("/sdcard/testziliao/first-love-wangxinling.ape");
 //        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 //        wlPlayer.setSource("/sdcard/testziliao/yongqi-liangjingru.m4a");
@@ -217,7 +218,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void next(View view) {
 //        wlPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
-        wlPlayer.playNext("/sdcard/testziliao/first-love-wangxinling.ape");
+//        wlPlayer.playNext("/sdcard/testziliao/first-love-wangxinling.ape");
+        wlPlayer.playNext("/sdcard/testziliao/fcrs.1080p.mp4");
     }
 
     public void left(View view) {
