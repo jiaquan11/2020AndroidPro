@@ -81,5 +81,4 @@ public:
 
     void destroy();
 };
-
 #endif //NATIVEOPENGLDEMO_EGLTHREAD_H

@@ -138,8 +138,8 @@ void FilterOne::setMatrix(int width, int height) {
 
 void FilterOne::setPixel(void *data, int width, int height, int length) {
     LOGI("FilterOne::setPixel in");
-    w = width;
-    h = height;
+    w = width;//图片宽
+    h = height;//图片高
     pixels = data;
     if ((surface_width > 0) && (surface_height > 0)) {
         setMatrix(surface_width, surface_height);

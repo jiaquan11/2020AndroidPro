@@ -1,18 +1,14 @@
 package com.jiaquan.nativeopengldemo;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import com.jiaquan.opengl.NativeOpengl;
 import com.jiaquan.opengl.WlSurfaceView;
