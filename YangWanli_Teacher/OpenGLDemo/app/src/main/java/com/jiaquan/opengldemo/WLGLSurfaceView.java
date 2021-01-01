@@ -12,6 +12,6 @@ public class WLGLSurfaceView extends GLSurfaceView {
     public WLGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setEGLContextClientVersion(2);
-        setRenderer(new WLRender());
+        setRenderer(new WLRender(context));
     }
 }
