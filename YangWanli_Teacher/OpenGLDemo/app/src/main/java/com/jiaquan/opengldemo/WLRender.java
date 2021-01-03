@@ -15,7 +15,16 @@ public class WLRender implements GLSurfaceView.Renderer {
     private Context context;
 
     private final float[] vertexData = {
+//            -1f, 0f,
+//            0f, -1f,
+//            0f, 1f,
+//
+//            0f, 1f,
+//            0f, -1f,
+//            1f, 0f
+
             -1f, 0f,
+            0f, -1f,
             0f, 1f,
             1f, 0f
     };
@@ -64,6 +73,7 @@ public class WLRender implements GLSurfaceView.Renderer {
 
         GLES20.glEnableVertexAttribArray(avPosition);
         GLES20.glVertexAttribPointer(avPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
+//        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     }
 }
