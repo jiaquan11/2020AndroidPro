@@ -207,6 +207,10 @@ public class WLPlayer {
         }
     }
 
+    public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v){
+        MyLog.i("获取到YUV数据渲染");
+    }
+
     public void pause() {
         _pause();
         if (onPauseResumeListener != null) {

@@ -35,6 +35,8 @@ public:
 
     void onCallPcmRate(int type, int samplerate, int bit, int channels);
 
+    void onCallRenderYUV(int type, int width, int height, uint8_t *fy, uint8_t *fu, uint8_t *fv);
+
 public:
     JavaVM *javaVm = NULL;
     JNIEnv *jniEnv = NULL;
@@ -49,5 +51,6 @@ public:
     jmethodID jmid_pcmtoaac;
     jmethodID jmid_pcminfo;
     jmethodID jmid_pcmrate;
+    jmethodID jmid_renderyuv;
 };
 #endif //MYMUSIC_CALLJAVA_H
