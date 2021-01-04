@@ -134,10 +134,10 @@ void WLFFmpeg::start() {
         /*对于ape音频文件，一个音频packet可以解码多个frame，因此需要减少缓冲区packet的个数，
          * 避免seek时卡顿,但是对于一个packet对应一个frame的音频文件，这里要改为40
          */
-        if (pWLAudio->queue->getQueueSize() > 40) {
-            av_usleep(100 * 1000);//100毫秒
-            continue;
-        }
+//        if (pWLAudio->queue->getQueueSize() > 40) {
+//            av_usleep(100 * 1000);//100毫秒
+//            continue;
+//        }
 
         AVPacket *avPacket = av_packet_alloc();
 

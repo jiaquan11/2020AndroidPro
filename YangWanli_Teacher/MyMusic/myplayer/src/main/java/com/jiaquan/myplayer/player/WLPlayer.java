@@ -17,6 +17,7 @@ import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
+import com.jiaquan.myplayer.opengl.WLGLSurfaceView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,6 +45,11 @@ public class WLPlayer {
     private static float speed = 1.0f;
     private static float pitch = 1.0f;
     private static boolean isInitMediaCodec = false;
+
+    private WLGLSurfaceView wlglSurfaceView = null;
+    public void setWlglSurfaceView(WLGLSurfaceView wlglSurfaceView) {
+        this.wlglSurfaceView = wlglSurfaceView;
+    }
 
     private OnPreparedListener onPreparedListener = null;
 
@@ -209,6 +215,9 @@ public class WLPlayer {
 
     public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v){
         MyLog.i("获取到YUV数据渲染");
+        if (wlglSurfaceView != null){
+            wlglSurfaceView.setYUVData(width, height, y, u, v);
+        }
     }
 
     public void pause() {

@@ -23,6 +23,7 @@ import com.jiaquan.myplayer.listener.OnTimeInfoListener;
 import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
+import com.jiaquan.myplayer.opengl.WLGLSurfaceView;
 import com.jiaquan.myplayer.player.WLPlayer;
 import com.jiaquan.myplayer.util.TimeUtil;
 
@@ -38,10 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
     private SeekBar seekBarVolume = null;
 
+    private WLGLSurfaceView wlglSurfaceView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        wlglSurfaceView = findViewById(R.id.wlglsurfaceview);
 
         tv_time = findViewById(R.id.tv_time);
         seekBarSeek = findViewById(R.id.seekbar_seek);
@@ -57,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         wlPlayer = new WLPlayer();
+        wlPlayer.setWlglSurfaceView(wlglSurfaceView);
+
         wlPlayer.setVolume(80);//设置初始音量
         wlPlayer.setMute(MuteEnum.MUTE_LEFT);
         tv_volume.setText("音量: " + wlPlayer.getVolumePercent() + "%");
