@@ -89,6 +89,14 @@ void WLFFmpeg::decodeFFmpegThread() {
                 pWLVideo->streamIndex = i;
                 pWLVideo->codecPar = pFormatCtx->streams[i]->codecpar;
                 pWLVideo->time_base = pFormatCtx->streams[i]->time_base;
+
+                int num = pFormatCtx->streams[i]->avg_frame_rate.num;
+                int den = pFormatCtx->streams[i]->avg_frame_rate.den;
+                if ((num != 0) && (den != 0)){
+                    int fps = num / den;//比如25/1
+                    pWLVideo->defaultDelayTime = 1.0 / fps;
+                    LOGI("fps %d, defaultDelayTime: %lf", fps, pWLVideo->defaultDelayTime);
+                }
             }
         }
     }
@@ -120,6 +128,11 @@ void WLFFmpeg::start() {
         }
         return;
     }
+
+    if (pWLVideo == NULL){//目前要求必须要有视频流
+        return;
+    }
+    pWLVideo->audio = pWLAudio;
 
     pWLAudio->play();
     pWLVideo->play();

@@ -7,8 +7,9 @@
 #include "WLQueue.h"
 #include "CallJava.h"
 #include <pthread.h>
+#include "WLAudio.h"
 
-extern "C"{
+extern "C" {
 #include <libswscale/swscale.h>
 #include "include/libavcodec/avcodec.h"
 #include <libavutil/time.h>
@@ -17,22 +18,33 @@ extern "C"{
 
 class WLVideo {
 public:
-    WLVideo(WLPlayStatus* playStatus, CallJava* callJava);
+    WLVideo(WLPlayStatus *playStatus, CallJava *callJava);
+
     ~WLVideo();
 
     void play();
 
     void release();
 
+    double getFrameDiffTime(AVFrame *avFrame);
+
+    double getDelayTime(double diff);
+
 public:
     int streamIndex = -1;
-    AVCodecContext* avCodecContext = NULL;
+    AVCodecContext *avCodecContext = NULL;
     AVCodecParameters *codecPar = NULL;
     WLQueue *queue = NULL;
-    WLPlayStatus* playStatus = NULL;
-    CallJava* callJava = NULL;
+    WLPlayStatus *playStatus = NULL;
+    CallJava *callJava = NULL;
     AVRational time_base;
 
     pthread_t thread_play;
+
+    WLAudio *audio = NULL;
+    double clock = 0;
+    double delayTime = 0;
+    double defaultDelayTime = 0.04;
 };
+
 #endif //MYMUSIC_WLVIDEO_H

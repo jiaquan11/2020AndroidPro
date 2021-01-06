@@ -13,37 +13,37 @@ WLVideo::~WLVideo() {
 
 }
 
-void* playVideo(void* data){
-    WLVideo* video = static_cast<WLVideo *>(data);
+void *playVideo(void *data) {
+    WLVideo *video = static_cast<WLVideo *>(data);
 
-    while ((video->playStatus != NULL) && !video->playStatus->isExit){
-        if (video->playStatus->seek){
-            av_usleep(1000*100);
+    while ((video->playStatus != NULL) && !video->playStatus->isExit) {
+        if (video->playStatus->seek) {
+            av_usleep(1000 * 100);
             continue;
         }
 
-        if (video->queue->getQueueSize() == 0){
-            if (!video->playStatus->load){
+        if (video->queue->getQueueSize() == 0) {
+            if (!video->playStatus->load) {
                 video->playStatus->load = true;
                 video->callJava->onCallLoad(CHILD_THREAD, true);
             }
-            av_usleep(1000*100);
+            av_usleep(1000 * 100);
             continue;
-        }else{
-            if (video->playStatus->load){
+        } else {
+            if (video->playStatus->load) {
                 video->playStatus->load = false;
                 video->callJava->onCallLoad(CHILD_THREAD, false);
             }
         }
         AVPacket *avPacket = av_packet_alloc();
-        if (video->queue->getAVPacket(avPacket) != 0){
+        if (video->queue->getAVPacket(avPacket) != 0) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
             continue;
         }
 
-        if (avcodec_send_packet(video->avCodecContext, avPacket) != 0){
+        if (avcodec_send_packet(video->avCodecContext, avPacket) != 0) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -51,7 +51,7 @@ void* playVideo(void* data){
         }
 
         AVFrame *avFrame = av_frame_alloc();
-        if (avcodec_receive_frame(video->avCodecContext, avFrame) != 0){
+        if (avcodec_receive_frame(video->avCodecContext, avFrame) != 0) {
             av_frame_free(&avFrame);
             av_free(avFrame);
             avFrame = NULL;
@@ -61,30 +61,35 @@ void* playVideo(void* data){
             continue;
         }
         LOGI("子线程解码一个AVFrame成功!");
-        if (avFrame->format == AV_PIX_FMT_YUV420P){
+        if (avFrame->format == AV_PIX_FMT_YUV420P) {
             LOGI("当前视频是YUV420P格式!");
+            double diff = video->getFrameDiffTime(avFrame);
+            LOGI("diff is %lf", diff);
+
+            av_usleep(video->getDelayTime(diff) * 1000000);
+//            av_usleep(diff * 1000000);
             //直接渲染
             video->callJava->onCallRenderYUV(CHILD_THREAD,
-                    video->avCodecContext->width,
-                    video->avCodecContext->height,
-                avFrame->data[0],
-                avFrame->data[1],
-                avFrame->data[2]);
-        }else{
+                                             video->avCodecContext->width,
+                                             video->avCodecContext->height,
+                                             avFrame->data[0],
+                                             avFrame->data[1],
+                                             avFrame->data[2]);
+        } else {
             LOGI("当前视频不是YUV420P格式，需转换!");
-            AVFrame* pFrameYUV420p = av_frame_alloc();
+            AVFrame *pFrameYUV420p = av_frame_alloc();
             int num = av_image_get_buffer_size(AV_PIX_FMT_YUV420P,
-                    video->avCodecContext->width,
-                    video->avCodecContext->height,
-                    1);
+                                               video->avCodecContext->width,
+                                               video->avCodecContext->height,
+                                               1);
             uint8_t *buffer = static_cast<uint8_t *>(av_malloc(num * sizeof(uint8_t)));
             av_image_fill_arrays(pFrameYUV420p->data,
-                    pFrameYUV420p->linesize,
-                    buffer,
-                    AV_PIX_FMT_YUV420P,
-                    video->avCodecContext->width,
-                    video->avCodecContext->height,
-                    1);
+                                 pFrameYUV420p->linesize,
+                                 buffer,
+                                 AV_PIX_FMT_YUV420P,
+                                 video->avCodecContext->width,
+                                 video->avCodecContext->height,
+                                 1);
 
             SwsContext *sws_ctx = sws_getContext(
                     video->avCodecContext->width,
@@ -94,7 +99,7 @@ void* playVideo(void* data){
                     video->avCodecContext->height,
                     AV_PIX_FMT_YUV420P,
                     SWS_BICUBIC, NULL, NULL, NULL);
-            if (!sws_ctx){
+            if (!sws_ctx) {
                 av_frame_free(&pFrameYUV420p);
                 av_free(pFrameYUV420p);
                 av_free(buffer);
@@ -102,20 +107,25 @@ void* playVideo(void* data){
             }
 
             sws_scale(sws_ctx,
-                    avFrame->data,
-                    avFrame->linesize,
-                    0,
-                    avFrame->height,
-                    pFrameYUV420p->data,
-                    pFrameYUV420p->linesize);
+                      avFrame->data,
+                      avFrame->linesize,
+                      0,
+                      avFrame->height,
+                      pFrameYUV420p->data,
+                      pFrameYUV420p->linesize);
+
+            double diff = video->getFrameDiffTime(pFrameYUV420p);
+            LOGI("diff2222 is %lf", diff);
+
+            av_usleep(video->getDelayTime(diff) * 1000000);
 
             //渲染
             video->callJava->onCallRenderYUV(CHILD_THREAD,
-                    video->avCodecContext->width,
-                    video->avCodecContext->height,
-                     pFrameYUV420p->data[0],
-                     pFrameYUV420p->data[1],
-                     pFrameYUV420p->data[2]);
+                                             video->avCodecContext->width,
+                                             video->avCodecContext->height,
+                                             pFrameYUV420p->data[0],
+                                             pFrameYUV420p->data[1],
+                                             pFrameYUV420p->data[2]);
 
             av_frame_free(&pFrameYUV420p);
             av_free(pFrameYUV420p);
@@ -139,22 +149,70 @@ void WLVideo::play() {
 }
 
 void WLVideo::release() {
-    if (queue != NULL){
+    if (queue != NULL) {
         delete queue;
         queue = NULL;
     }
 
-    if (avCodecContext != NULL){
+    if (avCodecContext != NULL) {
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
         avCodecContext = NULL;
     }
 
-    if (playStatus != NULL){
+    if (playStatus != NULL) {
         playStatus = NULL;
     }
 
-    if (callJava != NULL){
+    if (callJava != NULL) {
         callJava = NULL;
     }
+}
+
+double WLVideo::getFrameDiffTime(AVFrame *avFrame) {
+    double pts = av_frame_get_best_effort_timestamp(avFrame);
+    if (pts == AV_NOPTS_VALUE) {
+        pts = 0;
+    }
+    pts *= av_q2d(time_base);
+    if (pts > 0) {
+        clock = pts;
+    }
+
+    double diff = audio->clock - clock;
+
+    return diff;
+}
+
+double WLVideo::getDelayTime(double diff) {
+    if (diff > 0.003) {//音频快 视频慢，减少休眠时间
+        delayTime = delayTime * 2 / 3;
+        if (delayTime < defaultDelayTime / 2) {
+            delayTime = defaultDelayTime * 2 / 3;
+        } else if (delayTime > defaultDelayTime * 2) {
+            delayTime = defaultDelayTime * 2;
+        }
+    } else if (diff < -0.003) {//视频快，增加休眠时间
+        delayTime = delayTime * 3 / 2;
+        if (delayTime < defaultDelayTime / 2) {
+            delayTime = defaultDelayTime * 2 / 3;
+        } else if (delayTime > defaultDelayTime * 2) {
+            delayTime = defaultDelayTime * 2;
+        }
+    } else if (diff == 0.003) {
+
+    }
+
+    if (diff >= 0.5) {//音频太快，视频不休眠
+        delayTime = 0;
+    } else if (diff <= -0.5) {//音频太慢，视频休眠两倍的默认时间
+        delayTime = defaultDelayTime * 2;
+    }
+
+    if (fabs(diff) >= 10) {//相差很大，基本可以确定没有音频，则视频按照帧率进行播放
+        delayTime = defaultDelayTime;
+    }
+
+    LOGI("delayTime is %lf", delayTime);
+    return delayTime;
 }
