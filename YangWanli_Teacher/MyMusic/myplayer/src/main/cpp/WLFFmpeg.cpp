@@ -132,7 +132,17 @@ void WLFFmpeg::start() {
     if (pWLVideo == NULL){//目前要求必须要有视频流
         return;
     }
+    supportMediaCodec = false;
     pWLVideo->audio = pWLAudio;
+
+    const char* codecName = ((const AVCodec*)pWLVideo->avCodecContext->codec)->name;
+    if (supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName)){
+        LOGI("当前设备支持硬解码当前视频!!!");
+    }
+
+    if (supportMediaCodec){
+        pWLVideo->codectype = CODEC_MEDIACODEC;
+    }
 
     pWLAudio->play();
     pWLVideo->play();

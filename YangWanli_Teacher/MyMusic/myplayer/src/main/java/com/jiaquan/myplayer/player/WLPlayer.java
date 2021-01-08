@@ -18,6 +18,7 @@ import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
 import com.jiaquan.myplayer.opengl.WLGLSurfaceView;
+import com.jiaquan.myplayer.util.WLVideoSupportUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -218,6 +219,10 @@ public class WLPlayer {
         if (wlglSurfaceView != null){
             wlglSurfaceView.setYUVData(width, height, y, u, v);
         }
+    }
+
+    public boolean onCallIsSupportMediaCodec(String ffcodecname){
+        return WLVideoSupportUtil.isSupportCodec(ffcodecname);
     }
 
     public void pause() {

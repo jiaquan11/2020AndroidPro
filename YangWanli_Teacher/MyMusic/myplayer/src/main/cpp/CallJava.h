@@ -37,6 +37,8 @@ public:
 
     void onCallRenderYUV(int type, int width, int height, uint8_t *fy, uint8_t *fu, uint8_t *fv);
 
+    bool onCallIsSupportVideo(int type, const char* ffcodecname);
+
 public:
     JavaVM *javaVm = NULL;
     JNIEnv *jniEnv = NULL;
@@ -52,5 +54,6 @@ public:
     jmethodID jmid_pcminfo;
     jmethodID jmid_pcmrate;
     jmethodID jmid_renderyuv;
+    jmethodID jmid_supportvideo;
 };
 #endif //MYMUSIC_CALLJAVA_H

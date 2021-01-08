@@ -9,6 +9,9 @@
 #include <pthread.h>
 #include "WLAudio.h"
 
+#define CODEC_YUV 0
+#define CODEC_MEDIACODEC 1
+
 extern "C" {
 #include <libswscale/swscale.h>
 #include "include/libavcodec/avcodec.h"
@@ -47,6 +50,8 @@ public:
     double defaultDelayTime = 0.04;
 
     pthread_mutex_t codecMutex;
+
+    int codectype = CODEC_YUV;
 };
 
 #endif //MYMUSIC_WLVIDEO_H

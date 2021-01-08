@@ -67,6 +67,8 @@ public:
 
     int duration = 0;
     pthread_mutex_t seek_mutex;
+
+    bool supportMediaCodec = false;
 };
 
 #endif //MYMUSIC_WLFFMPEG_H
