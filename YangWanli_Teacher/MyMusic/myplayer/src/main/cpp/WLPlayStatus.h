@@ -15,6 +15,7 @@ public:
     bool isExit = false;
     bool load = true;
     bool seek = false;
+    bool pause = false;
 };
 
 

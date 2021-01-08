@@ -45,12 +45,12 @@
         android:text="停止"
         android:onClick="stop"/>
 
-<!--    <Button-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_weight="1"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="SEEK"-->
-<!--        android:onClick="seek"/>-->
+    <Button
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="搜索"
+        android:onClick="seek"/>
 
     <Button
         android:layout_width="0dp"

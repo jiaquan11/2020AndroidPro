@@ -142,15 +142,17 @@ void WLFFmpeg::start() {
     while ((playStatus != NULL) && !playStatus->isExit) {
         if (playStatus->seek) {
             av_usleep(100 * 1000);//100毫秒
+            LOGI("now is seek continue");
             continue;
         }
         /*对于ape音频文件，一个音频packet可以解码多个frame，因此需要减少缓冲区packet的个数，
          * 避免seek时卡顿,但是对于一个packet对应一个frame的音频文件，这里要改为40
          */
-//        if (pWLAudio->queue->getQueueSize() > 40) {
-//            av_usleep(100 * 1000);//100毫秒
-//            continue;
-//        }
+        if (pWLAudio->queue->getQueueSize() > 100) {
+            av_usleep(100 * 1000);//100毫秒
+            LOGI("now is getQueueSize > 100 continue");
+            continue;
+        }
 
         AVPacket *avPacket = av_packet_alloc();
 
@@ -180,7 +182,11 @@ void WLFFmpeg::start() {
                     av_usleep(100 * 1000);//100毫秒
                     continue;
                 } else {
-                    playStatus->isExit = true;
+                    if (!playStatus->seek){
+                        av_usleep(500 * 1000);
+                        playStatus->isExit = true;
+                        LOGI("playStatus isExit set true");
+                    }
                     break;
                 }
             }
@@ -199,38 +205,56 @@ void WLFFmpeg::start() {
 }
 
 void WLFFmpeg::pause() {
+    if (playStatus != NULL){
+        playStatus->pause = true;
+    }
+
     if (pWLAudio != NULL) {
         pWLAudio->pause();
     }
 }
 
 void WLFFmpeg::resume() {
+    if (playStatus != NULL){
+        playStatus->pause = false;
+    }
+
     if (pWLAudio != NULL) {
         pWLAudio->resume();
     }
 }
 
 void WLFFmpeg::seek(int64_t secds) {
+    LOGI("WLFFmpeg seek secds: %lld", secds);
     if (duration <= 0) {
         return;
     }
     if ((secds >= 0) && (secds <= duration)) {
+        playStatus->seek = true;
+        pthread_mutex_lock(&seek_mutex);
+        int64_t rel = secds * AV_TIME_BASE;
+        avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
         if (pWLAudio != NULL) {
-            playStatus->seek = true;
             pWLAudio->queue->clearAvPacket();
             pWLAudio->clock = 0;
             pWLAudio->last_time = 0;
-
-            pthread_mutex_lock(&seek_mutex);
-
+            pthread_mutex_lock(&pWLAudio->codecMutex);
             avcodec_flush_buffers(pWLAudio->avCodecContext);//清空解码器内部缓冲
-
-            int64_t rel = secds * AV_TIME_BASE;
-            avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
-            pthread_mutex_unlock(&seek_mutex);
-
-            playStatus->seek = false;
+            pthread_mutex_unlock(&pWLAudio->codecMutex);
+            LOGI("WLFFmpeg pWLAudio seek!!! ");
         }
+
+        if (pWLVideo != NULL){
+            pWLVideo->queue->clearAvPacket();
+            pWLVideo->clock = 0;
+            pthread_mutex_lock(&pWLVideo->codecMutex);
+            avcodec_flush_buffers(pWLVideo->avCodecContext);
+            pthread_mutex_unlock(&pWLVideo->codecMutex);
+            LOGI("WLFFmpeg pWLVideo seek!!! ");
+        }
+        pthread_mutex_unlock(&seek_mutex);
+        playStatus->seek = false;
+        LOGI("WLFFmpeg seek end!");
     }
 }
 

@@ -128,6 +128,8 @@ public:
     int num = 0;
 
     bool isRecordPcm = false;
+
+    pthread_mutex_t codecMutex;
 };
 
 #endif //MYMUSIC_WLAUDIO_H

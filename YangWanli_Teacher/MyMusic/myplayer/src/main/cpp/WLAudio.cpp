@@ -27,10 +27,12 @@ WLAudio::WLAudio(WLPlayStatus *playStatus, int sample_rate, CallJava *callJava) 
     soundTouch->setTempo(speed);
 //    outFile = fopen("/sdcard/testziliao/outAudio.pcm", "wb");
     LOGI("WLAudio construct pitch: %f speed: %f soundTouch:%p", pitch, speed, soundTouch);
+
+    pthread_mutex_init(&codecMutex, NULL);
 }
 
 WLAudio::~WLAudio() {
-
+    pthread_mutex_destroy(&codecMutex);
 }
 
 void *decodePlay(void *data) {
@@ -135,11 +137,14 @@ int WLAudio::resampleAudio(void **pcmbuf) {
                 avPacket = NULL;
                 continue;
             }
+
+            pthread_mutex_lock(&codecMutex);
             ret = avcodec_send_packet(avCodecContext, avPacket);
             if (ret != 0) {
                 av_packet_free(&avPacket);
                 av_free(avPacket);
                 avPacket = NULL;
+                pthread_mutex_unlock(&codecMutex);
                 continue;
             }
         }
@@ -174,6 +179,8 @@ int WLAudio::resampleAudio(void **pcmbuf) {
                 avFrame = NULL;
                 swr_free(&swr_ctx);
                 readFrameFinish = true;
+
+                pthread_mutex_unlock(&codecMutex);
                 continue;
             }
 
@@ -208,6 +215,8 @@ int WLAudio::resampleAudio(void **pcmbuf) {
             avFrame = NULL;
             swr_free(&swr_ctx);
             swr_ctx = NULL;
+
+            pthread_mutex_unlock(&codecMutex);
             break;
         } else {
             readFrameFinish = true;
@@ -218,6 +227,8 @@ int WLAudio::resampleAudio(void **pcmbuf) {
             av_frame_free(&avFrame);
             av_free(avFrame);
             avFrame = NULL;
+
+            pthread_mutex_unlock(&codecMutex);
             continue;
         }
     }

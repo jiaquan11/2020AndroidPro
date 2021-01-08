@@ -21,7 +21,7 @@ WLBufferQueue::~WLBufferQueue() {
 
 int WLBufferQueue::putBuffer(SAMPLETYPE *buffer, int size) {
     pthread_mutex_lock(&mutexBuffer);
-    LOGI("WLBufferQueue putBuffer size: %d", size);
+//    LOGI("WLBufferQueue putBuffer size: %d", size);
     WLPcmBean *pcmBean = new WLPcmBean(buffer, size);
     queueBuffer.push_back(pcmBean);
     pthread_cond_signal(&condBuffer);
