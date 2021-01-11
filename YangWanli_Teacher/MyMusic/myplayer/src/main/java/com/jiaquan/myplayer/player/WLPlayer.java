@@ -285,28 +285,36 @@ public class WLPlayer {
     public void onCallDecodeVPacket(int datasize, byte[] data) {
         MyLog.i("onCallDecodeVPacket in");
         if ((surface != null) && (datasize > 0) && (data != null) && (mediaCodec != null)) {
-            int inputBufferIndex = mediaCodec.dequeueInputBuffer(10);
-            if (inputBufferIndex >= 0) {
-                ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[inputBufferIndex];
-                byteBuffer.clear();
-                byteBuffer.put(data);
-                mediaCodec.queueInputBuffer(inputBufferIndex, 0, datasize, 0, 0);
+            try {
+                int inputBufferIndex = mediaCodec.dequeueInputBuffer(10);
+                if (inputBufferIndex >= 0) {
+                    ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[inputBufferIndex];
+                    byteBuffer.clear();
+                    byteBuffer.put(data);
+                    mediaCodec.queueInputBuffer(inputBufferIndex, 0, datasize, 0, 0);
+                }
+                int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+                while (outputBufferIndex >= 0) {
+                    mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                    outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+                    MyLog.i("mediaCodec releaseOutputBuffer");
+                }
+                MyLog.i("onCallDecodeVPacket out");
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
-            while (outputBufferIndex >= 0) {
-                mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
-                outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
-                MyLog.i("mediaCodec releaseOutputBuffer");
-            }
-            MyLog.i("onCallDecodeVPacket out");
         }
     }
 
     private void releaseVMediaCodec() {
         if (mediaCodec != null) {
-            mediaCodec.flush();
-            mediaCodec.stop();
-            mediaCodec.release();
+            try{
+                mediaCodec.flush();
+                mediaCodec.stop();
+                mediaCodec.release();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             mediaCodec = null;
             mediaFormat = null;
@@ -338,12 +346,12 @@ public class WLPlayer {
 
         stopRecord();
 
-        releaseVMediaCodec();
-
         new Thread(new Runnable() {
             @Override
             public void run() {
                 _stop();
+
+                releaseVMediaCodec();
             }
         }).start();
     }

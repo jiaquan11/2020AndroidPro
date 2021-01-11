@@ -38,7 +38,8 @@ WLAudio::~WLAudio() {
 void *decodePlay(void *data) {
     WLAudio *wlAudio = (WLAudio *) data;
     wlAudio->initOpenSLES();
-    pthread_exit(&wlAudio->thread_play);
+//    pthread_exit(&wlAudio->thread_play);
+    return 0;
 }
 
 void *pcmCallBack(void *data) {
@@ -98,12 +99,16 @@ void *pcmCallBack(void *data) {
         pcmBean = NULL;
     }
 
-    pthread_exit(&wlAudio->pcmCallBackThread);
+//    pthread_exit(&wlAudio->pcmCallBackThread);
+
+    return 0;
 }
 
 void WLAudio::play() {
-    pthread_create(&thread_play, NULL, decodePlay, this);
-    pthread_create(&pcmCallBackThread, NULL, pcmCallBack, this);
+    if ((playStatus != NULL) && !playStatus->isExit){
+        pthread_create(&thread_play, NULL, decodePlay, this);
+        pthread_create(&pcmCallBackThread, NULL, pcmCallBack, this);
+    }
 }
 
 int WLAudio::resampleAudio(void **pcmbuf) {
@@ -482,6 +487,12 @@ void WLAudio::release() {
         delete bufferQueue;
         bufferQueue = NULL;
     }
+
+    if (queue != NULL){
+        queue->noticeQueue();
+    }
+
+    pthread_join(thread_play, NULL);
     if (queue != NULL) {
         delete queue;
         queue = NULL;

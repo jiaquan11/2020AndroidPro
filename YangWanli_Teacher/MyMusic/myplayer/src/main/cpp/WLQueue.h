@@ -28,6 +28,8 @@ public:
 
     void clearAvPacket();
 
+    void noticeQueue();
+
 public:
     std::queue<AVPacket *> queuePacket;
     pthread_mutex_t mutexPacket;

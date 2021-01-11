@@ -83,3 +83,7 @@ void WLQueue::clearAvPacket() {
     }
     pthread_mutex_unlock(&mutexPacket);
 }
+
+void WLQueue::noticeQueue() {
+    pthread_cond_signal(&condPacket);
+}

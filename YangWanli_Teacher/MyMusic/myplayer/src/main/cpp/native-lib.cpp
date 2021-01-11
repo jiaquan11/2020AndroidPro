@@ -3,6 +3,7 @@
 #include "log/androidLog.h"
 #include "CallJava.h"
 #include "WLFFmpeg.h"
+#include <pthread.h>
 
 extern "C" {
 #include "include/libavformat/avformat.h"
@@ -54,7 +55,8 @@ void *startCallBack(void *data) {
     WLFFmpeg *wlfFmpeg = (WLFFmpeg *) (data);
     wlfFmpeg->start();
 
-    pthread_exit(&thread_start);
+//    pthread_exit(&thread_start);
+    return 0;
 }
 
 extern "C"
@@ -100,6 +102,9 @@ Java_com_jiaquan_myplayer_player_WLPlayer__1stop(JNIEnv *env, jobject thiz) {
 
     if (fFmpeg != NULL) {
         fFmpeg->release();
+
+        pthread_join(thread_start, NULL);
+
         delete fFmpeg;
         fFmpeg = NULL;
 
