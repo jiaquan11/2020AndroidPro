@@ -4,6 +4,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.text.TextUtils;
+import android.view.Surface;
 
 import com.jiaquan.myplayer.TimeInfoBean;
 import com.jiaquan.myplayer.listener.OnCompleteListener;
@@ -18,6 +19,7 @@ import com.jiaquan.myplayer.listener.OnVolumeDBListener;
 import com.jiaquan.myplayer.log.MyLog;
 import com.jiaquan.myplayer.muteenum.MuteEnum;
 import com.jiaquan.myplayer.opengl.WLGLSurfaceView;
+import com.jiaquan.myplayer.opengl.WLRender;
 import com.jiaquan.myplayer.util.WLVideoSupportUtil;
 
 import java.io.File;
@@ -47,9 +49,24 @@ public class WLPlayer {
     private static float pitch = 1.0f;
     private static boolean isInitMediaCodec = false;
 
+    private MediaFormat mediaFormat;
+    private MediaCodec mediaCodec;
+    private Surface surface;
+    private MediaCodec.BufferInfo info;
+
     private WLGLSurfaceView wlglSurfaceView = null;
+
     public void setWlglSurfaceView(WLGLSurfaceView wlglSurfaceView) {
         this.wlglSurfaceView = wlglSurfaceView;
+        wlglSurfaceView.getWlRender().setOnSurfaceCreateListener(new WLRender.OnSurfaceCreateListener() {
+            @Override
+            public void onSurfaceCreate(Surface s) {
+                if (surface == null) {
+                    surface = s;
+                    MyLog.i("onSurfaceCreate");
+                }
+            }
+        });
     }
 
     private OnPreparedListener onPreparedListener = null;
@@ -202,27 +219,99 @@ public class WLPlayer {
         }
     }
 
-    public void onCallPcmInfo(byte[] buffer, int bufferSize){
-        if (onPcmInfoListener != null){
+    public void onCallPcmInfo(byte[] buffer, int bufferSize) {
+        if (onPcmInfoListener != null) {
             onPcmInfoListener.onPcmInfo(buffer, bufferSize);
         }
     }
 
-    public void onCallPcmRate(int samplerate, int bit, int channels){
-        if (onPcmInfoListener != null){
+    public void onCallPcmRate(int samplerate, int bit, int channels) {
+        if (onPcmInfoListener != null) {
             onPcmInfoListener.onPcmRate(samplerate, bit, channels);
         }
     }
 
-    public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v){
+    public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v) {
         MyLog.i("获取到YUV数据渲染");
-        if (wlglSurfaceView != null){
+        if (wlglSurfaceView != null) {
+            wlglSurfaceView.getWlRender().setRenderType(WLRender.RENDER_YUV);
             wlglSurfaceView.setYUVData(width, height, y, u, v);
         }
     }
 
-    public boolean onCallIsSupportMediaCodec(String ffcodecname){
+    public boolean onCallIsSupportMediaCodec(String ffcodecname) {
         return WLVideoSupportUtil.isSupportCodec(ffcodecname);
+    }
+
+    //video
+
+    /**
+     * 初始化视频解码器
+     *
+     * @param codecName
+     * @param width
+     * @param height
+     * @param csd_0
+     * @param csd_1
+     */
+    public void onCallinitMediaCodec(String codecName, int width, int height, byte[] csd_0, byte[] csd_1) {
+        if (surface != null) {
+            try {
+                wlglSurfaceView.getWlRender().setRenderType(WLRender.RENDER_MEDIACODEC);
+
+                String mime = WLVideoSupportUtil.findVideoCodecName(codecName);
+                mediaFormat = MediaFormat.createVideoFormat(mime, width, height);
+                mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
+                mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd_0));
+                mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd_1));
+                MyLog.i(mediaFormat.toString());
+                mediaCodec = MediaCodec.createDecoderByType(mime);
+
+                info = new MediaCodec.BufferInfo();
+                mediaCodec.configure(mediaFormat, surface, null, 0);
+                mediaCodec.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            MyLog.i("onCallinitMediaCodec end");
+        } else {
+            if (onErrorListener != null) {
+                onErrorListener.onError(2001, "surface is null");
+            }
+        }
+    }
+
+    public void onCallDecodeVPacket(int datasize, byte[] data) {
+        MyLog.i("onCallDecodeVPacket in");
+        if ((surface != null) && (datasize > 0) && (data != null) && (mediaCodec != null)) {
+            int inputBufferIndex = mediaCodec.dequeueInputBuffer(10);
+            if (inputBufferIndex >= 0) {
+                ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[inputBufferIndex];
+                byteBuffer.clear();
+                byteBuffer.put(data);
+                mediaCodec.queueInputBuffer(inputBufferIndex, 0, datasize, 0, 0);
+            }
+            int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+            while (outputBufferIndex >= 0) {
+                mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+                MyLog.i("mediaCodec releaseOutputBuffer");
+            }
+            MyLog.i("onCallDecodeVPacket out");
+        }
+    }
+
+    private void releaseVMediaCodec() {
+        if (mediaCodec != null) {
+            mediaCodec.flush();
+            mediaCodec.stop();
+            mediaCodec.release();
+
+            mediaCodec = null;
+            mediaFormat = null;
+            info = null;
+        }
     }
 
     public void pause() {
@@ -248,6 +337,8 @@ public class WLPlayer {
         duration = -1;
 
         stopRecord();
+
+        releaseVMediaCodec();
 
         new Thread(new Runnable() {
             @Override

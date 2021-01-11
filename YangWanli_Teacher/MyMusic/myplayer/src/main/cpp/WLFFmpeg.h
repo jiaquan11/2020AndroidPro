@@ -69,6 +69,8 @@ public:
     pthread_mutex_t seek_mutex;
 
     bool supportMediaCodec = false;
+
+    const AVBitStreamFilter * bsFilter = NULL;
 };
 
 #endif //MYMUSIC_WLFFMPEG_H

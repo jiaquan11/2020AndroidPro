@@ -29,7 +29,7 @@ public:
 
     void release();
 
-    double getFrameDiffTime(AVFrame *avFrame);
+    double getFrameDiffTime(AVFrame *avFrame, AVPacket* avPacket);
 
     double getDelayTime(double diff);
 
@@ -52,6 +52,7 @@ public:
     pthread_mutex_t codecMutex;
 
     int codectype = CODEC_YUV;
+    AVBSFContext *abs_ctx = NULL;
 };
 
 #endif //MYMUSIC_WLVIDEO_H

@@ -39,6 +39,10 @@ public:
 
     bool onCallIsSupportVideo(int type, const char* ffcodecname);
 
+    void onCallinitMediaCodec(int type, const char* mime, int width, int height, int csd0_size, int csd1_size, uint8_t* csd_0, uint8_t* csd_1);
+
+    void onCallDecodeVPacket(int type, int datasize, uint8_t* data);
+
 public:
     JavaVM *javaVm = NULL;
     JNIEnv *jniEnv = NULL;
@@ -55,5 +59,7 @@ public:
     jmethodID jmid_pcmrate;
     jmethodID jmid_renderyuv;
     jmethodID jmid_supportvideo;
+    jmethodID jmid_initmediacodec;
+    jmethodID jmid_decodeVPacket;
 };
 #endif //MYMUSIC_CALLJAVA_H

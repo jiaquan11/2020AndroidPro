@@ -7,7 +7,7 @@ WLFFmpeg::WLFFmpeg(WLPlayStatus *playStatus, CallJava *calljava, const char *url
     this->callJava = calljava;
     strcpy(this->url, url);
     this->playStatus = playStatus;
-
+    isExit = false;
     pthread_mutex_init(&init_mutex, NULL);
     pthread_mutex_init(&seek_mutex, NULL);
 }
@@ -18,7 +18,7 @@ WLFFmpeg::~WLFFmpeg() {
 }
 
 void *decodeFFmpeg(void *data) {
-    WLFFmpeg *wlfFmpeg = (WLFFmpeg * )(data);
+    WLFFmpeg *wlfFmpeg = (WLFFmpeg *) (data);
     wlfFmpeg->decodeFFmpegThread();
 
     pthread_exit(&wlfFmpeg->decodeThread);
@@ -33,7 +33,7 @@ void WLFFmpeg::prepared() {
  * 会立即退出加载，返回失败
  * */
 int avformat_callback(void *ctx) {
-    WLFFmpeg *wlfFmpeg = (WLFFmpeg * )(ctx);
+    WLFFmpeg *wlfFmpeg = (WLFFmpeg *) (ctx);
     if (wlfFmpeg->playStatus->isExit) {
         return AVERROR_EOF;
     }
@@ -92,7 +92,7 @@ void WLFFmpeg::decodeFFmpegThread() {
 
                 int num = pFormatCtx->streams[i]->avg_frame_rate.num;
                 int den = pFormatCtx->streams[i]->avg_frame_rate.den;
-                if ((num != 0) && (den != 0)){
+                if ((num != 0) && (den != 0)) {
                     int fps = num / den;//比如25/1
                     pWLVideo->defaultDelayTime = 1.0 / fps;
                     LOGI("fps %d, defaultDelayTime: %lf", fps, pWLVideo->defaultDelayTime);
@@ -101,18 +101,18 @@ void WLFFmpeg::decodeFFmpegThread() {
         }
     }
 
-    if (pWLAudio != NULL){
+    if (pWLAudio != NULL) {
         getCodecContext(pWLAudio->codecPar, &pWLAudio->avCodecContext);
     }
 
-    if (pWLVideo != NULL){
+    if (pWLVideo != NULL) {
         getCodecContext(pWLVideo->codecPar, &pWLVideo->avCodecContext);
     }
 
-    if (callJava != NULL){
-        if ((playStatus != NULL) && !playStatus->isExit){
+    if (callJava != NULL) {
+        if ((playStatus != NULL) && !playStatus->isExit) {
             callJava->onCallPrepared(CHILD_THREAD);
-        }else{
+        } else {
             isExit = true;
         }
     }
@@ -129,19 +129,53 @@ void WLFFmpeg::start() {
         return;
     }
 
-    if (pWLVideo == NULL){//目前要求必须要有视频流
+    if (pWLVideo == NULL) {//目前要求必须要有视频流
         return;
     }
     supportMediaCodec = false;
     pWLVideo->audio = pWLAudio;
 
-    const char* codecName = ((const AVCodec*)pWLVideo->avCodecContext->codec)->name;
-    if (supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName)){
+    const char *codecName = ((const AVCodec *) pWLVideo->avCodecContext->codec)->name;
+    if (supportMediaCodec = callJava->onCallIsSupportVideo(CHILD_THREAD, codecName)) {
         LOGI("当前设备支持硬解码当前视频!!!");
+        if (strcasecmp(codecName, "h264") == 0) {
+            bsFilter = av_bsf_get_by_name("h264_mp4toannexb");
+        } else if (strcasecmp(codecName, "h265") == 0) {
+            bsFilter = av_bsf_get_by_name("hevc_mp4toannexb");
+        }
+        if (bsFilter == NULL) {
+            goto end;
+        }
+        if (av_bsf_alloc(bsFilter, &pWLVideo->abs_ctx) != 0) {
+            supportMediaCodec = false;
+            goto end;
+        }
+        if (avcodec_parameters_copy(pWLVideo->abs_ctx->par_in, pWLVideo->codecPar) < 0) {
+            supportMediaCodec = false;
+            av_bsf_free(&pWLVideo->abs_ctx);
+            pWLVideo->abs_ctx = NULL;
+            goto end;
+        }
+        if (av_bsf_init(pWLVideo->abs_ctx) != 0) {
+            supportMediaCodec = false;
+            av_bsf_free(&pWLVideo->abs_ctx);
+            pWLVideo->abs_ctx = NULL;
+            goto end;
+        }
+        pWLVideo->abs_ctx->time_base_in = pWLVideo->time_base;
     }
 
-    if (supportMediaCodec){
+    end:
+    if (supportMediaCodec) {
         pWLVideo->codectype = CODEC_MEDIACODEC;
+        pWLVideo->callJava->onCallinitMediaCodec(CHILD_THREAD,
+                                                 codecName,
+                                                 pWLVideo->avCodecContext->width,
+                                                 pWLVideo->avCodecContext->height,
+                                                 pWLVideo->avCodecContext->extradata_size,
+                                                 pWLVideo->avCodecContext->extradata_size,
+                                                 pWLVideo->avCodecContext->extradata,
+                                                 pWLVideo->avCodecContext->extradata);
     }
 
     pWLAudio->play();
@@ -158,9 +192,8 @@ void WLFFmpeg::start() {
         /*对于ape音频文件，一个音频packet可以解码多个frame，因此需要减少缓冲区packet的个数，
          * 避免seek时卡顿,但是对于一个packet对应一个frame的音频文件，这里要改为40
          */
-        if (pWLAudio->queue->getQueueSize() > 100) {
+        if (pWLAudio->queue->getQueueSize() > 40) {
             av_usleep(100 * 1000);//100毫秒
-            LOGI("now is getQueueSize > 100 continue");
             continue;
         }
 
@@ -176,24 +209,22 @@ void WLFFmpeg::start() {
 //                    LOGI("read audio the packet: %d", count);
                 }
                 pWLAudio->queue->putAVPacket(avPacket);
-            }else if (avPacket->stream_index == pWLVideo->streamIndex){
+            } else if (avPacket->stream_index == pWLVideo->streamIndex) {
                 pWLVideo->queue->putAVPacket(avPacket);
-            }else {//非音频packet
+            } else {//非音频packet
                 av_packet_free(&avPacket);
                 av_free(avPacket);
-                avPacket = NULL;
             }
         } else {
             av_packet_free(&avPacket);
             av_free(avPacket);
-            avPacket = NULL;
             while ((playStatus != NULL) && !playStatus->isExit) {
                 if (pWLAudio->queue->getQueueSize() > 0) {
                     av_usleep(100 * 1000);//100毫秒
                     continue;
                 } else {
-                    if (!playStatus->seek){
-                        av_usleep(500 * 1000);
+                    if (!playStatus->seek) {
+                        av_usleep(100 * 1000);
                         playStatus->isExit = true;
                         LOGI("playStatus isExit set true");
                     }
@@ -215,7 +246,7 @@ void WLFFmpeg::start() {
 }
 
 void WLFFmpeg::pause() {
-    if (playStatus != NULL){
+    if (playStatus != NULL) {
         playStatus->pause = true;
     }
 
@@ -225,7 +256,7 @@ void WLFFmpeg::pause() {
 }
 
 void WLFFmpeg::resume() {
-    if (playStatus != NULL){
+    if (playStatus != NULL) {
         playStatus->pause = false;
     }
 
@@ -254,7 +285,7 @@ void WLFFmpeg::seek(int64_t secds) {
             LOGI("WLFFmpeg pWLAudio seek!!! ");
         }
 
-        if (pWLVideo != NULL){
+        if (pWLVideo != NULL) {
             pWLVideo->queue->clearAvPacket();
             pWLVideo->clock = 0;
             pthread_mutex_lock(&pWLVideo->codecMutex);
@@ -295,7 +326,7 @@ void WLFFmpeg::release() {
         LOGI("WLFFmpeg release pWLAudio");
     }
 
-    if (pWLVideo != NULL){
+    if (pWLVideo != NULL) {
         pWLVideo->release();
         delete pWLVideo;
         pWLVideo = NULL;

@@ -52,8 +52,24 @@ void *playVideo(void *data) {
 
         if (video->codectype == CODEC_MEDIACODEC) {
             LOGI("硬解码视频");
-            av_packet_free(&avPacket);
-            av_free(avPacket);
+            if (av_bsf_send_packet(video->abs_ctx, avPacket) != 0){
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                avPacket = NULL;
+                continue;
+            }
+            while (av_bsf_receive_packet(video->abs_ctx, avPacket) == 0){
+//                LOGI("av_bsf_receive_packet");
+                double diff = video->getFrameDiffTime(NULL, avPacket);
+//                LOGI("diff is %lf", diff);
+
+                av_usleep(video->getDelayTime(diff) * 1000000);
+
+                video->callJava->onCallDecodeVPacket(CHILD_THREAD, avPacket->size, avPacket->data);
+                av_packet_free(&avPacket);
+                av_free(avPacket);
+                continue;
+            }
             avPacket = NULL;
         } else if (video->codectype == CODEC_YUV) {
             LOGI("软解码视频");
@@ -82,7 +98,7 @@ void *playVideo(void *data) {
             LOGI("子线程解码一个AVFrame成功!");
             if (avFrame->format == AV_PIX_FMT_YUV420P) {
                 LOGI("当前视频是YUV420P格式!");
-                double diff = video->getFrameDiffTime(avFrame);
+                double diff = video->getFrameDiffTime(avFrame, NULL);
                 LOGI("diff is %lf", diff);
 
                 av_usleep(video->getDelayTime(diff) * 1000000);
@@ -135,7 +151,7 @@ void *playVideo(void *data) {
                           pFrameYUV420p->data,
                           pFrameYUV420p->linesize);
 
-                double diff = video->getFrameDiffTime(pFrameYUV420p);
+                double diff = video->getFrameDiffTime(pFrameYUV420p, NULL);
                 LOGI("diff2222 is %lf", diff);
 
                 av_usleep(video->getDelayTime(diff) * 1000000);
@@ -178,6 +194,11 @@ void WLVideo::release() {
         queue = NULL;
     }
 
+    if (abs_ctx != NULL){
+        av_bsf_free(&abs_ctx);
+        abs_ctx = NULL;
+    }
+
     if (avCodecContext != NULL) {
         pthread_mutex_lock(&codecMutex);
         avcodec_close(avCodecContext);
@@ -195,8 +216,15 @@ void WLVideo::release() {
     }
 }
 
-double WLVideo::getFrameDiffTime(AVFrame *avFrame) {
-    double pts = av_frame_get_best_effort_timestamp(avFrame);
+double WLVideo::getFrameDiffTime(AVFrame *avFrame, AVPacket* avPacket) {
+    double pts = 0;
+    if (avFrame != NULL){
+        pts = av_frame_get_best_effort_timestamp(avFrame);
+    }
+    if (avPacket != NULL){
+        pts = avPacket->pts;
+    }
+
     if (pts == AV_NOPTS_VALUE) {
         pts = 0;
     }
@@ -207,6 +235,7 @@ double WLVideo::getFrameDiffTime(AVFrame *avFrame) {
 
     double diff = audio->clock - clock;
 
+    LOGI("audio->clock: %lf, video clock: %lf, diff: %lf", audio->clock, clock, diff);
     return diff;
 }
 
