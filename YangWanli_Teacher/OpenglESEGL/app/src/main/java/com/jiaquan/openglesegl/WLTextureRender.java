@@ -55,6 +55,8 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
 
     private Bitmap bitmap = null;
 
+    private int vboId;
+
     public WLTextureRender(Context context) {
         this.context = context;
 
@@ -82,6 +84,27 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             vPosition = GLES20.glGetAttribLocation(program, "v_Position");
             fPosition = GLES20.glGetAttribLocation(program, "f_Position");
             sTexture = GLES20.glGetUniformLocation(program, "sTexture");
+
+////////////////////////////////////////////////////////////////////////////////
+            //VBO
+            //1.创建VBO
+            int[] vbos = new int[1];
+            GLES20.glGenBuffers(1, vbos, 0);
+            vboId = vbos[0];
+            //2.绑定VBO
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+            //3.分配VBO需要的缓存大小
+            GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.length * 4 + textureData.length * 4, null,
+                    GLES20.GL_STATIC_DRAW);
+
+            //4.为VBO设置顶点数据的值
+            GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, vertexData.length * 4, vertexBuffer);
+            GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, vertexData.length * 4, textureData.length * 4, textureBuffer);
+
+            //5.解绑VBO
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+            Log.i("WLTextureRender", "vertexData.length: " + vertexData.length);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             int[] textureIds = new int[1];
             GLES20.glGenTextures(1, textureIds, 0);
@@ -125,14 +148,18 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
         GLES20.glEnableVertexAttribArray(vPosition);
-        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
+//        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
+        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 0);
 
         GLES20.glEnableVertexAttribArray(fPosition);
-        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
+//        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
+        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, vertexData.length*4);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
     }
 }
