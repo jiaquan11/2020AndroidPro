@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -33,8 +34,12 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             0f, 0f,
             1f, 0f,
             0f, 1f,
-            1f, 1f
+            1f, 1f,
 
+//            0f, 1f,
+//            1f, 1f,
+//            0f, 0f,
+//            1f, 0f
             //纹理图像旋转操作
 //            1f, 0f,
 //            0f, 0f,
@@ -51,6 +56,8 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
     private int fPosition;
     private int sTexture;
     private int textureid;
+    private int umatrix;
+    private float[] matrix = new float[16];
 
     private int vboId;
     private int fboId;
@@ -58,6 +65,9 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
     private int imgTextureId;
 
     private FboRender fboRender;
+
+    private int viewWidth = 0;
+    private int viewHeight = 0;
 
     public WLTextureRender(Context context) {
         this.context = context;
@@ -83,13 +93,14 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
     public void onSurfaceCreated() {
         fboRender.onCreate();
 
-        String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader);
+        String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader_m);
         String fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader);
         program = WLShaderUtil.createProgram(vertexSource, fragmentSource);
         if (program > 0) {
             vPosition = GLES20.glGetAttribLocation(program, "v_Position");
             fPosition = GLES20.glGetAttribLocation(program, "f_Position");
             sTexture = GLES20.glGetUniformLocation(program, "sTexture");
+            umatrix = GLES20.glGetUniformLocation(program, "u_Matrix");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
             //VBO
@@ -138,7 +149,7 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
             //3.设置FBO分配内存大小
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 1080, 2000, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 2143, 856, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
             //////////////////////////////////////////////
 
             //4.将纹理绑定到FBO
@@ -161,7 +172,6 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             //解绑FBO
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
-
             imgTextureId = loadTexture(R.drawable.androids);
         }
     }
@@ -172,6 +182,12 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         GLES20.glViewport(0, 0, width, height);
 
         fboRender.onChange(width, height);
+
+        if (width > height) {//横屏
+            Matrix.orthoM(matrix, 0, -width / ((height / 702f) * 526f), width / ((height / 702f) * 526f), -1f, 1f, -1f, 1f);
+        } else {//竖屏
+            Matrix.orthoM(matrix, 0, -1, 1, -height / ((width / 526f) * 702f), height / ((width / 526f) * 702f), -1f, 1f);
+        }
     }
 
     @Override
@@ -180,9 +196,11 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);//白色清屏
+        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);//hong色清屏  1.0f 1.0f 1.0f 1.0f表示白色 0.0f 0.0f 0.0f 1.0f表示黑色
 
         GLES20.glUseProgram(program);
+
+        GLES20.glUniformMatrix4fv(umatrix, 1, false, matrix, 0);
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, imgTextureId);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -205,9 +223,9 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         //解绑VBO
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
-        //解绑FBO
+//        //解绑FBO
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-
+//
         //解绑FBO后，会将FBO已绘制的结果输出到在之前已绑定的纹理id:textureid,并将整个结果进行窗口绘制出来
         fboRender.onDraw(textureid);
     }
