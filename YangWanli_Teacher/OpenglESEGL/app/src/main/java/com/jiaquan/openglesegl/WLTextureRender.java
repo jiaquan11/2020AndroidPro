@@ -31,15 +31,15 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
     };
 
     private final float[] fragmentData = {//FBO坐标
-            0f, 0f,
-            1f, 0f,
-            0f, 1f,
-            1f, 1f,
-
+//            0f, 0f,
+//            1f, 0f,
 //            0f, 1f,
 //            1f, 1f,
-//            0f, 0f,
-//            1f, 0f
+
+            0f, 1f,
+            1f, 1f,
+            0f, 0f,
+            1f, 0f
             //纹理图像旋转操作
 //            1f, 0f,
 //            0f, 0f,
@@ -188,6 +188,9 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         } else {//竖屏
             Matrix.orthoM(matrix, 0, -1, 1, -height / ((width / 526f) * 702f), height / ((width / 526f) * 702f), -1f, 1f);
         }
+
+        Matrix.rotateM(matrix, 0, 180, 1, 0, 0);//沿着X轴旋转180度，即上下翻转
+        Matrix.rotateM(matrix, 0, 180, 0, 0, 1);//沿着Z轴旋转180度，即逆时针旋转180度
     }
 
     @Override
