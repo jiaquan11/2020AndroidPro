@@ -11,8 +11,8 @@ import java.lang.ref.WeakReference;
 import javax.microedition.khronos.egl.EGLContext;
 
 public abstract class WLEGLSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
-    private Surface surface;
-    private EGLContext eglContext;
+    private Surface surface = null;
+    private EGLContext eglContext = null;
 
     private WLEGLThread wleglThread;
     private WLGLRender wlglRender;

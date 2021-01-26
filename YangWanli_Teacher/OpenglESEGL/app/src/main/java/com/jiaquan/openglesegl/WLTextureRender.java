@@ -31,12 +31,12 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
     };
 
     private final float[] fragmentData = {//FBO坐标
-//            0f, 0f,
+//            0f, 0f,//FBO坐标
 //            1f, 0f,
 //            0f, 1f,
 //            1f, 1f,
 
-            0f, 1f,
+            0f, 1f,//纹理坐标
             1f, 1f,
             0f, 0f,
             1f, 0f
@@ -66,8 +66,17 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
 
     private FboRender fboRender;
 
-    private int viewWidth = 0;
-    private int viewHeight = 0;
+    private int width;
+    private int height;
+
+    private OnRenderCreateListener onRenderCreateListener = null;
+    public void setOnRenderCreateListener(OnRenderCreateListener onRenderCreateListener) {
+        this.onRenderCreateListener = onRenderCreateListener;
+    }
+
+    public interface OnRenderCreateListener{
+        void onCreate(int textid);
+    }
 
     public WLTextureRender(Context context) {
         this.context = context;
@@ -149,7 +158,7 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
             //3.设置FBO分配内存大小
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 2143, 856, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 1080, 2000, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
             //////////////////////////////////////////////
 
             //4.将纹理绑定到FBO
@@ -173,15 +182,25 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
             imgTextureId = loadTexture(R.drawable.androids);
+
+            if (onRenderCreateListener != null){
+                onRenderCreateListener.onCreate(textureid);
+            }
         }
     }
 
     @Override
     public void onSurfaceChanged(int width, int height) {
         Log.i("WLTextureRender", "onSurfaceChanged width: " + width + " height: " + height);
-        GLES20.glViewport(0, 0, width, height);
+//        GLES20.glViewport(0, 0, width, height);
+//
+//        fboRender.onChange(width, height);
 
-        fboRender.onChange(width, height);
+        this.width = width;
+        this.height = height;
+
+        width = 1080;
+        height = 2000;
 
         if (width > height) {//横屏
             Matrix.orthoM(matrix, 0, -width / ((height / 702f) * 526f), width / ((height / 702f) * 526f), -1f, 1f, -1f, 1f);
@@ -190,11 +209,13 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         }
 
         Matrix.rotateM(matrix, 0, 180, 1, 0, 0);//沿着X轴旋转180度，即上下翻转
-        Matrix.rotateM(matrix, 0, 180, 0, 0, 1);//沿着Z轴旋转180度，即逆时针旋转180度
+//        Matrix.rotateM(matrix, 0, 180, 0, 0, 1);//沿着Z轴旋转180度，即逆时针旋转180度
     }
 
     @Override
     public void onDrawFrame() {
+        GLES20.glViewport(0, 0, 1080, 2000);
+
         //绑定FBO
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
 
@@ -225,6 +246,8 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         //解绑VBO
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        GLES20.glViewport(0, 0, width, height);
 
 //        //解绑FBO
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);

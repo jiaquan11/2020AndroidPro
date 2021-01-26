@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class FboRender {
+public class WLMutiRender implements WLEGLSurfaceView.WLGLRender {
     private Context context;
 
     private final float[] vertexData = {//顶点坐标
@@ -49,7 +49,16 @@ public class FboRender {
 
     private int vboId;
 
-    public FboRender(Context context) {
+    int index;
+
+    private int textureId;
+
+    public void setTextureId(int textureId, int index) {
+        this.textureId = textureId;
+        this.index = index;
+    }
+
+    public WLMutiRender(Context context) {
         this.context = context;
 
         vertexBuffer = ByteBuffer.allocateDirect(vertexData.length * 4)
@@ -67,9 +76,21 @@ public class FboRender {
         fragmentBuffer.position(0);
     }
 
-    public void onCreate() {
+    @Override
+    public void onSurfaceCreated() {
         String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader);
         String fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader);
+
+        if (index == 0) {
+            fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader1);
+            Log.i("WLMutiRender", "WLMutiRender index 0");
+        } else if (index == 1) {
+            fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader2);
+            Log.i("WLMutiRender", "WLMutiRender index 1");
+        } else if (index == 2) {
+            fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader3);
+            Log.i("WLMutiRender", "WLMutiRender index 2");
+        }
 
         program = WLShaderUtil.createProgram(vertexSource, fragmentSource);
         if (program > 0) {
@@ -100,11 +121,13 @@ public class FboRender {
         }
     }
 
-    public void onChange(int width, int height) {
+    @Override
+    public void onSurfaceChanged(int width, int height) {
         GLES20.glViewport(0, 0, width, height);
     }
 
-    public void onDraw(int textureId) {
+    @Override
+    public void onDrawFrame() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);//白色清屏
 

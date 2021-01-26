@@ -1,6 +1,7 @@
 package com.jiaquan.openglesegl;
 
 import android.opengl.EGL14;
+import android.util.Log;
 import android.view.Surface;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -63,6 +64,7 @@ public class EglHelper {
                 EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL10.EGL_NONE};
 
+        Log.i("EglHelper", "eglContext: " + eglContext);
         if (eglContext != null) {
             mEglContext = mEgl.eglCreateContext(mEglDisplay, configs[0], eglContext, attrib_list);
         } else {
