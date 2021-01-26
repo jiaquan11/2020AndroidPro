@@ -27,7 +27,12 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             -1f, -1f,
             1f, -1f,
             -1f, 1f,
-            1f, 1f
+            1f, 1f,
+
+            -0.5f, -0.5f,
+            0.5f, -0.5f,
+            -0.5f, 0.5f,
+            0.5f, 0.5f
     };
 
     private final float[] fragmentData = {//FBO坐标
@@ -63,6 +68,7 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
     private int fboId;
 
     private int imgTextureId;
+    private int imgTextureId2;
 
     private FboRender fboRender;
 
@@ -182,6 +188,7 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
             imgTextureId = loadTexture(R.drawable.androids);
+            imgTextureId2 = loadTexture(R.drawable.ghnl);
 
             if (onRenderCreateListener != null){
                 onRenderCreateListener.onCreate(textureid);
@@ -226,12 +233,14 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
 
         GLES20.glUniformMatrix4fv(umatrix, 1, false, matrix, 0);
 
+        //绑定使用VBO
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+
+        //绘制第一张纹理
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, imgTextureId);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glUniform1i(sTexture, 0);
 
-        //绑定使用VBO
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
         GLES20.glEnableVertexAttribArray(vPosition);
 //        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
         GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 0);
@@ -241,6 +250,22 @@ public class WLTextureRender implements WLEGLSurfaceView.WLGLRender {
         GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, vertexData.length * 4);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+//////////////////////////////////////////////////////////////////////////////////////////////////
+        //绘制第二张纹理
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, imgTextureId2);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glUniform1i(sTexture, 0);
+
+        GLES20.glEnableVertexAttribArray(vPosition);
+//        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
+        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 32);
+
+        GLES20.glEnableVertexAttribArray(fPosition);
+//        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
+        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, vertexData.length * 4);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+/////////////////////////////////////////////////////////////////////////////////////////////
 
         //解绑纹理
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);

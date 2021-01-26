@@ -1,7 +1,10 @@
 package com.jiaquan.openglesegl;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -23,7 +26,11 @@ public class WLMutiRender implements WLEGLSurfaceView.WLGLRender {
             -1f, -1f,
             1f, -1f,
             -1f, 1f,
-            1f, 1f
+            1f, 1f,
+
+            -0.25f, -0.25f,
+            0.25f, -0.25f,
+            0f, 0.15f
     };
 
     private final float[] fragmentData = {//纹理坐标
@@ -52,6 +59,7 @@ public class WLMutiRender implements WLEGLSurfaceView.WLGLRender {
     int index;
 
     private int textureId;
+    private int imgTextureId;
 
     public void setTextureId(int textureId, int index) {
         this.textureId = textureId;
@@ -118,6 +126,8 @@ public class WLMutiRender implements WLEGLSurfaceView.WLGLRender {
             GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
             Log.i("WLTextureRender", "vertexData.length: " + vertexData.length);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            imgTextureId = loadTexture(R.drawable.girl);
         }
     }
 
@@ -133,12 +143,14 @@ public class WLMutiRender implements WLEGLSurfaceView.WLGLRender {
 
         GLES20.glUseProgram(program);
 
+        //绑定使用VBO
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+
+        //////////////////////////////////////////////////////////////////////////
+        //第一个纹理绘制
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glUniform1i(sTexture, 0);
-
-        //绑定使用VBO
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
 
         GLES20.glEnableVertexAttribArray(vPosition);
 //        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
@@ -150,9 +162,44 @@ public class WLMutiRender implements WLEGLSurfaceView.WLGLRender {
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
+        //////////////////////////////////////////////////////////////////////////
+        //第二个纹理绘制
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, imgTextureId);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glUniform1i(sTexture, 0);
+
+        GLES20.glEnableVertexAttribArray(vPosition);
+//        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
+        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 32);
+
+        GLES20.glEnableVertexAttribArray(fPosition);
+//        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
+        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, vertexData.length * 4);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 3);
+        ////////////////////////////////////////////////////////////////////////////////////////
+
         //解绑纹理id
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         //解绑VBO
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+    }
+
+    private int loadTexture(int src) {
+        int[] textureIds = new int[1];
+        GLES20.glGenTextures(1, textureIds, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureIds[0]);
+
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), src);
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+
+        return textureIds[0];
     }
 }
