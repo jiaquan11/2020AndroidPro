@@ -247,7 +247,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
         //解绑FBO
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
-        //
+        //将FBO输出纹理id绘制到窗口
         wlCameraFboRender.onDraw(fboTextureid);
     }
 

@@ -37,8 +37,8 @@ public class WLCameraView extends WLEGLSurfaceView {
         });
     }
 
-    public void onDestroy(){
-        if (wlCamera != null){
+    public void onDestroy() {
+        if (wlCamera != null) {
             wlCamera.stopPreview();
         }
     }
