@@ -20,6 +20,7 @@
         </activity>
 
         <activity android:name=".CameraActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppThemeFullScreen"
             />
     </application>

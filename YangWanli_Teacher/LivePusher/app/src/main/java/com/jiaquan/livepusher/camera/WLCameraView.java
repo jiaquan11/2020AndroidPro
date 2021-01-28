@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Surface;
+import android.view.WindowManager;
 
 import com.jiaquan.livepusher.egl.WLEGLSurfaceView;
 
@@ -25,9 +28,11 @@ public class WLCameraView extends WLEGLSurfaceView {
         super(context, attrs, defStyleAttr);
 
         wlCameraRender = new WLCameraRender(context);
-        wlCamera = new WLCamera();
+        wlCamera = new WLCamera(context);
 
         setRender(wlCameraRender);
+
+        previewAngle(context);
 
         wlCameraRender.setOnSurfaceCreateListener(new WLCameraRender.OnSurfaceCreateListener() {
             @Override
@@ -40,6 +45,50 @@ public class WLCameraView extends WLEGLSurfaceView {
     public void onDestroy() {
         if (wlCamera != null) {
             wlCamera.stopPreview();
+        }
+    }
+
+    public void previewAngle(Context context){
+        int angle = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+        wlCameraRender.resetMatrix();
+
+        Log.i("WLCameraView", "angle is: " + angle);
+        switch (angle){
+            case Surface.ROTATION_0:
+                if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    wlCameraRender.setAngle(90, 0, 0, 1);//先旋转Z轴
+                    wlCameraRender.setAngle(180, 1, 0, 0);//再旋转X轴
+                }else{
+                    wlCameraRender.setAngle(90, 0, 0, 1);
+                }
+
+                break;
+
+            case Surface.ROTATION_90:
+                if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    wlCameraRender.setAngle(180, 0, 0, 1);
+                    wlCameraRender.setAngle(180, 0, 1, 0);
+                }else{
+                    wlCameraRender.setAngle(90, 0, 0, 1);
+                }
+                break;
+
+            case Surface.ROTATION_180:
+                if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    wlCameraRender.setAngle(90, 0, 0, 1);
+                    wlCameraRender.setAngle(180, 0, 1, 0);
+                }else{
+                    wlCameraRender.setAngle(-90, 0, 0, 1);
+                }
+                break;
+
+            case Surface.ROTATION_270:
+                if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    wlCameraRender.setAngle(180, 0, 1, 0);
+                }else{
+                    wlCameraRender.setAngle(0, 0, 0, 1);
+                }
+                break;
         }
     }
 }

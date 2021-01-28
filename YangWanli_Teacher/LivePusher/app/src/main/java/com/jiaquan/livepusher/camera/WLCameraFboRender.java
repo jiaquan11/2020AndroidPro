@@ -2,6 +2,7 @@ package com.jiaquan.livepusher.camera;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.jiaquan.livepusher.R;
@@ -71,7 +72,7 @@ public class WLCameraFboRender {
     }
 
     public void onCreate() {
-        String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader);
+        String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader_screen);
         String fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader_screen);
 
         program = WLShaderUtil.createProgram(vertexSource, fragmentSource);
