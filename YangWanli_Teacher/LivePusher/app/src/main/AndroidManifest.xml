@@ -24,5 +24,4 @@
             android:theme="@style/AppThemeFullScreen"
             />
     </application>
-
 </manifest>

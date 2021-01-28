@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 
 import com.jiaquan.livepusher.util.DisplayUtil;
 
@@ -20,6 +21,7 @@ public class WLCamera {
     public WLCamera(Context context) {
         this.width = DisplayUtil.getScreenWidth(context);
         this.height = DisplayUtil.getScreenHeight(context);
+        Log.i("WLCamera", "WLCamera width: " + width + " height: " + height);
     }
 
     public void initCamera(SurfaceTexture surfaceTexture, int cameraId) {
@@ -39,8 +41,10 @@ public class WLCamera {
 
             Camera.Size size = getFitSize(parameters.getSupportedPictureSizes());
             parameters.setPictureSize(size.width, size.height);
+            Log.i("WLCamera", "setPictureSize width: " + size.width + " height: " + size.height);
             size = getFitSize(parameters.getSupportedPreviewSizes());
             parameters.setPreviewSize(size.width, size.height);
+            Log.i("WLCamera", "setPreviewSize width: " + size.width + " height: " + size.height);
 
             camera.setParameters(parameters);
             camera.startPreview();
@@ -49,35 +53,36 @@ public class WLCamera {
         }
     }
 
-    public void stopPreview(){
-        if (camera != null){
+    public void stopPreview() {
+        if (camera != null) {
             camera.stopPreview();
             camera.release();
             camera = null;
         }
     }
 
-    public void changeCamera(int cameraId){
-        if (camera != null){
+    public void changeCamera(int cameraId) {
+        if (camera != null) {
             stopPreview();
         }
 
         setCameraParam(cameraId);
     }
 
-    private Camera.Size getFitSize(List<Camera.Size> sizes){
-        if (width < height){
+    private Camera.Size getFitSize(List<Camera.Size> sizes) {
+        if (width < height) {
             int t = height;
             height = width;
             width = t;
         }
 
-        for (Camera.Size size : sizes){
-            if (1.0f * size.width / size.height == 1.0f * width / height){
+        for (Camera.Size size : sizes) {
+            if ((1.0f * size.width / size.height) == (1.0f * width / height)) {
                 return size;
             }
         }
 
+        Log.i("WLCamera", "getFitSize sizes.get(0) width: " + sizes.get(0).width + " height: " + sizes.get(0).height);
         return sizes.get(0);
     }
 }

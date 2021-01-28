@@ -96,6 +96,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
     public WLCameraRender(Context context) {
         this.context = context;
 
+        //获取到屏幕宽高
         screenWidth = DisplayUtil.getScreenWidth(context);
         screenHeight = DisplayUtil.getScreenHeight(context);
 
@@ -118,6 +119,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
 
     @Override
     public void onSurfaceCreated() {
+        Log.i("WLCameraRender", "onSurfaceCreated");
         wlCameraFboRender.onCreate();
 
         String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader);
@@ -232,6 +234,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
 
     @Override
     public void onSurfaceChanged(int width, int height) {
+        Log.i("WLCameraRender", "onSurfaceChanged width: " + width + " height: " + height);
 //        wlCameraFboRender.onChange(width, height);
 //
 //        GLES20.glViewport(0, 0, width, height);
@@ -250,6 +253,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
 
         GLES20.glUseProgram(program);
 
+        //在FBO中使用屏幕宽高进行渲染
         GLES20.glViewport(0, 0, screenWidth, screenHeight);
 
         GLES20.glUniformMatrix4fv(umatrix, 1, false, matrix, 0);
@@ -278,6 +282,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
         //解绑FBO
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
+        //FBO处理完成后，绘制到窗口时，使用实际的窗口大小进行显示
         wlCameraFboRender.onChange(width, height);
         //将FBO输出纹理id绘制到窗口
         wlCameraFboRender.onDraw(fboTextureid);
