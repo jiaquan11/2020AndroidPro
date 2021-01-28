@@ -63,7 +63,6 @@ public class WLCameraView extends WLEGLSurfaceView {
                 } else {
                     wlCameraRender.setAngle(90, 0, 0, 1);
                 }
-
                 break;
 
             case Surface.ROTATION_90:
