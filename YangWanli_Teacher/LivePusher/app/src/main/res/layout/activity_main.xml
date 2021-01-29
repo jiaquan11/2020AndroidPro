@@ -12,4 +12,10 @@
         android:text="摄像头预览"
         android:onClick="cameraPreview"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="视频编码录制"
+        android:onClick="videoRecord"/>
+
 </LinearLayout>

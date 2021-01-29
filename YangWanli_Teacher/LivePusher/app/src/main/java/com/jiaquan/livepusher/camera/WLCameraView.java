@@ -16,6 +16,8 @@ public class WLCameraView extends WLEGLSurfaceView {
 
     private int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
 
+    private int textureId = -1;
+
     public WLCameraView(Context context) {
         this(context, null);
     }
@@ -36,8 +38,9 @@ public class WLCameraView extends WLEGLSurfaceView {
 
         wlCameraRender.setOnSurfaceCreateListener(new WLCameraRender.OnSurfaceCreateListener() {
             @Override
-            public void onSurfaceCreate(SurfaceTexture surfaceTexture) {
+            public void onSurfaceCreate(SurfaceTexture surfaceTexture, int textureid) {
                 wlCamera.initCamera(surfaceTexture, cameraId);
+                textureId = textureid;
             }
         });
     }
@@ -91,5 +94,9 @@ public class WLCameraView extends WLEGLSurfaceView {
                 }
                 break;
         }
+    }
+
+    public int getTextureId(){
+        return textureId;
     }
 }

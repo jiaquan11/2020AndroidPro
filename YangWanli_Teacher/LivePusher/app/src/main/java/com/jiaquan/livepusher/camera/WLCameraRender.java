@@ -33,11 +33,6 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
             1f, -1f,
             -1f, 1f,
             1f, 1f,
-
-            -0.5f, -0.5f,
-            0.5f, -0.5f,
-            -0.5f, 0.5f,
-            0.5f, 0.5f
     };
 
     private final float[] fragmentData = {//FBO坐标
@@ -90,7 +85,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
     }
 
     public interface OnSurfaceCreateListener {
-        void onSurfaceCreate(SurfaceTexture surfaceTexture);
+        void onSurfaceCreate(SurfaceTexture surfaceTexture, int textureid);
     }
 
     public WLCameraRender(Context context) {
@@ -218,7 +213,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
             surfaceTexture.setOnFrameAvailableListener(this);
 
             if (onSurfaceCreateListener != null) {
-                onSurfaceCreateListener.onSurfaceCreate(surfaceTexture);
+                onSurfaceCreateListener.onSurfaceCreate(surfaceTexture, fboTextureid);
             }
             GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
         }
@@ -291,5 +286,9 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
 
+    }
+
+    public int getFboTextureid(){
+        return fboTextureid;
     }
 }
