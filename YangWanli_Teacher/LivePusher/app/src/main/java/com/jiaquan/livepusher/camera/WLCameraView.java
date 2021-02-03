@@ -40,7 +40,7 @@ public class WLCameraView extends WLEGLSurfaceView {
             @Override
             public void onSurfaceCreate(SurfaceTexture surfaceTexture, int textureid) {
                 wlCamera.initCamera(surfaceTexture, cameraId);
-                textureId = textureid;
+                textureId = textureid;//回调回来的FBO最终渲染的窗口纹理id
             }
         });
     }

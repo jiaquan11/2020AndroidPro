@@ -5,7 +5,6 @@ import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.jiaquan.livepusher.R;
@@ -219,11 +218,11 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
         }
     }
 
-    public void resetMatrix(){
+    public void resetMatrix() {
         Matrix.setIdentityM(matrix, 0);
     }
 
-    public void setAngle(float angle, float x, float y, float z){
+    public void setAngle(float angle, float x, float y, float z) {
         Matrix.rotateM(matrix, 0, angle, x, y, z);
     }
 
@@ -288,7 +287,7 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
 
     }
 
-    public int getFboTextureid(){
+    public int getFboTextureid() {
         return fboTextureid;
     }
 }

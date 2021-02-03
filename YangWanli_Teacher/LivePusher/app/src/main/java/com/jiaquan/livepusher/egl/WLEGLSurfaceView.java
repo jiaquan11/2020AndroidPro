@@ -128,7 +128,6 @@ public abstract class WLEGLSurfaceView extends SurfaceView implements SurfaceHol
             eglHelper = new EglHelper();
             eglHelper.initEgl(wleglSurfaceViewWeakReference.get().surface, wleglSurfaceViewWeakReference.get().eglContext);
 
-
             while (true) {
                 if (isExit) {
                     //释放资源

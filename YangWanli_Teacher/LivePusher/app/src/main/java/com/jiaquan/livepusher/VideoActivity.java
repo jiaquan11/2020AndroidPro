@@ -24,17 +24,19 @@ public class VideoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.avtivity_video);
+
         wlCameraView = findViewById(R.id.cameraview);
         btnRecord = findViewById(R.id.btn_record);
     }
 
     public void record(View view) {
         if (wlMediaEncoder == null) {
-            Log.i("VideoActivity", "textureId is " + wlCameraView.getTextureId());
+            Log.i("VideoActivity", "textureId is " + wlCameraView.getTextureId());//回调回来的FBO最终渲染的窗口纹理id
 
-            wlMediaEncoder = new WLMediaEncoder(this, wlCameraView.getTextureId());
+            wlMediaEncoder = new WLMediaEncoder(this, wlCameraView.getTextureId());//使用摄像头预览最终渲染到窗口的纹理进行编码
 //            String destPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/testziliao/yangwlVideo.mp4";
             String destPath = "/sdcard/testziliao/yangwlVideo.mp4";
+            //传入摄像头预览的eglContext给到编码器
             wlMediaEncoder.initEncoder(wlCameraView.getEglContext(), destPath, MediaFormat.MIMETYPE_VIDEO_AVC, 720, 1280);
             wlMediaEncoder.setOnMediaInfoListener(new WLBaseMediaEncoder.OnMediaInfoListener() {
                 @Override

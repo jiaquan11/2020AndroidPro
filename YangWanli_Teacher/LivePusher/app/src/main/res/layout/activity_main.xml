@@ -17,5 +17,4 @@
         android:layout_height="48dp"
         android:text="视频编码录制"
         android:onClick="videoRecord"/>
-
 </LinearLayout>

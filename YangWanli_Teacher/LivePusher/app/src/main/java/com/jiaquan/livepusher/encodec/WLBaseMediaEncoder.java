@@ -66,6 +66,7 @@ public abstract class WLBaseMediaEncoder {
         this.width = width;
         this.height = height;
         this.eglContext = eglContext;
+
         initMediaEncoder(savePath, mimeType, width, height);
     }
 
@@ -75,6 +76,7 @@ public abstract class WLBaseMediaEncoder {
             videoEncoderThread = new VideoEncoderThread(new WeakReference<WLBaseMediaEncoder>(this));
             wleglMediaThread.isCreate = true;
             wleglMediaThread.isChange = true;
+
             wleglMediaThread.start();
             videoEncoderThread.start();
         }
@@ -92,12 +94,14 @@ public abstract class WLBaseMediaEncoder {
     private void initMediaEncoder(String savePath, String mimeType, int width, int height) {
         try {
             mediaMuxer = new MediaMuxer(savePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+
             initVideoEncoder(mimeType, width, height);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    //初始化硬件编码器
     private void initVideoEncoder(String mimeType, int width, int height) {
         try {
             videoBufferInfo = new MediaCodec.BufferInfo();
@@ -110,6 +114,7 @@ public abstract class WLBaseMediaEncoder {
             videoEncoder = MediaCodec.createEncoderByType(mimeType);
             videoEncoder.configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
+            //编码配置后使用createInputSurface()为输入数据创建目标Surface
             surface = videoEncoder.createInputSurface();
         } catch (IOException e) {
             e.printStackTrace();
@@ -287,7 +292,7 @@ public abstract class WLBaseMediaEncoder {
 
                         mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferInfo);
                         if (encoder.get().onMediaInfoListener != null) {
-                            encoder.get().onMediaInfoListener.onMediaTime((int)(videoBufferInfo.presentationTimeUs / 1000000));
+                            encoder.get().onMediaInfoListener.onMediaTime((int) (videoBufferInfo.presentationTimeUs / 1000000));
                         }
 
                         videoEncoder.releaseOutputBuffer(outputBufferIndex, false);
