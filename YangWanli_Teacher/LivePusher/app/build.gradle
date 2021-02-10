@@ -19,6 +19,11 @@ android {
                 cppFlags ""
             }
         }
+
+        ndk {
+            abiFilter("armeabi-v7a")
+//            abiFilter("x86")
+        }
     }
 
     buildTypes {
@@ -47,4 +52,6 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation 'ywl.ywl5320:libmusic:1.2.0'
 }
