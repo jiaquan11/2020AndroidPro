@@ -1,6 +1,7 @@
 package com.jiaquan.livepusher.camera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -27,7 +28,12 @@ public class WLCameraFboRender {
             -1f, -1f,
             1f, -1f,
             -1f, 1f,
-            1f, 1f
+            1f, 1f,
+
+            0f, 0f,
+            0f, 0f,
+            0f, 0f,
+            0f, 0f
     };
 
     private final float[] fragmentData = {//纹理坐标
@@ -53,8 +59,29 @@ public class WLCameraFboRender {
 
     private int vboId;
 
+    private Bitmap bitmap;
+    private int bitmapTextureId;
+
     public WLCameraFboRender(Context context) {
         this.context = context;
+
+        bitmap = WLShaderUtil.createTextImage("视频直播和推流:jiaquan", 50, "#ff0000", "#00000000", 0);
+
+        float r = 1.0f * bitmap.getWidth() / bitmap.getHeight();
+        float w = r * 0.1f;
+        Log.i("WLCameraFboRender", "w is " + w);
+
+        vertexData[8] = 0.8f - w;//左下角坐标
+        vertexData[9] = -0.8f;
+
+        vertexData[10] = 0.8f;//右下角坐标
+        vertexData[11] = -0.8f;
+
+        vertexData[12] = 0.8f - w;//左上角
+        vertexData[13] = -0.7f;
+
+        vertexData[14] = 0.8f;//右上角
+        vertexData[15] = -0.7f;
 
         vertexBuffer = ByteBuffer.allocateDirect(vertexData.length * 4)
                 .order(ByteOrder.nativeOrder())
@@ -72,6 +99,10 @@ public class WLCameraFboRender {
     }
 
     public void onCreate() {
+        //开启透明功能，如果开启此功能，设置有透明就会透明，否则默认是黑色
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
         String vertexSource = WLShaderUtil.readRawTxt(context, R.raw.vertex_shader_screen);
         String fragmentSource = WLShaderUtil.readRawTxt(context, R.raw.fragment_shader_screen);
 
@@ -101,6 +132,8 @@ public class WLCameraFboRender {
             GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
             Log.i("WLTextureRender", "vertexData.length: " + vertexData.length);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            bitmapTextureId = WLShaderUtil.loadBitmapTexture(bitmap);
         }
     }
 
@@ -114,16 +147,33 @@ public class WLCameraFboRender {
 
         GLES20.glUseProgram(program);
 
+        //绑定使用VBO
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+
+        //fbo
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glUniform1i(sTexture, 0);
 
-        //绑定使用VBO
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
-
         GLES20.glEnableVertexAttribArray(vPosition);
 //        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
         GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 0);
+
+        GLES20.glEnableVertexAttribArray(fPosition);
+//        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
+        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, vertexData.length * 4);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+
+        //bitmap 水印图片渲染
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, bitmapTextureId);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glUniform1i(sTexture, 0);
+
+        GLES20.glEnableVertexAttribArray(vPosition);
+//        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
+        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 32);
 
         GLES20.glEnableVertexAttribArray(fPosition);
 //        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
