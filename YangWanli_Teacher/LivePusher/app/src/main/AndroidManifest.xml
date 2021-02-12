@@ -28,5 +28,8 @@
         <activity android:name=".VideoActivity"
             android:theme="@style/AppThemeFullScreen"
             android:screenOrientation="portrait"/>
+
+        <activity android:name=".ImageVideoActivity"
+            android:screenOrientation="portrait" />
     </application>
 </manifest>

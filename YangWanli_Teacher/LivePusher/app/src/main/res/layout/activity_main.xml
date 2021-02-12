@@ -17,4 +17,10 @@
         android:layout_height="48dp"
         android:text="视频编码录制"
         android:onClick="videoRecord"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="图片生成视频"
+        android:onClick="imgVideo"/>
 </LinearLayout>

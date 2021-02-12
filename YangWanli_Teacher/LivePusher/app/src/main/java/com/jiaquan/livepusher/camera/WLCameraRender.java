@@ -162,8 +162,8 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
 
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTextureid);
 
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-            GLES20.glUniform1i(sTexture, 0);
+//            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+//            GLES20.glUniform1i(sTexture, 0);
 
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
@@ -201,6 +201,8 @@ public class WLCameraRender implements WLEGLSurfaceView.WLGLRender, SurfaceTextu
             cameraTextureid = textureIdsoes[0];
 
             GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTextureid);
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            GLES20.glUniform1i(sTexture, 0);
 
             GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
             GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
