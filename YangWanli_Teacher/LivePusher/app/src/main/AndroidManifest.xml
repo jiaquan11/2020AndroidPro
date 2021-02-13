@@ -31,5 +31,8 @@
 
         <activity android:name=".ImageVideoActivity"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".YuvActivity"
+            android:screenOrientation="portrait"/>
     </application>
 </manifest>
