@@ -44,3 +44,6 @@ FFmpeg+OpenGL ES+OpenSL ES打造Android视频播放器教程，该课程基于C+
 7.LivePusher项目
 摄像头画面方向纠正，摄像头画面编码为MP4视频
 摄像头画面和其他音乐合成新的视频，摄像头数据和麦克风音频数据推流到直播服务器实现直播功能
+
+8.AudioRecord项目
+在Java层调用Android系统接口实现音频录音的测试代码
