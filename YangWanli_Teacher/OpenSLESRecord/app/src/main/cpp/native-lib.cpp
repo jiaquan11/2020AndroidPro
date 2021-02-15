@@ -22,15 +22,36 @@ bool finish = false;
 
 void bqRecorderCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 //    LOGI("recordBuffer->getNowBuffer(): %p", recordBuffer->getNowBuffer());
-    fwrite(recordBuffer->getNowBuffer(), 1, 4096, pcmFile);
+    if (pcmFile != NULL){
+        fwrite(recordBuffer->getNowBuffer(), 1, 4096, pcmFile);
+    }
 
     if (finish) {
+        LOGI("opengles 录制完成111");
         (*recordItf)->SetRecordState(recordItf, SL_RECORDSTATE_STOPPED);
-        LOGI("录制完成");
+
+        LOGI("opengles 录制完成aaa");
+//        (*recordObj)->Destroy(recordObj);//执行此语句会卡住，暂时屏蔽
+        recordObj = NULL;
+        recordItf = NULL;
+        LOGI("opengles 录制完成bbb");
+        (*slObjectEngine)->Destroy(slObjectEngine);
+        slObjectEngine = NULL;
+        engineItf = NULL;
+        LOGI("opengles 录制完成ccc");
+        delete recordBuffer;
+        recordBuffer = NULL;
+        LOGI("opengles 录制完成ddd");
+        if (pcmFile != NULL) {
+            fclose(pcmFile);
+            pcmFile = NULL;
+        }
+
+        LOGI("opengles 录制完成2222");
     } else {
 //        LOGI("recordBuffer->getRecordBuffer(): %p", recordBuffer->getRecordBuffer());
         (*recordBufferQueue)->Enqueue(recordBufferQueue, recordBuffer->getRecordBuffer(), 4096);
-        LOGI("正在录制");
+        LOGI("opengles 正在录制");
     }
 }
 
@@ -91,16 +112,4 @@ JNIEXPORT void JNICALL
 Java_com_jiaquan_openslesrecord_MainActivity_stopRecord(JNIEnv *env, jobject thiz) {
     // TODO: implement stopRecord()
     finish = true;
-
-    usleep(100*1000);
-
-    if (pcmFile != NULL) {
-        fclose(pcmFile);
-        pcmFile = NULL;
-    }
-
-    if (recordBuffer != NULL){
-        delete recordBuffer;
-        recordBuffer = NULL;
-    }
 }
