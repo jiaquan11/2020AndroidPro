@@ -62,8 +62,4 @@ public class AudioRecordUtil {
     public interface OnRecordListener {
         void recordByte(byte[] audioData, int readSize);
     }
-
-    public boolean isStart() {
-        return start;
-    }
 }

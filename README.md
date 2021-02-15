@@ -47,3 +47,6 @@ FFmpeg+OpenGL ES+OpenSL ES打造Android视频播放器教程，该课程基于C+
 
 8.AudioRecord项目
 在Java层调用Android系统接口实现音频录音的测试代码
+
+9.OpenSLESRecord项目
+在c++层调用OpenSLES的库接口实现音频录音的测试代码
