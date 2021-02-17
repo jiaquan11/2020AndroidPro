@@ -9,12 +9,6 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,14 +16,13 @@ public class MainActivity extends AppCompatActivity {
 
         // 要申请的权限
         String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
-                , Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE, Manifest.permission.CAMERA};
+                , Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE, Manifest.permission.CAMERA,
+        Manifest.permission.INTERNET};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, 321);
         }
     }
-
-    public native String stringFromJNI();
 
     public void cameraPreview(View view) {
         Intent intent = new Intent(this, CameraActivity.class);
@@ -48,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void yuvPlayer(View view) {
         Intent intent = new Intent(this, YuvActivity.class);
+        startActivity(intent);
+    }
+
+    public void livepush(View view) {
+        Intent intent = new Intent(this, LivePushActivity.class);
         startActivity(intent);
     }
 }

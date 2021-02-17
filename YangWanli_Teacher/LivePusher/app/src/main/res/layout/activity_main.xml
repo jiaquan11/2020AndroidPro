@@ -29,4 +29,10 @@
         android:layout_height="48dp"
         android:text="播放YUV数据"
         android:onClick="yuvPlayer"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="直播推流"
+        android:onClick="livepush"/>
 </LinearLayout>
