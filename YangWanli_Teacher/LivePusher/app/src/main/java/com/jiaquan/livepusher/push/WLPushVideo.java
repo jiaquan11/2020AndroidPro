@@ -7,8 +7,32 @@ public class WLPushVideo {
         System.loadLibrary("wlpush");
     }
 
-    public void initLivePush(String url){
-        if (!TextUtils.isEmpty(url)){
+    public void setWlConnectListener(WLConnectListener wlConnectListener) {
+        this.wlConnectListener = wlConnectListener;
+    }
+
+    private WLConnectListener wlConnectListener;
+
+    private void onConnecting() {
+        if (wlConnectListener != null) {
+            wlConnectListener.onConnecting();
+        }
+    }
+
+    private void onConnectSuccess() {
+        if (wlConnectListener != null) {
+            wlConnectListener.onConnectSuccess();
+        }
+    }
+
+    private void onConnectFail(String msg) {
+        if (wlConnectListener != null) {
+            wlConnectListener.onConnectFail(msg);
+        }
+    }
+
+    public void initLivePush(String url) {
+        if (!TextUtils.isEmpty(url)) {
             initPush(url);
         }
     }

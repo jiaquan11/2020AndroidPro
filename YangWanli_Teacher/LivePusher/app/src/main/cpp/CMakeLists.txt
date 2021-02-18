@@ -9,6 +9,7 @@ add_library( wlpush
              wlPush.cpp
              WLQueue.cpp
              RtmpPush.cpp
+             CallJava.cpp
              librtmp/amf.c
              librtmp/hashswf.c
              librtmp/log.c

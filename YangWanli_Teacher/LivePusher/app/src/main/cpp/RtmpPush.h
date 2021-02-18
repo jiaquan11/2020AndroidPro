@@ -9,22 +9,27 @@
 #include <malloc.h>
 #include "WLQueue.h"
 #include <pthread.h>
+#include "CallJava.h"
 
-extern "C"{
+extern "C" {
 #include "librtmp/rtmp.h"
 }
 
 class RtmpPush {
 public:
-    RtmpPush(const char* url);
+    RtmpPush(const char *url, CallJava *callJava);
+
     ~RtmpPush();
 
     void init();
 
 public:
-    RTMP* rtmp = NULL;
-    char* url = NULL;
-    WLQueue* queue = NULL;
+    RTMP *rtmp = NULL;
+    char *url = NULL;
+    WLQueue *queue = NULL;
     pthread_t push_thread;
+
+    CallJava *callJava = NULL;
 };
+
 #endif //LIVEPUSHER_RTMPPUSH_H
