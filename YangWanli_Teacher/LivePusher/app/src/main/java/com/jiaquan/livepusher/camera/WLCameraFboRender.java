@@ -68,7 +68,7 @@ public class WLCameraFboRender {
         bitmap = WLShaderUtil.createTextImage("视频直播和推流:jiaquan", 50, "#ff0000", "#00000000", 0);
 
         float r = 1.0f * bitmap.getWidth() / bitmap.getHeight();
-        float w = r * 0.1f;
+        float w = r * 0.1f;//相当于正交投影，图片等比例
         Log.i("WLCameraFboRender", "w is " + w);
 
         vertexData[8] = 0.8f - w;//左下角坐标

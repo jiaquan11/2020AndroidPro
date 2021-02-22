@@ -199,6 +199,7 @@ public abstract class WLBaseMediaEncoder {
             isStart = false;
             object = new Object();
             eglHelper = new EglHelper();
+            //传入的是硬编编码器创建的surface,用于存放编码数据，eglContext是摄像头预览的egl上下文，将预览数据进行编码
             eglHelper.initEgl(encoder.get().surface, encoder.get().eglContext);
 
             while (true) {

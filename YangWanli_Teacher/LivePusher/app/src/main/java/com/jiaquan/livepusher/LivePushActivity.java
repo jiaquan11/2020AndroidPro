@@ -38,6 +38,6 @@ public class LivePushActivity extends AppCompatActivity {
     }
 
     public void startPush(View view) {
-        wlPushVideo.initLivePush("rtmp://192.168.0.108/myapp/mystream");
+        wlPushVideo.initLivePush("rtmp://192.168.141.128/myapp/mystream");
     }
 }
