@@ -87,6 +87,7 @@ void RtmpPush::pushSPSPPS(char *sps, int sps_len, char *pps, int pps_len) {
     RTMPPacket_Alloc(packet, bodysize);
     RTMPPacket_Reset(packet);
 
+    //将SPS和PPS数据按照rtmp协议的格式存放在rtmp的数据body中
     char* body = packet->m_body;
     int i = 0;
     body[i++] = 0x17;
@@ -131,6 +132,7 @@ void RtmpPush::pushVideoData(char* data, int data_len, bool keyframe) {
     RTMPPacket_Alloc(packet, bodysize);
     RTMPPacket_Reset(packet);
 
+    //将码流数据按照rtmp协议的格式存放在rtmp的数据body中
     char* body = packet->m_body;
     int i = 0;
     if (keyframe){
@@ -159,4 +161,33 @@ void RtmpPush::pushVideoData(char* data, int data_len, bool keyframe) {
     packet->m_nInfoField2 = rtmp->m_stream_id;
 
     queue->putRtmpPacket(packet);
+}
+
+void RtmpPush::pushAudioData(char *data, int data_len) {
+    int bodysize = data_len + 2;
+    RTMPPacket *packet = (RTMPPacket*)malloc(sizeof(RTMPPacket));
+    RTMPPacket_Alloc(packet, bodysize);
+    RTMPPacket_Reset(packet);
+
+    //将码流数据按照rtmp协议的格式存放在rtmp的数据body中
+    char* body = packet->m_body;
+    body[0] = 0xAF;
+    body[1] = 0x01;
+    memcpy(&body[2], data, data_len);
+
+    packet->m_packetType = RTMP_PACKET_TYPE_AUDIO;
+    packet->m_nBodySize = bodysize;
+    packet->m_nTimeStamp = RTMP_GetTime() - startTime;
+    packet->m_hasAbsTimestamp = 0;
+    packet->m_nChannel = 0x04;
+    packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
+    packet->m_nInfoField2 = rtmp->m_stream_id;
+
+    queue->putRtmpPacket(packet);
+}
+
+void RtmpPush::pushStop() {
+    startPushing = false;
+    queue->notifyQueue();
+    pthread_join(push_thread, NULL);
 }

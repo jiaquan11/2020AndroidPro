@@ -38,7 +38,7 @@ public class LivePushActivity extends AppCompatActivity {
                 Log.i("LivePushActivity","连接服务器成功，可以开始推流!!!");
 
                 wlPushEncoder = new WLPushEncoder(LivePushActivity.this, wlCameraView.getTextureId());
-                wlPushEncoder.initEncoder(wlCameraView.getEglContext(), 720/2, 1280/2, 44100, 2);
+                wlPushEncoder.initEncoder(wlCameraView.getEglContext(), 720/2, 1280/2);
                 wlPushEncoder.startRecord();
 
                 wlPushEncoder.setOnMediaInfoListener(new WLBasePushEncoder.OnMediaInfoListener() {
@@ -56,6 +56,11 @@ public class LivePushActivity extends AppCompatActivity {
                     public void onVideoInfo(byte[] data, boolean keyframe) {
                         wlPushVideo.pushVideoData(data, keyframe);
                     }
+
+                    @Override
+                    public void onAudioInfo(byte[] data) {
+                        wlPushVideo.pushAudioData(data);
+                    }
                 });
             }
 
@@ -72,12 +77,15 @@ public class LivePushActivity extends AppCompatActivity {
 
         Log.i("LivePushActivity","startPush status: " + start);
         if (start){
-            wlPushVideo.initLivePush("rtmp://172.19.41.65/myapp/mystream");
+            wlPushVideo.initLivePush("rtmp://192.168.0.108/myapp/mystream");
         }else{
             if (wlPushEncoder != null){
                 Log.i("LivePushActivity","call stopRecord");
                 wlPushEncoder.stopRecord();
                 wlPushEncoder = null;
+
+                Log.i("LivePushActivity","call stopPush");
+                wlPushVideo.stopPush();
             }
         }
 

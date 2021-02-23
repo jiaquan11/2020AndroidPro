@@ -36,6 +36,7 @@ public abstract class WLBasePushEncoder {
     private WLEGLMediaThread wleglMediaThread;
     private VideoEncoderThread videoEncoderThread;
     private AudioEncoderThread audioEncoderThread;
+    private AudioRecordUtil audioRecordUtil;
 
     private WLEGLSurfaceView.WLGLRender wlglRender = null;
 
@@ -52,6 +53,8 @@ public abstract class WLBasePushEncoder {
         void onSPSPPSInfo(byte[] sps, byte[] pps);
 
         void onVideoInfo(byte[] data, boolean keyframe);
+
+        void onAudioInfo(byte[] data);
     }
 
     public void setOnMediaInfoListener(OnMediaInfoListener onMediaInfoListener) {
@@ -74,12 +77,12 @@ public abstract class WLBasePushEncoder {
         this.mRenderMode = mRenderMode;
     }
 
-    public void initEncoder(EGLContext eglContext, int width, int height, int sampleRate, int channelCount) {
+    public void initEncoder(EGLContext eglContext, int width, int height) {
         this.width = width;
         this.height = height;
         this.eglContext = eglContext;
 
-        initMediaEncoder(width, height, sampleRate, channelCount);
+        initMediaEncoder(width, height, 44100, 2);
     }
 
     public void startRecord() {
@@ -94,13 +97,17 @@ public abstract class WLBasePushEncoder {
 
             wleglMediaThread.start();
             videoEncoderThread.start();
-//            audioEncoderThread.start();
+            audioEncoderThread.start();
+
+            audioRecordUtil.startRecord();
         }
     }
 
     public void stopRecord() {
         Log.i("WLBasePushEncoder", "stopRecord in");
         if ((wleglMediaThread != null) && (videoEncoderThread != null) && (audioEncoderThread != null)) {
+            audioRecordUtil.stopRecord();
+
             videoEncoderThread.exit();
             audioEncoderThread.exit();
             wleglMediaThread.onDestroy();
@@ -114,6 +121,20 @@ public abstract class WLBasePushEncoder {
     private void initMediaEncoder(int width, int height, int sampleRate, int channelCount) {
         initVideoEncoder(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
         initAudioEncoder(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channelCount);
+
+        initPCMRecord();
+    }
+
+    private void initPCMRecord(){
+        audioRecordUtil = new AudioRecordUtil();
+        audioRecordUtil.setOnRecordListener(new AudioRecordUtil.OnRecordListener() {
+            @Override
+            public void recordByte(byte[] audioData, int readSize) {
+                if (audioRecordUtil.isStart()){
+                    putPCMData(audioData, readSize);
+                }
+            }
+        });
     }
 
     private void initAudioEncoder(String mimeType, int sampleRate, int channelCount) {
@@ -124,7 +145,7 @@ public abstract class WLBasePushEncoder {
             audioFormat = MediaFormat.createAudioFormat(mimeType, sampleRate, channelCount);
             audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);
             audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);
+            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096 * 10);
 
             audioEncoder = MediaCodec.createEncoderByType(mimeType);
             audioEncoder.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -410,6 +431,13 @@ public abstract class WLBasePushEncoder {
                             pts = bufferInfo.presentationTimeUs;
                         }
                         bufferInfo.presentationTimeUs = bufferInfo.presentationTimeUs - pts;
+
+                        byte[] data = new byte[outputBuffer.remaining()];
+                        outputBuffer.get(data, 0, data.length);
+//                        Log.i("WLBasePushEncoder", "audio data:" + byteToHex(data));
+                        if (encoder.get().onMediaInfoListener != null){
+                            encoder.get().onMediaInfoListener.onAudioInfo(data);
+                        }
 
                         audioEncoder.releaseOutputBuffer(outputBufferIndex, false);
                         outputBufferIndex = audioEncoder.dequeueOutputBuffer(bufferInfo, 0);

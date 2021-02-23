@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         // 要申请的权限
         String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
                 , Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.CHANGE_NETWORK_STATE, Manifest.permission.CAMERA,
-        Manifest.permission.INTERNET};
+        Manifest.permission.INTERNET, Manifest.permission.RECORD_AUDIO};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, 321);
