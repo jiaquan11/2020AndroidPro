@@ -23,13 +23,18 @@ public:
 
     void init();
 
+    void pushSPSPPS(char* sps, int sps_len, char* pps, int pps_len);
+    void pushVideoData(char* data, int data_len, bool keyframe);
+
 public:
     RTMP *rtmp = NULL;
     char *url = NULL;
     WLQueue *queue = NULL;
     pthread_t push_thread;
-
     CallJava *callJava = NULL;
+
+    bool startPushing = false;
+    long startTime = 0;
 };
 
 #endif //LIVEPUSHER_RTMPPUSH_H

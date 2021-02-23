@@ -48,6 +48,10 @@ public abstract class WLBasePushEncoder {
 
     public interface OnMediaInfoListener {
         void onMediaTime(int times);
+
+        void onSPSPPSInfo(byte[] sps, byte[] pps);
+
+        void onVideoInfo(byte[] data, boolean keyframe);
     }
 
     public void setOnMediaInfoListener(OnMediaInfoListener onMediaInfoListener) {
@@ -281,6 +285,7 @@ public abstract class WLBasePushEncoder {
         private long pts;
         private byte[] sps;
         private byte[] pps;
+        private boolean keyFrame = false;
 
         public VideoEncoderThread(WeakReference<WLBasePushEncoder> encoder) {
             this.encoder = encoder;
@@ -303,6 +308,8 @@ public abstract class WLBasePushEncoder {
                     Log.d("WLBasePushEncoder", "VideoEncodecThread video 录制完成");
                     break;
                 }
+
+//                keyFrame = false;
 
                 int outputBufferIndex = videoEncoder.dequeueOutputBuffer(videoBufferInfo, 0);
                 if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
@@ -331,9 +338,17 @@ public abstract class WLBasePushEncoder {
 
                         byte[] data = new byte[outputBuffer.remaining()];
                         outputBuffer.get(data, 0, data.length);
-                        Log.i("WLBasePushEncoder", "data:" + byteToHex(data));
+//                        Log.i("WLBasePushEncoder", "data:" + byteToHex(data));
 
+                        keyFrame = false;
+                        if (videoBufferInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME) {
+                            keyFrame = true;
+                            if (encoder.get().onMediaInfoListener != null) {//只要遇到关键帧，在发关键帧数据包之前都要发一次SPS和PPS
+                                encoder.get().onMediaInfoListener.onSPSPPSInfo(sps, pps);
+                            }
+                        }
                         if (encoder.get().onMediaInfoListener != null) {
+                            encoder.get().onMediaInfoListener.onVideoInfo(data, keyFrame);
                             encoder.get().onMediaInfoListener.onMediaTime((int) (videoBufferInfo.presentationTimeUs / 1000000));
                         }
 

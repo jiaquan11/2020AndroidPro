@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.jiaquan.livepusher.camera.WLCameraView;
+import com.jiaquan.livepusher.push.WLBasePushEncoder;
 import com.jiaquan.livepusher.push.WLConnectListener;
 import com.jiaquan.livepusher.push.WLPushEncoder;
 import com.jiaquan.livepusher.push.WLPushVideo;
@@ -37,8 +38,25 @@ public class LivePushActivity extends AppCompatActivity {
                 Log.i("LivePushActivity","连接服务器成功，可以开始推流!!!");
 
                 wlPushEncoder = new WLPushEncoder(LivePushActivity.this, wlCameraView.getTextureId());
-                wlPushEncoder.initEncoder(wlCameraView.getEglContext(), 720, 1280, 44100, 2);
+                wlPushEncoder.initEncoder(wlCameraView.getEglContext(), 720/2, 1280/2, 44100, 2);
                 wlPushEncoder.startRecord();
+
+                wlPushEncoder.setOnMediaInfoListener(new WLBasePushEncoder.OnMediaInfoListener() {
+                    @Override
+                    public void onMediaTime(int times) {
+
+                    }
+
+                    @Override
+                    public void onSPSPPSInfo(byte[] sps, byte[] pps) {
+                        wlPushVideo.pushSPSPPS(sps, pps);
+                    }
+
+                    @Override
+                    public void onVideoInfo(byte[] data, boolean keyframe) {
+                        wlPushVideo.pushVideoData(data, keyframe);
+                    }
+                });
             }
 
             @Override
