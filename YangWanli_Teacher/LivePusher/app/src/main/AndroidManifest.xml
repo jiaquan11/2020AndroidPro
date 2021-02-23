@@ -37,6 +37,7 @@
             android:screenOrientation="portrait"/>
 
         <activity android:name=".LivePushActivity"
+            android:theme="@style/AppThemeFullScreen"
             android:screenOrientation="portrait"/>
     </application>
 </manifest>
