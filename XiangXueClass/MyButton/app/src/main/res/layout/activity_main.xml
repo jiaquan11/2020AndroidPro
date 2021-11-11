@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <Button
+        android:id="@+id/btn"
         android:text="我是按钮"
         android:background="@drawable/btn_selector"
         android:backgroundTint="@color/btn_color_selector"
