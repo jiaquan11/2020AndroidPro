@@ -16,8 +16,15 @@
         android:shadowRadius="3.0"
         android:shadowDx="10.0"
         android:shadowDy="10.0"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:gravity="center_vertical"
-        android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+        <requestFocus/>
+    </TextView>
 
 </LinearLayout>
