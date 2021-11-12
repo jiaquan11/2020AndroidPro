@@ -54,3 +54,13 @@ FFmpeg+OpenGL ES+OpenSL ES打造Android视频播放器教程，该课程基于C+
 XiangXueClass
 1.MyTextView项目
 关于Android控件TextView的使用
+2.MyButton项目
+关于Android控件Button的使用
+3.MyEditText项目
+关于Android控件EditText的使用
+4.MyImageView项目
+关于Android控件ImageView的使用
+5.XJQ_AndroidBasis
+在一个项目中创建了多个demo项目，关于Android UI控件使用的
+myprogressbar项目
+mynotification使用

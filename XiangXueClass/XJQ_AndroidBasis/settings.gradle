@@ -1,0 +1,4 @@
+include ':mynotification'
+include ':myprogressbar'
+include ':app'
+rootProject.name = "XJQ_AndroidBasis"
