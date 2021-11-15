@@ -1,3 +1,4 @@
+include ':myalertdialog'
 include ':mytoolbar'
 include ':mynotification'
 include ':myprogressbar'
