@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/myalertdialog" />
             <option value="$PROJECT_DIR$/mynotification" />
+            <option value="$PROJECT_DIR$/mypopupwindow" />
             <option value="$PROJECT_DIR$/myprogressbar" />
             <option value="$PROJECT_DIR$/mytoolbar" />
           </set>
