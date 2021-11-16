@@ -1,3 +1,4 @@
+include ':myframelayout'
 include ':myrelativelayout'
 include ':mylinearlayout'
 include ':mypopupwindow'
