@@ -64,3 +64,8 @@ XiangXueClass
 在一个项目中创建了多个demo项目，关于Android UI控件使用的
 myprogressbar项目
 mynotification使用
+mytoolbar的使用
+myalertdialog的使用
+PopupWindow的使用
+LinearLayout的使用
+RelativeLayout的使用
