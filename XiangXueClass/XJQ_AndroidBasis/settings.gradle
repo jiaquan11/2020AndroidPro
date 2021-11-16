@@ -1,3 +1,4 @@
+include ':mylinearlayout'
 include ':mypopupwindow'
 include ':myalertdialog'
 include ':mytoolbar'
