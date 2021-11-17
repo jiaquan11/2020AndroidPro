@@ -74,3 +74,5 @@ TableLayout的使用
 GridLayout的使用
 6.XJQ_ListView项目
 ListView的使用
+7.XJQ_RecyclerView项目
+RecyclerView的使用
