@@ -22,12 +22,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button2.setOnClickListener(this);
     }
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn:
-                replaceFragment(new BlankFragment1());
+                Bundle bundle = new Bundle();
+                bundle.putString("message", "我喜欢享学课堂");
+                BlankFragment1 bf = new BlankFragment1();
+                bf.setArguments(bundle);
+
+                replaceFragment(bf);
                 break;
             case R.id.btn_2:
                 replaceFragment(new ItemFragment());
